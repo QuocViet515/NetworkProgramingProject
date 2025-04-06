@@ -8,5 +8,6 @@ namespace Pingme.Services
 {
     class ChatService
     {
+
     }
 }

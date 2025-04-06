@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pingme.ViewModels
+namespace Pingme.Services
 {
-    class RegisterViewModel
+    internal class FileService
     {
-
     }
 }

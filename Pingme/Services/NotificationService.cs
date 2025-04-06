@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pingme.Models
+namespace Pingme.Services
 {
-    class ChatRoom
+    internal class NotificationService
     {
     }
 }

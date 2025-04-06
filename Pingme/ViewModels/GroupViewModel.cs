@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pingme.ViewModels
 {
-    class RegisterViewModel
+    internal class GroupViewModel
     {
 
     }

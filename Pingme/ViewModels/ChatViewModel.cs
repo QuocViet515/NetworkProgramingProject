@@ -8,5 +8,6 @@ namespace Pingme.ViewModels
 {
     class ChatViewModel
     {
+
     }
 }

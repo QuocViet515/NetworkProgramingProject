@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Pingme.Services
 {
-    class AuthService
+    class UserService
     {
+
     }
 }

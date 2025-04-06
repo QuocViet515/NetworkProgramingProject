@@ -58,25 +58,53 @@
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
+    <Compile Include="Models\Chat.cs" />
+    <Compile Include="Models\File.cs" />
+    <Compile Include="Models\Notification.cs" />
     <Compile Include="Resources\AppStyle.cs" />
-    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\ChatGroupService.cs" />
+    <Compile Include="Services\FileService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Services\ChatService.cs" />
     <Compile Include="Services\FirebaseService.cs" />
     <Compile Include="ViewModels\ChatViewModel.cs" />
+    <Compile Include="ViewModels\GroupViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
     <Compile Include="Views\Controls\ContactItem.xaml.cs">
       <DependentUpon>ContactItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\FileAttachment.xaml.cs">
+      <DependentUpon>FileAttachment.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\MessageBubble.xaml.cs">
       <DependentUpon>MessageBubble.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\MessageInputBar.xaml.cs">
+      <DependentUpon>MessageInputBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\StatusBar.xaml.cs">
+      <DependentUpon>StatusBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\UserAvatar.xaml.cs">
+      <DependentUpon>UserAvatar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ChatPage.xaml.cs">
       <DependentUpon>ChatPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\GroupPage.xaml.cs">
+      <DependentUpon>GroupPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
@@ -97,7 +125,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\FileAttachment.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\MessageBubble.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\MessageInputBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\StatusBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\UserAvatar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -105,7 +149,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\GroupPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\ProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -115,7 +171,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\ChatRoom.cs" />
+    <Compile Include="Models\ChatGroup.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
