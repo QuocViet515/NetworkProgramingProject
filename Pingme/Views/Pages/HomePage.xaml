@@ -1,0 +1,62 @@
+﻿<Page x:Class="Pingme.Views.Pages.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="WhiteSmoke">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- KHỐI TRÁI -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+            <!-- Logo + chữ Ping me. -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                <Ellipse Width="60" Height="60" VerticalAlignment="Center">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="Ping me." FontSize="24" FontStyle="Italic"
+                           VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <!-- Icon 2 màn hình -->
+            <Image Source="/Assets/Icons/Ping-me.png" Width="150" Height="100" Margin="0,0,0,20" />
+
+            <!-- Tiêu đề -->
+            <TextBlock Text="Chat with Ping me" FontSize="34" FontWeight="Bold" />
+            <TextBlock Text="Simple. Fast. Real-time." FontSize="18" Foreground="Gray" Margin="0,0,0,20"/>
+
+            <!-- Nút Login / Sign Up -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
+                <Button Content="Login" Width="110" Height="40" Margin="0,0,10,0"
+                        Background="#29A8FF" Foreground="White" FontSize="16"
+                        BorderBrush="Transparent" Padding="10,5"
+                        Cursor="Hand" Click="LoginButton_Click"
+                        Style="{StaticResource RoundedButtonStyle}" />
+                <Button Content="Sign up" Width="110" Height="40"
+                        Background="#29A8FF" Foreground="White" FontSize="16"
+                        BorderBrush="Transparent" Padding="10,5"
+                        Cursor="Hand" Click="SignupButton_Click"
+                        Style="{StaticResource RoundedButtonStyle}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- KHỐI PHẢI - HÌNH MÁY TÍNH -->
+        <Image Grid.Column="1" Source="/Assets/Images/desktop-homepage.png"
+               Stretch="Uniform" MaxWidth="600" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- DÒNG SLOGAN CUỐI -->
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                   Text="A simple app for messaging, video calling, and staying connected with the people you care about."
+                   FontStyle="Italic" FontFamily="Segoe Script"
+                   FontSize="16" Foreground="Gray" HorizontalAlignment="Center" Margin="0,20"/>
+    </Grid>
+</Page>

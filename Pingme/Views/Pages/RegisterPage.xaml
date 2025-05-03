@@ -1,12 +1,135 @@
-﻿<Window x:Class="Pingme.Views.Pages.RegisterPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Pingme.Views.Pages"
-        mc:Ignorable="d"
-        Title="RegisterPage" Height="450" Width="800">
-    <Grid>
-        
+﻿<Page x:Class="Pingme.Views.Pages.RegisterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="WhiteSmoke">
+
+    <Grid Margin="40">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- KHỐI TRÁI: Form đăng ký -->
+        <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="40" Margin="0,0,0,0">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="5" />
+            </Border.Effect>
+            <Grid>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step1Panel">
+
+                    <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                    <!-- Email -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Email" x:Name="EmailTextBox" BorderThickness="0"/>
+                    </Border>
+
+                    <!-- Password -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <Grid>
+                            <!-- PasswordBox (ẩn) -->
+                            <PasswordBox x:Name="PasswordBox" Padding="10,10,40,10"
+                                Background="Transparent" BorderThickness="0"
+                                PasswordChanged="PasswordBox_PasswordChanged" Visibility="Visible"/>
+
+                            <!-- TextBox (hiện) -->
+                            <TextBox x:Name="PasswordVisibleBox" Padding="10,10,40,10"
+                                Background="Transparent" BorderThickness="0"
+                                Visibility="Collapsed" TextChanged="PasswordVisibleBox_TextChanged"/>
+
+                            <!-- Placeholder -->
+                            <TextBlock x:Name="PasswordPlaceholder" Text="Password"
+                                Foreground="Gray" Margin="12,0,40,0"
+                                VerticalAlignment="Center" IsHitTestVisible="False"/>
+
+                            <!-- 👁 Toggle -->
+                            <Button x:Name="TogglePasswordButton" Content="👁" FontSize="14"
+                                Width="30" Height="30" HorizontalAlignment="Right"
+                                VerticalAlignment="Center" Margin="0,0,5,0"
+                                Click="TogglePasswordButton_Click"
+                                Background="Transparent" BorderBrush="Transparent"
+                                Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Confirm Password -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <Grid>
+                            <!-- PasswordBox -->
+                            <PasswordBox x:Name="ConfirmPasswordBox" Padding="10,10,40,10"
+                                Background="Transparent" BorderThickness="0"
+                                PasswordChanged="ConfirmPasswordBox_PasswordChanged" Visibility="Visible"/>
+
+                            <!-- TextBox -->
+                            <TextBox x:Name="ConfirmPasswordVisibleBox" Padding="10,10,40,10"
+                                Background="Transparent" BorderThickness="0"
+                                Visibility="Collapsed" TextChanged="ConfirmPasswordVisibleBox_TextChanged"/>
+
+                            <!-- Placeholder -->
+                            <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Confirm password"
+                                Foreground="Gray" Margin="12,0,40,0"
+                                VerticalAlignment="Center" IsHitTestVisible="False"/>
+
+                            <!-- 👁 Toggle -->
+                            <Button x:Name="ToggleConfirmPasswordButton" Content="👁" FontSize="14"
+                                Width="30" Height="30" HorizontalAlignment="Right"
+                                VerticalAlignment="Center" Margin="0,0,5,0"
+                                Click="ToggleConfirmPasswordButton_Click"
+                                Background="Transparent" BorderBrush="Transparent"
+                                Cursor="Hand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Nút Next -->
+                    <Button Content="Next" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
+                        Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
+                        Click="NextButton_Click" Margin="0,10,0,0"/>
+
+                    <!-- Quay lại Login -->
+                    <TextBlock Text="Already have an account ?" FontSize="14" HorizontalAlignment="Center"
+                        Foreground="Gray" Cursor="Hand" Margin="0,10,0,0"
+                        MouseDown="GoToLogin_MouseDown"/>
+                </StackPanel>
+
+                <!-- STEP 2 -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step2Panel" Visibility="Collapsed">
+                    <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                    <!-- Username -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Username" x:Name="UsernameTextBox" BorderThickness="0"/>
+                    </Border>
+
+                    <!-- FullName -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="FullName" x:Name="FullNameTextBox" BorderThickness="0"/>
+                    </Border>
+
+                    <!-- Birthday -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Birthday (dd/MM/yyyy)" x:Name="BirthdayTextBox" BorderThickness="0"/>
+                    </Border>
+
+                    <!-- Phone -->
+                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Phone" x:Name="PhoneTextBox" BorderThickness="0"/>
+                    </Border>
+
+                    <!-- Nút Đăng ký -->
+                    <Button Content="Sign up" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
+                        Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
+                        Click="SignupButton_Click" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Grid>
+            
+        </Border>
+
+        <!-- KHỐI PHẢI: Logo -->
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40,0,40,0">
+            <Image Source="/Assets/Icons/Ping-me.png" Width="150" Height="100" Margin="0,0,0,10" />
+            <TextBlock Text="Ping me" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" />
+            <TextBlock Text="Simple. Fast. Real-time." FontSize="18" Foreground="Gray"
+                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+        </StackPanel>
     </Grid>
-</Window>
+</Page>

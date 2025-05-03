@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Pingme.Views.Pages
@@ -17,7 +18,7 @@ namespace Pingme.Views.Pages
     /// <summary>
     /// Interaction logic for ChatPage.xaml
     /// </summary>
-    public partial class ChatPage : Window
+    public partial class ChatPage : Page
     {
         public ChatPage()
         {
