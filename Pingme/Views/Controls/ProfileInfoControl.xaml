@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.ProfileInfoControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="Auto" Width="Auto"
+             Background="WhiteSmoke">
+    
+    <Border Background="White" Padding="20" CornerRadius="10">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="350">
+            <!-- Ảnh đại diện -->
+            <StackPanel HorizontalAlignment="Center">
+                <Ellipse Width="120" Height="120" Margin="0,0,0,10">
+                    <Ellipse.Fill>
+                        <ImageBrush  x:Name="AvatarBrush" ImageSource="/Assets/Icons/avatar-default.png" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Button x:Name="ChangeAvatar" Content="Thay ảnh" Click="ChangeAvatar_Click" Width="80" Margin="0,5,0,0" Visibility="Collapsed"/>
+            </StackPanel>
+
+            <!-- Tên người dùng -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                <TextBlock x:Name="DisplayUserName" Text="Tên người dùng" FontSize="20" FontWeight="Bold"/>
+            </StackPanel>
+
+            <!-- Thông tin chi tiết -->
+            <Grid Margin="0,20,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Username -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UserNameText" Margin="5"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="UserNameEdit" Visibility="Collapsed" Margin="5"/>
+
+                <!-- Full Name -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Fullname:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="FullNameText" Margin="5"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="FullNameEdit" Visibility="Collapsed" Margin="5"/>
+
+                <!-- Email -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Email:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="EmailText" Margin="5"/>
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="EmailEdit" Visibility="Collapsed" Margin="5"/>
+
+                <!-- Phone -->
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="PhoneText" Margin="5"/>
+                <TextBox Grid.Row="3" Grid.Column="1" x:Name="PhoneEdit" Visibility="Collapsed" Margin="5"/>
+
+                <!-- Birthday -->
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Birthday:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" x:Name="BirthdayText" Margin="5"/>
+                <TextBox Grid.Row="4" Grid.Column="1" x:Name="BirthdayEdit" Visibility="Collapsed" Margin="5"/>
+
+                <!-- Address -->
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Address:" FontWeight="Bold" Margin="0,5"/>
+                <TextBlock Grid.Row="5" Grid.Column="1" x:Name="AddressText" Margin="5"/>
+                <TextBox Grid.Row="5" Grid.Column="1" x:Name="AddressEdit" Visibility="Collapsed" Margin="5"/>
+            </Grid>
+
+            <!-- Nút Edit / Save -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button x:Name="EditButton" Content="Edit" Width="60" Margin="5" Click="EditButton_Click"/>
+                <Button x:Name="SaveButton" Content="Save" Width="60" Margin="5" Click="SaveButton_Click" Visibility="Collapsed"/>
+            </StackPanel>
+        </StackPanel>
+
+    </Border>
+</UserControl>

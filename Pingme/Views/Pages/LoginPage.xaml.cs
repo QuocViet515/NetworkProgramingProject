@@ -1,6 +1,7 @@
 ﻿using Firebase.Database;
 using Firebase.Database.Query;
 using Newtonsoft.Json;
+using Pingme.Helpers;
 using Pingme.Models;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace Pingme.Views.Pages
                 RememberMeCheckBox.IsChecked = true;
             }
         }
-        private async Task<string> SignInAndGetUID(string email, string password)
+        private async Task<FirebaseAuthResponse> SignInWithEmailPassword(string email, string password)
         {
             var payload = new
             {
@@ -59,18 +60,22 @@ namespace Pingme.Views.Pages
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(
-                    $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDC_fCjmDw4IkAqhLjqWCzG02LRXmvKgB0",
+                    $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={SessionManager.FirebaseApiKey}",
                     content);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(body);
-                    return result.localId;
+                    return JsonConvert.DeserializeObject<FirebaseAuthResponse>(body);
                 }
-                else return null;
+                else
+                {
+                    string error = await response.Content.ReadAsStringAsync();
+                    throw new Exception("Đăng nhập thất bại: " + error);
+                }
             }
         }
+
         private async Task<string> ResolveEmailIfUsername(string input)
         {
             if (input.Contains("@")) return input; // là email rồi
@@ -83,51 +88,69 @@ namespace Pingme.Views.Pages
         private async void Login_Click(object sender, RoutedEventArgs e)
         {
             string input = UsernameTextBox.Text.Trim();
-            string email = await ResolveEmailIfUsername(input);
             string password = PasswordBox.Password;
+            string email = await ResolveEmailIfUsername(input);
+
             if (string.IsNullOrEmpty(email))
             {
                 MessageBox.Show("Không tìm thấy người dùng.");
                 return;
             }
 
-            string uid = await SignInAndGetUID(email, password);
-            if (uid == null)
+            try
             {
-                MessageBox.Show("Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.");
-                return;
-            }
+                var auth = await SignInWithEmailPassword(email, password);
 
-            // Lấy thông tin user từ database
-            var user = await _firebase.Child("users").Child(uid).OnceSingleAsync<User>();
-            if (user != null)
-            {
+                // Lưu thông tin đăng nhập vào Session
+                SessionManager.UID = auth.localId;
+                SessionManager.IdToken = auth.idToken;
+                SessionManager.RefreshToken = auth.refreshToken;
+                //SessionManager.TokenExpiresAt = DateTime.Now.AddSeconds(int.Parse(auth.expiresIn));
+
+                // Tính thời gian hết hạn
+                int expiresInSeconds = int.Parse(auth.expiresIn);
+                SessionManager.TokenExpiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds);
+
+                // FirebaseClient sử dụng idToken này mới đọc được dữ liệu
+                var firebase = new FirebaseClient(
+                    "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/",
+                    new FirebaseOptions
+                    {
+                        AuthTokenAsyncFactory = () => Task.FromResult(SessionManager.IdToken)
+                    });
+
+                // Lấy thông tin user
+                var user = await firebase.Child("users").Child(SessionManager.UID).OnceSingleAsync<User>();
+                if (user == null)
+                {
+                    MessageBox.Show("Không tìm thấy thông tin người dùng.");
+                    return;
+                }
+
                 MessageBox.Show($"Chào {user.FullName}!");
-                // this.NavigationService.Navigate(new MainPage());
+                this.NavigationService.Navigate(new ProfilePage());
+
+                // Ghi nhớ đăng nhập
+                if (RememberMeCheckBox.IsChecked == true)
+                {
+                    Properties.Settings.Default.RememberMe = true;
+                    Properties.Settings.Default.SavedUsername = input;
+                    Properties.Settings.Default.SavedPassword = password;
+                }
+                else
+                {
+                    Properties.Settings.Default.RememberMe = false;
+                    Properties.Settings.Default.SavedUsername = "";
+                    Properties.Settings.Default.SavedPassword = "";
+                }
+                Properties.Settings.Default.Save();
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Không tìm thấy thông tin người dùng.");
+                MessageBox.Show("Lỗi đăng nhập: " + ex.Message);
             }
-
-
-            if (RememberMeCheckBox.IsChecked == true)
-            {
-                Properties.Settings.Default.RememberMe = true;
-                Properties.Settings.Default.SavedUsername = UsernameTextBox.Text.Trim();
-                Properties.Settings.Default.SavedPassword = PasswordBox.Password.Trim();
-            }
-            else
-            {
-                Properties.Settings.Default.RememberMe = false;
-                Properties.Settings.Default.SavedUsername = string.Empty;
-                Properties.Settings.Default.SavedPassword = string.Empty;
-            }
-
-            // Rất quan trọng: Save lại Settings
-            Properties.Settings.Default.Save();
-
         }
+
         private bool isPasswordVisible = false;
 
         private void TogglePasswordButton_Click(object sender, RoutedEventArgs e)

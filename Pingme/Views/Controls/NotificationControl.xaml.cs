@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pingme.Views.Pages
+namespace Pingme.Views.Controls
 {
     /// <summary>
-    /// Interaction logic for SettingsPage.xaml
+    /// Interaction logic for NotificationControl.xaml
     /// </summary>
-    public partial class SettingsPage : Page
+    public partial class NotificationControl : UserControl
     {
-        public SettingsPage()
+        public NotificationControl()
         {
             InitializeComponent();
         }

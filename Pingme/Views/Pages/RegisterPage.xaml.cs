@@ -20,6 +20,8 @@ using Firebase.Database;
 using Firebase.Database.Query;
 using Pingme.Models;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using Newtonsoft.Json.Linq;
+using Pingme.Helpers;
 
 
 namespace Pingme.Views.Pages
@@ -73,7 +75,7 @@ namespace Pingme.Views.Pages
         }
 
         // Tạo tài khoản Firebase Authentication
-        private async Task<string> CreateFirebaseUserAndGetUID(string email, string password)
+        private async Task<FirebaseAuthResponse> CreateFirebaseUser(string email, string password)
         {
             var payload = new
             {
@@ -88,16 +90,16 @@ namespace Pingme.Views.Pages
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(
-                    $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDC_fCjmDw4IkAqhLjqWCzG02LRXmvKgB0",
+                    $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={SessionManager.FirebaseApiKey}",
                     content);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(responseBody);
-                    return result.localId; // UID của Firebase user
+                    return JsonConvert.DeserializeObject<FirebaseAuthResponse>(responseBody);
                 }
-                else return null;
+
+                return null;
             }
         }
 
@@ -113,12 +115,18 @@ namespace Pingme.Views.Pages
 
             try
             {
-                string uid = await CreateFirebaseUserAndGetUID(email, password);
-                if (uid == null)
+                var authResponse = await CreateFirebaseUser(email, password);
+                if (authResponse == null)
                 {
                     MessageBox.Show("Đăng ký Firebase Authentication thất bại.");
                     return;
                 }
+                string uid = authResponse.localId;
+                // Lưu thông tin token vào SessionManager
+                SessionManager.UID = uid;
+                SessionManager.IdToken = authResponse.idToken;
+                SessionManager.RefreshToken = authResponse.refreshToken;
+                SessionManager.TokenExpiresAt = DateTime.Now.AddSeconds(int.Parse(authResponse.expiresIn));
 
                 // Kiểm tra trùng username
                 var existingUsers = await _firebase.Child("users").OnceAsync<User>();

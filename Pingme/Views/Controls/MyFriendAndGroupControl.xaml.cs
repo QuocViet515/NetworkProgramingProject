@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pingme.Views.Pages
+namespace Pingme.Views.Controls
 {
     /// <summary>
-    /// Interaction logic for FriendListPage.xaml
+    /// Interaction logic for MyFriendAndGroupControl.xaml
     /// </summary>
-    public partial class FriendListPage : Page
+    public partial class MyFriendAndGroupControl : UserControl
     {
-        public FriendListPage()
+        public MyFriendAndGroupControl()
         {
             InitializeComponent();
         }

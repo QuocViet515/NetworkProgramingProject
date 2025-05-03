@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pingme.Views.Pages
+namespace Pingme.Views.Controls
 {
     /// <summary>
-    /// Interaction logic for GroupPage.xaml
+    /// Interaction logic for SettingControl.xaml
     /// </summary>
-    public partial class GroupPage : Page
+    public partial class SettingControl : UserControl
     {
-        public GroupPage()
+        public SettingControl()
         {
             InitializeComponent();
         }

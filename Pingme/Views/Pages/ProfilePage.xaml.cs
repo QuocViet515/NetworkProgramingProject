@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Pingme.Views.Controls;
 
 namespace Pingme.Views.Pages
 {
@@ -23,6 +24,20 @@ namespace Pingme.Views.Pages
         public ProfilePage()
         {
             InitializeComponent();
+        }
+        private void BtnNotification_Click(object sender, RoutedEventArgs e)
+        {
+            LeftPanelContent.Content = new NotificationControl();
+        }
+
+        private void BtnFriendGroup_Click(object sender, RoutedEventArgs e)
+        {
+            LeftPanelContent.Content = new MyFriendAndGroupControl();
+        }
+
+        private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            LeftPanelContent.Content = new SettingControl();
         }
     }
 }

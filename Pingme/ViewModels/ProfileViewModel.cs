@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Pingme.Helpers;
+using Pingme.Models;
+using Pingme.Services;
+using Pingme.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +12,6 @@ namespace Pingme.ViewModels
 {
     internal class ProfileViewModel
     {
+
     }
 }

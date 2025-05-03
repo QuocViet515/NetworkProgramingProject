@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace Pingme.Models
         public string Phone { get; set; }
         public string AvatarUrl { get; set; }
         public DateTime Birthday { get; set; }
+        public string Address { get; set; }
         public string Status { get; set; } // online/offline
         public DateTime CreateAt { get; set; }
         public DateTime LastActiveAt { get; set; }
