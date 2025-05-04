@@ -1,12 +1,88 @@
 ﻿<UserControl x:Class="Pingme.Views.Controls.SettingControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Pingme.Views.Controls"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+             Background="White">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <TextBlock Grid.Row="0" Text="Setting" FontSize="28" FontWeight="SemiBold"
+                   HorizontalAlignment="Center" Margin="0,10" />
+
+        <!-- Nội dung setting -->
+        <Grid Grid.Row="1" Margin="20,10,20,10" Background="WhiteSmoke" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="5*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Theme -->
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="Theme" FontSize="16" 
+                       VerticalAlignment="Center" 
+                       Margin="5,10"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Background="White"
+                        Orientation="Horizontal" HorizontalAlignment="Center" 
+                        Margin="0,10">
+                <Image Source="/Assets/Icons/moon.png" Width="24" Margin="5"/>
+                <Image Source="/Assets/Icons/sun.png" Width="24" Margin="5"/>
+            </StackPanel>
+
+            <!-- Notification -->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Notification" FontSize="16" VerticalAlignment="Center" Margin="0,10"/>
+            <StackPanel Grid.Row="1" Grid.Column="1"  Background="White"
+                        Orientation="Horizontal" HorizontalAlignment="Center" 
+                        Margin="5,10">
+                <Image Source="/Assets/Icons/sound-off.png" Width="24" Margin="5"/>
+                <Image Source="/Assets/Icons/sound-on.png" Width="24" Margin="5"/>
+            </StackPanel>
+            <!-- Status -->
+            <TextBlock Grid.Row="2" Grid.Column="0" 
+                       Text="Status" FontSize="16" 
+                       VerticalAlignment="Center" 
+                       Margin="5,10"/>
+            <ToggleButton Grid.Row="2" Grid.Column="1"  Background="White"
+                          Width="50" Height="25" Margin="0,10" 
+                          HorizontalAlignment="Center" IsChecked="True"/>
+
+            <!-- Sound -->
+            <TextBlock Grid.Row="3" Grid.Column="0" 
+                       Text="Sound" FontSize="16"
+                       VerticalAlignment="Center" 
+                       Margin="5,10"/>
+            <StackPanel Grid.Row="3" Grid.Column="1"  Background="White"
+                        Orientation="Horizontal" HorizontalAlignment="Center" 
+                        Margin="0,10">
+                <Slider x:Name="SoundSlider"
+                        Minimum="0" Maximum="100"
+                        Value="70"
+                        TickFrequency="2"
+                        IsSnapToTickEnabled="True"
+                        Width="120" Height="25"/>
+                <TextBlock  Text="{Binding ElementName=SoundSlider, Path=Value, StringFormat={}{0}%}"
+                            VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!-- Nút Save -->
+        <Button Grid.Row="2" Content="Save"
+                Background="#75D472"
+                Foreground="White"
+                FontSize="16"
+                FontWeight="Bold"
+                Width="120" Height="40"
+                HorizontalAlignment="Center"
+                Margin="0,10"/>
     </Grid>
 </UserControl>

@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Net.WebRequestMethods;
+using Pingme.Views.Pages;
 
 
 namespace Pingme.Views.Controls

@@ -25,6 +25,19 @@ namespace Pingme.Views.Pages
         {
             InitializeComponent();
         }
+        private void GoToChat_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new ChatPage());
+        }
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LeftPanelContent.Content = new SettingControl(); // Mặc định là setting
+        }
+        private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            LeftPanelContent.Content = new SettingControl();
+        }
+
         private void BtnNotification_Click(object sender, RoutedEventArgs e)
         {
             LeftPanelContent.Content = new NotificationControl();
@@ -33,11 +46,6 @@ namespace Pingme.Views.Pages
         private void BtnFriendGroup_Click(object sender, RoutedEventArgs e)
         {
             LeftPanelContent.Content = new MyFriendAndGroupControl();
-        }
-
-        private void BtnSetting_Click(object sender, RoutedEventArgs e)
-        {
-            LeftPanelContent.Content = new SettingControl();
         }
     }
 }

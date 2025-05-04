@@ -443,5 +443,19 @@
   <ItemGroup>
     <Resource Include="Assets\Icons\avatar-default.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\chat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\moon.png" />
+    <Resource Include="Assets\Icons\sun.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\sound-off.png" />
+    <Resource Include="Assets\Icons\sound-on.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
