@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Net.WebRequestMethods;
 using Pingme.Views.Pages;
+using Pingme.Views.Windows;
 
 
 namespace Pingme.Views.Controls
@@ -95,11 +96,11 @@ namespace Pingme.Views.Controls
             {
                 await SessionManager.EnsureValidTokenAsync(); // Kiểm tra và làm mới token nếu cần
                 // Cập nhật giá trị
-                currentUser.FullName = FullNameEdit.Text;
-                currentUser.Email = EmailEdit.Text;
-                currentUser.Phone = PhoneEdit.Text;
-                currentUser.Birthday = DateTime.ParseExact(BirthdayEdit.Text, "dd/MM/yyyy", null);
-                currentUser.Address = AddressEdit.Text;
+                currentUser.FullName = FullNameText.Text;
+                currentUser.Email = EmailText.Text;
+                currentUser.Phone = PhoneText.Text;
+                currentUser.Birthday = DateTime.ParseExact(BirthdayText.Text, "dd/MM/yyyy", null);
+                currentUser.Address = AddressText.Text;
 
                 // Ghi lên Firebase
                 await _firebase
@@ -128,39 +129,54 @@ namespace Pingme.Views.Controls
 
                 if (dialog.ShowDialog() == true)
                 {
-                    string localFilePath = dialog.FileName;
-                    string uid = SessionManager.UID;
-                    string fileName = $"{uid}_{System.IO.Path.GetFileName(localFilePath)}";
+                    string selectedFilePath = dialog.FileName;
 
-                    using (var stream = System.IO.File.Open(localFilePath, FileMode.Open))
+                    // Mở cửa sổ crop
+                    var cropWindow = new CropImageWindow(selectedFilePath);
+                    if (cropWindow.ShowDialog() == true)
                     {
-                        // Upload lên Firebase Storage
-                        var uploadTask = new FirebaseStorage("pingmeapp-1691-1703-1784.firebasestorage.app",
-                                            new FirebaseStorageOptions
-                                            {
-                                                AuthTokenAsyncFactory = () => Task.FromResult(SessionManager.IdToken), // ✅ dùng token
-                                                ThrowOnCancel = true
-                                            })
-                                            .Child("avatars")
-                                            .Child(fileName)
-                                            .PutAsync(stream);
-
-                        string downloadUrl = await uploadTask;
-
-                        // Kiểm tra URL trả về
-                        if (string.IsNullOrWhiteSpace(downloadUrl))
+                        // Lưu ảnh đã cắt ra file tạm
+                        string croppedFilePath = System.IO.Path.GetTempFileName();
+                        using (var fileStream = new FileStream(croppedFilePath, FileMode.Create))
                         {
-                            MessageBox.Show("Lỗi: Không lấy được đường dẫn ảnh tải lên.");
-                            return;
+                            BitmapEncoder encoder = new PngBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(cropWindow.CroppedResult));
+                            encoder.Save(fileStream);
                         }
 
-                        // Cập nhật Firebase
-                        currentUser.AvatarUrl = downloadUrl;
-                        await _firebase.Child("users").Child(uid).PutAsync(currentUser);
+                        string uid = SessionManager.UID;
+                        string fileName = $"{uid}_{System.IO.Path.GetFileName(croppedFilePath)}";
 
-                        AvatarBrush.ImageSource = new BitmapImage(new Uri(downloadUrl));
-                        MessageBox.Show("Cập nhật ảnh đại diện thành công!");
+                        using (var stream = System.IO.File.Open(croppedFilePath, FileMode.Open))
+                        {
+                            // Upload ảnh đã crop lên Firebase Storage
+                            var uploadTask = new FirebaseStorage("pingmeapp-1691-1703-1784.firebasestorage.app",
+                                                    new FirebaseStorageOptions
+                                                    {
+                                                        AuthTokenAsyncFactory = () => Task.FromResult(SessionManager.IdToken),
+                                                        ThrowOnCancel = true
+                                                    })
+                                                    .Child("avatars")
+                                                    .Child(fileName)
+                                                    .PutAsync(stream);
+
+                            string downloadUrl = await uploadTask;
+
+                            if (string.IsNullOrWhiteSpace(downloadUrl))
+                            {
+                                MessageBox.Show("Lỗi: Không lấy được đường dẫn ảnh tải lên.");
+                                return;
+                            }
+
+                            // Cập nhật URL mới
+                            currentUser.AvatarUrl = downloadUrl;
+                            await _firebase.Child("users").Child(uid).PutAsync(currentUser);
+
+                            AvatarBrush.ImageSource = new BitmapImage(new Uri(downloadUrl));
+                            MessageBox.Show("Cập nhật ảnh đại diện thành công!");
+                        }
                     }
+
                 }
             }
             catch (Exception ex)
@@ -173,29 +189,30 @@ namespace Pingme.Views.Controls
         {
             // Toggle TextBlock vs TextBox
             FullNameText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            FullNameEdit.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
-            FullNameEdit.Text = currentUser.FullName;
+            FullNameText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            FullNameText.Text = currentUser.FullName;
 
             EmailText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            EmailEdit.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
-            EmailEdit.Text = currentUser.Email;
+            EmailText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            EmailText.Text = currentUser.Email;
 
             PhoneText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            PhoneEdit.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
-            PhoneEdit.Text = currentUser.Phone;
+            PhoneText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            PhoneText.Text = currentUser.Phone;
 
             BirthdayText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            BirthdayEdit.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
-            BirthdayEdit.Text = currentUser.Birthday.ToString("dd/MM/yyyy");
+            BirthdayText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            BirthdayText.Text = currentUser.Birthday.ToString("dd/MM/yyyy");
 
             AddressText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            AddressEdit.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
-            AddressEdit.Text = currentUser.Address;
+            AddressText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            AddressText.Text = currentUser.Address;
 
             // Toggle nút
             EditButton.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
             SaveButton.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             ChangeAvatar.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            NameAndPenButton.Visibility = isEdit ? Visibility.Hidden : Visibility.Visible;
         }
     }
 }

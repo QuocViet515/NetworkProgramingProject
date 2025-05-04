@@ -1,30 +1,62 @@
 ﻿<UserControl x:Class="Pingme.Views.Controls.ProfileInfoControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="Auto" Width="Auto">
+             Background="White">
 
-    <Border Background="White" Padding="20" CornerRadius="10" Margin="5">
-        <StackPanel Background="WhiteSmoke" Margin="10">
-            <!-- Ảnh đại diện -->
-            <StackPanel HorizontalAlignment="Center">
-                <Ellipse Width="120" Height="120" Margin="0,10">
-                    <Ellipse.Fill>
-                        <ImageBrush  x:Name="AvatarBrush" ImageSource="/Assets/Icons/avatar-default.png" />
-                    </Ellipse.Fill>
-                </Ellipse>
-                <Button x:Name="ChangeAvatar" Content="Thay ảnh" Click="ChangeAvatar_Click" Width="90" Margin="0,5,0,10" Visibility="Collapsed"/>
-            </StackPanel>
+    <Border Margin="20" Padding="20" Background="WhiteSmoke" CornerRadius="15" BorderBrush="#DDD" BorderThickness="1">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Width="350">
+            <!-- Avatar + nút máy ảnh -->
+            <Grid HorizontalAlignment="Center"
+                  Background="White">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Border Width="130" Height="130"
+                                CornerRadius="65" BorderThickness="4"
+                                BorderBrush="LightGray">
+                            <Ellipse Width="120" Height="120">
+                                <Ellipse.Fill>
+                                    <ImageBrush x:Name="AvatarBrush" ImageSource="/Assets/Icons/avatar-default.png" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Border> 
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <!-- Nút đổi ảnh đại diện -->
+                        <Button x:Name="ChangeAvatar"
+                                Content="Đổi ảnh"
+                                Click="ChangeAvatar_Click"
+                                FontSize="14"
+                                Style="{StaticResource RoundedButtonStyle}"
+                                Background="#29A8FF" Foreground="White"
+                                Width="100" Margin="0,10,0,0"
+                                Visibility="Collapsed"/>
+                        <!-- Tên hiển thị + nút bút -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                     Margin="0,15,0,0" Visibility="Visible" x:Name="NameAndPenButton">
+                            <TextBlock x:Name="DisplayUserName"
+                                       FontSize="22" FontWeight="Bold"
+                                       Text="Tên người dùng" />
+                            <Button x:Name="EditButton"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Margin="5,0,0,0"
+                                    Cursor="Hand"
+                                    Click="EditButton_Click">
+                                <Image Source="/Assets/Icons/edit-pen.png" Width="16" Height="16"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
 
-            <!-- Tên người dùng -->
-            <TextBlock x:Name="DisplayUserName" Text="Tên người dùng" FontSize="22" FontWeight="Bold"
-                       HorizontalAlignment="Center" Margin="0,0,0,10" />
-
-            <!-- Thông tin chi tiết -->
-            <StackPanel Orientation="Horizontal" Margin="10,15,10,0" HorizontalAlignment="Center">
-                <TextBlock Text="Thông tin" FontSize="16" FontWeight="Bold"/>
-            </StackPanel>
-
-            <Grid Margin="0,0,0,10" HorizontalAlignment="Center">
+            <!-- THÔNG TIN THEO BẢNG -->
+            <Grid Margin="20,20,20,0" 
+                  HorizontalAlignment="Center" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -33,53 +65,47 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Username -->
-                <TextBlock Text="Username:" Grid.Row="0" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="UserNameText" Grid.Row="0" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="UserNameEdit" Grid.Row="0" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="0" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="0" Grid.Column="1" x:Name="UserNameText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
 
                 <!-- Full Name -->
-                <TextBlock Text="Fullname:" Grid.Row="1" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="FullNameText" Grid.Row="1" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="FullNameEdit" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="1" Grid.Column="0" Text="Full Name:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="1" Grid.Column="1" x:Name="FullNameText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="False"/>
 
                 <!-- Email -->
-                <TextBlock Text="Email:" Grid.Row="2" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="EmailText" Grid.Row="2" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="EmailEdit" Grid.Row="2" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="2" Grid.Column="0" Text="Email:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="2" Grid.Column="1" x:Name="EmailText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
 
                 <!-- Phone -->
-                <TextBlock Text="Phone:" Grid.Row="3" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="PhoneText" Grid.Row="3" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="PhoneEdit" Grid.Row="3" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="3" Grid.Column="1" x:Name="PhoneText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="False"/>
 
                 <!-- Birthday -->
-                <TextBlock Text="Birthday:" Grid.Row="4" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="BirthdayText" Grid.Row="4" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="BirthdayEdit" Grid.Row="4" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="4" Grid.Column="0" Text="Birthday:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="4" Grid.Column="1" x:Name="BirthdayText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="False"/>
 
                 <!-- Address -->
-                <TextBlock Text="Address:" Grid.Row="5" Grid.Column="0" FontWeight="Bold" VerticalAlignment="Center" Margin="20,5,5,5"/>
-                <TextBlock x:Name="AddressText" Grid.Row="5" Grid.Column="1" Margin="5,5,20,5"/>
-                <TextBox x:Name="AddressEdit" Grid.Row="5" Grid.Column="1" Visibility="Collapsed" Margin="5,5,20,5"/>
+                <TextBlock FontSize="16" Grid.Row="5" Grid.Column="0" Text="Address:" FontWeight="Bold" Margin="0,5"/>
+                <TextBox FontSize="16" Grid.Row="5" Grid.Column="1" x:Name="AddressText" Margin="5" BorderThickness="0" Background="Transparent" IsReadOnly="False"/>
             </Grid>
 
-            <!-- Nút Edit và Save -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
-                <Button x:Name="EditButton" Content="Edit" Width="70" Margin="5"
-                        Background="#FF6C6C" Foreground="White" FontWeight="Bold"
-                        Click="EditButton_Click"/>
-                <Button x:Name="SaveButton" Content="Save" Width="70" Margin="5"
-                        Background="Green" Foreground="White" FontWeight="Bold"
-                        Click="SaveButton_Click" Visibility="Collapsed"/>
-            </StackPanel>
+            <!-- Nút Lưu -->
+            <Button x:Name="SaveButton"
+                    Content="Save"
+                    Width="100" Height="35"
+                    Margin="0,20,0,0"
+                    Background="#4CAF50"
+                    Foreground="White"
+                    BorderBrush="Transparent"
+                    FontWeight="Bold"
+                    Visibility="Collapsed"
+                    Click="SaveButton_Click"/>
         </StackPanel>
-
     </Border>
 </UserControl>

@@ -3,133 +3,148 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Background="WhiteSmoke">
 
-    <Grid Margin="40">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="3*" />
-        </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- Logo app -->
+            <RowDefinition Height="*" />
+            <!-- Nội dung chính -->
+            <RowDefinition Height="Auto" />
+            <!-- Slogan cuối -->
+        </Grid.RowDefinitions>
 
-        <!-- KHỐI TRÁI: Form đăng ký -->
-        <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="40" Margin="0,0,0,0">
-            <Border.Effect>
-                <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="5" />
-            </Border.Effect>
-            <Grid>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step1Panel">
+        <!-- LOGO APP GÓC PHẢI TRÊN -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Grid.Column="1">
+                <TextBlock Text="Ping me" FontSize="26" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <Ellipse Width="60" Height="60">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </StackPanel>
+        </Grid>
 
-                    <!-- Email -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Email" x:Name="EmailTextBox" BorderThickness="0"/>
-                    </Border>
+        <!-- NỘI DUNG CHÍNH -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
 
-                    <!-- Password -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <Grid>
-                            <!-- PasswordBox (ẩn) -->
-                            <PasswordBox x:Name="PasswordBox" Padding="10,10,40,10"
-                                Background="Transparent" BorderThickness="0"
-                                PasswordChanged="PasswordBox_PasswordChanged" Visibility="Visible"/>
+            <!-- KHỐI TRÁI: Form đăng ký -->
+            <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="40">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" BlurRadius="5" ShadowDepth="5" />
+                </Border.Effect>
 
-                            <!-- TextBox (hiện) -->
-                            <TextBox x:Name="PasswordVisibleBox" Padding="10,10,40,10"
-                                Background="Transparent" BorderThickness="0"
-                                Visibility="Collapsed" TextChanged="PasswordVisibleBox_TextChanged"/>
+                <Grid>
+                    <!-- STEP 1 -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step1Panel">
+                        <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                            <!-- Placeholder -->
-                            <TextBlock x:Name="PasswordPlaceholder" Text="Password"
-                                Foreground="Gray" Margin="12,0,40,0"
-                                VerticalAlignment="Center" IsHitTestVisible="False"/>
+                        <!-- Email -->
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Email" x:Name="EmailTextBox" BorderThickness="0"/>
+                        </Border>
 
-                            <!-- 👁 Toggle -->
-                            <Button x:Name="TogglePasswordButton" Content="👁" FontSize="14"
-                                Width="30" Height="30" HorizontalAlignment="Right"
-                                VerticalAlignment="Center" Margin="0,0,5,0"
-                                Click="TogglePasswordButton_Click"
-                                Background="Transparent" BorderBrush="Transparent"
-                                Cursor="Hand"/>
-                        </Grid>
-                    </Border>
+                        <!-- Password -->
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <Grid>
+                                <PasswordBox x:Name="PasswordBox" Padding="10,10,40,10"
+                                             Background="Transparent" BorderThickness="0"
+                                             PasswordChanged="PasswordBox_PasswordChanged" Visibility="Visible"/>
+                                <TextBox x:Name="PasswordVisibleBox" Padding="10,10,40,10"
+                                         Background="Transparent" BorderThickness="0"
+                                         Visibility="Collapsed" TextChanged="PasswordVisibleBox_TextChanged"/>
+                                <TextBlock x:Name="PasswordPlaceholder" Text="Password"
+                                           Foreground="Gray" Margin="12,0,40,0"
+                                           VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                <Button x:Name="TogglePasswordButton" Content="👁" FontSize="14"
+                                        Width="30" Height="30" HorizontalAlignment="Right"
+                                        VerticalAlignment="Center" Margin="0,0,5,0"
+                                        Click="TogglePasswordButton_Click"
+                                        Background="Transparent" BorderBrush="Transparent"
+                                        Cursor="Hand"/>
+                            </Grid>
+                        </Border>
 
-                    <!-- Confirm Password -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <Grid>
-                            <!-- PasswordBox -->
-                            <PasswordBox x:Name="ConfirmPasswordBox" Padding="10,10,40,10"
-                                Background="Transparent" BorderThickness="0"
-                                PasswordChanged="ConfirmPasswordBox_PasswordChanged" Visibility="Visible"/>
+                        <!-- Confirm Password -->
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <Grid>
+                                <PasswordBox x:Name="ConfirmPasswordBox" Padding="10,10,40,10"
+                                             Background="Transparent" BorderThickness="0"
+                                             PasswordChanged="ConfirmPasswordBox_PasswordChanged" Visibility="Visible"/>
+                                <TextBox x:Name="ConfirmPasswordVisibleBox" Padding="10,10,40,10"
+                                         Background="Transparent" BorderThickness="0"
+                                         Visibility="Collapsed" TextChanged="ConfirmPasswordVisibleBox_TextChanged"/>
+                                <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Confirm password"
+                                           Foreground="Gray" Margin="12,0,40,0"
+                                           VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                <Button x:Name="ToggleConfirmPasswordButton" Content="👁" FontSize="14"
+                                        Width="30" Height="30" HorizontalAlignment="Right"
+                                        VerticalAlignment="Center" Margin="0,0,5,0"
+                                        Click="ToggleConfirmPasswordButton_Click"
+                                        Background="Transparent" BorderBrush="Transparent"
+                                        Cursor="Hand"/>
+                            </Grid>
+                        </Border>
 
-                            <!-- TextBox -->
-                            <TextBox x:Name="ConfirmPasswordVisibleBox" Padding="10,10,40,10"
-                                Background="Transparent" BorderThickness="0"
-                                Visibility="Collapsed" TextChanged="ConfirmPasswordVisibleBox_TextChanged"/>
+                        <Button Content="Next" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
+                                Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
+                                Click="NextButton_Click" Margin="0,10,0,0"/>
 
-                            <!-- Placeholder -->
-                            <TextBlock x:Name="ConfirmPasswordPlaceholder" Text="Confirm password"
-                                Foreground="Gray" Margin="12,0,40,0"
-                                VerticalAlignment="Center" IsHitTestVisible="False"/>
+                        <TextBlock Text="Already have an account ?" FontSize="14" HorizontalAlignment="Center"
+                                   Foreground="Gray" Cursor="Hand" Margin="0,10,0,0"
+                                   MouseDown="GoToLogin_MouseDown"/>
+                    </StackPanel>
 
-                            <!-- 👁 Toggle -->
-                            <Button x:Name="ToggleConfirmPasswordButton" Content="👁" FontSize="14"
-                                Width="30" Height="30" HorizontalAlignment="Right"
-                                VerticalAlignment="Center" Margin="0,0,5,0"
-                                Click="ToggleConfirmPasswordButton_Click"
-                                Background="Transparent" BorderBrush="Transparent"
-                                Cursor="Hand"/>
-                        </Grid>
-                    </Border>
+                    <!-- STEP 2 -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step2Panel" Visibility="Collapsed">
+                        <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                    <!-- Nút Next -->
-                    <Button Content="Next" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
-                        Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
-                        Click="NextButton_Click" Margin="0,10,0,0"/>
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Username" x:Name="UsernameTextBox" BorderThickness="0"/>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="FullName" x:Name="FullNameTextBox" BorderThickness="0"/>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Birthday (dd/MM/yyyy)" x:Name="BirthdayTextBox" BorderThickness="0"/>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Phone" x:Name="PhoneTextBox" BorderThickness="0"/>
+                        </Border>
 
-                    <!-- Quay lại Login -->
-                    <TextBlock Text="Already have an account ?" FontSize="14" HorizontalAlignment="Center"
-                        Foreground="Gray" Cursor="Hand" Margin="0,10,0,0"
-                        MouseDown="GoToLogin_MouseDown"/>
-                </StackPanel>
+                        <Button Content="Sign up" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
+                                Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
+                                Click="SignupButton_Click" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-                <!-- STEP 2 -->
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" x:Name="Step2Panel" Visibility="Collapsed">
-                    <TextBlock Text="Sign up" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <!-- KHỐI PHẢI: Tên + ảnh + slogan -->
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40">
+                <Image Source="/Assets/Icons/Ping-me.png"
+                       Width="230" Height="150" Margin="0,0,0,10" />
+                <TextBlock Text="Chat with Ping me"
+                           FontSize="34" FontWeight="Bold"
+                           TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Text="Simple. Fast. Real-time." FontSize="18"
+                           Foreground="Gray" HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Grid>
 
-                    <!-- Username -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Username" x:Name="UsernameTextBox" BorderThickness="0"/>
-                    </Border>
-
-                    <!-- FullName -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="FullName" x:Name="FullNameTextBox" BorderThickness="0"/>
-                    </Border>
-
-                    <!-- Birthday -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Birthday (dd/MM/yyyy)" x:Name="BirthdayTextBox" BorderThickness="0"/>
-                    </Border>
-
-                    <!-- Phone -->
-                    <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
-                        <TextBox Style="{StaticResource PlaceholderTextBox}" Tag="Phone" x:Name="PhoneTextBox" BorderThickness="0"/>
-                    </Border>
-
-                    <!-- Nút Đăng ký -->
-                    <Button Content="Sign up" Style="{StaticResource RoundedButtonStyle}" Background="#29A8FF"
-                        Foreground="White" BorderBrush="Transparent" FontSize="16" Height="40"
-                        Click="SignupButton_Click" Margin="0,10,0,0"/>
-                </StackPanel>
-            </Grid>
-            
-        </Border>
-
-        <!-- KHỐI PHẢI: Logo -->
-        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40,0,40,0">
-            <Image Source="/Assets/Icons/Ping-me.png" Width="150" Height="100" Margin="0,0,0,10" />
-            <TextBlock Text="Ping me" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center" />
-            <TextBlock Text="Simple. Fast. Real-time." FontSize="18" Foreground="Gray"
-                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
-        </StackPanel>
+        <!-- SLOGAN CUỐI TRANG -->
+        <TextBlock Grid.Row="2" Text="A simple app for messaging, video calling, and staying connected with the people you care about."
+                   FontStyle="Italic" FontFamily="Segoe UI"
+                   FontSize="18" Foreground="Gray"
+                   TextAlignment="Center" HorizontalAlignment="Center" Margin="0,20"/>
     </Grid>
 </Page>

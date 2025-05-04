@@ -31,20 +31,27 @@
                        Text="Theme" FontSize="16" 
                        VerticalAlignment="Center" 
                        Margin="5,10"/>
-            <StackPanel Grid.Row="0" Grid.Column="1" Background="White"
-                        Orientation="Horizontal" HorizontalAlignment="Center" 
-                        Margin="0,10">
-                <Image Source="/Assets/Icons/moon.png" Width="24" Margin="5"/>
-                <Image Source="/Assets/Icons/sun.png" Width="24" Margin="5"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                <RadioButton GroupName="ThemeGroup" Margin="10,0" IsChecked="True">
+                    <Image Source="/Assets/Icons/moon.png" Width="24"/>
+                </RadioButton>
+                <RadioButton GroupName="ThemeGroup" Margin="10,0">
+                    <Image Source="/Assets/Icons/sun.png" Width="24"/>
+                </RadioButton>
             </StackPanel>
+
 
             <!-- Notification -->
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Notification" FontSize="16" VerticalAlignment="Center" Margin="0,10"/>
             <StackPanel Grid.Row="1" Grid.Column="1"  Background="White"
                         Orientation="Horizontal" HorizontalAlignment="Center" 
                         Margin="5,10">
-                <Image Source="/Assets/Icons/sound-off.png" Width="24" Margin="5"/>
-                <Image Source="/Assets/Icons/sound-on.png" Width="24" Margin="5"/>
+                <ToggleButton Width="50" Height="25" Margin="5"
+              Background="LightGray"
+              Content="🔔"
+              FontSize="14"
+              HorizontalAlignment="Center" />
+
             </StackPanel>
             <!-- Status -->
             <TextBlock Grid.Row="2" Grid.Column="0" 

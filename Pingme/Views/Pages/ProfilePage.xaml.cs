@@ -47,5 +47,9 @@ namespace Pingme.Views.Pages
         {
             LeftPanelContent.Content = new MyFriendAndGroupControl();
         }
+        private void BtnSearch_Click(object sender, RoutedEventArgs e) 
+        {
+
+        }
     }
 }
