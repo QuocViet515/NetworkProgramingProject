@@ -17,11 +17,12 @@ namespace Pingme.Views.Pages
     /// <summary>
     /// Interaction logic for ChatPage.xaml
     /// </summary>
-    public partial class ChatPage : Window
+    public partial class ChatPage : UserControl
     {
         public ChatPage()
         {
             InitializeComponent();
         }
+
     }
 }

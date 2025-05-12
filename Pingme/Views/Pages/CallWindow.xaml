@@ -1,0 +1,10 @@
+﻿<Window x:Class="Pingme.Views.Pages.CallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cuộc gọi video" Height="500" Width="800">
+    <Grid Background="Black">
+        <ContentControl x:Name="VideoContainer" />
+        <ContentControl x:Name="LocalVideoContainer" />
+        <StackPanel x:Name="RemoteVideoContainer" />
+    </Grid>
+</Window>

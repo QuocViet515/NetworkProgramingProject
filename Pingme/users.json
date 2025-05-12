@@ -1,0 +1,66 @@
+{
+  "users": {
+    "userA": {
+      "id": "userA",
+      "userName": "alice123",
+      "password": "alicepass",
+      "fullName": "Alice Nguyễn",
+      "email": "alice@example.com",
+      "phoneNumber": "0123456789",
+      "avatarUrl": "",
+      "isOnline": true,
+      "createAt": "2024-01-01T00:00:00Z",
+      "lastActive": "2025-05-03T08:00:00Z"
+    },
+    "userB": {
+      "id": "userB",
+      "userName": "bob456",
+      "password": "bobpass",
+      "fullName": "Bob Trần",
+      "email": "bob@example.com",
+      "phoneNumber": "0987654321",
+      "avatarUrl": "",
+      "isOnline": true,
+      "createAt": "2024-01-01T00:00:00Z",
+      "lastActive": "2025-05-03T08:05:00Z"
+    }
+  },
+
+  "calls": {
+    "userB": {
+      "fromUserId": "userA",
+      "toUserId": "userB",
+      "channelName": "room_userA_userB",
+      "timestamp": 1714714000000
+    }
+  },
+
+  "messages": {
+    "room_userA_userB": {
+      "-Nxyz123456": {
+        "senderId": "userA",
+        "receiverId": "userB",
+        "content": "Hello Bob!",
+        "timestamp": "2025-05-03T08:10:00Z",
+        "type": "text",
+        "isRead": false
+      },
+      "-Nxyz123457": {
+        "senderId": "userB",
+        "receiverId": "userA",
+        "content": "Chào Alice!",
+        "timestamp": "2025-05-03T08:11:00Z",
+        "type": "text",
+        "isRead": false
+      }
+    }
+  },
+
+  "chat_rooms": {
+    "room_userA_userB": {
+      "participants": ["userA", "userB"],
+      "lastMessage": "Chào Alice!",
+      "lastUpdated": "2025-05-03T08:11:00Z"
+    }
+  }
+}

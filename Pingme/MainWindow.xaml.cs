@@ -1,25 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.Win32;
+using Pingme.Services;
+using Pingme.Views.Pages;
 
 namespace Pingme
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class ChatPage : Window
+    public partial class MainWindow : Window
     {
-       
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var firebase = new FirebaseService();
+            bool isConnected = await firebase.TestConnectionAsync();
+
+            if (!isConnected)
+                MessageBox.Show("Không thể kết nối Firebase", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
     }
 }
