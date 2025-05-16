@@ -15,15 +15,18 @@ using System.Windows.Shapes;
 
 namespace Pingme.Views.Controls
 {
-    public partial class ContactItem : UserControl
+    /// <summary>
+    /// Interaction logic for GroupMember.xaml
+    /// </summary>
+    public partial class GroupMember : UserControl
     {
-        public ContactItem()
+        public GroupMember()
         {
             InitializeComponent();
         }
 
         public static readonly DependencyProperty ContactNameProperty =
-            DependencyProperty.Register("ContactName", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
+           DependencyProperty.Register("ContactName", typeof(string), typeof(GroupMember), new PropertyMetadata(""));
 
         public string ContactName
         {
@@ -32,7 +35,7 @@ namespace Pingme.Views.Controls
         }
 
         public static readonly DependencyProperty AvatarPathProperty =
-            DependencyProperty.Register("AvatarPath", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
+            DependencyProperty.Register("AvatarPath", typeof(string), typeof(GroupMember), new PropertyMetadata(""));
 
         public string AvatarPath
         {

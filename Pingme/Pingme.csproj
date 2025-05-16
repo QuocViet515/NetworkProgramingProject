@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\BoolToAngleConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
@@ -66,11 +67,29 @@
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="Views\Controls\ChatHeader.xaml.cs">
+      <DependentUpon>ChatHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ChatSeparator.xaml.cs">
+      <DependentUpon>ChatSeparator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ContactItem.xaml.cs">
       <DependentUpon>ContactItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\GroupMember.xaml.cs">
+      <DependentUpon>GroupMember.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\MessageBubble.xaml.cs">
       <DependentUpon>MessageBubble.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\MessageChat.xaml.cs">
+      <DependentUpon>MessageChat.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\SystemNotification.xaml.cs">
+      <DependentUpon>SystemNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\UserChat.xaml.cs">
+      <DependentUpon>UserChat.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ChatPage.xaml.cs">
       <DependentUpon>ChatPage.xaml</DependentUpon>
@@ -93,13 +112,37 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Controls\ChatHeader.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\ChatSeparator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Controls\ContactItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\GroupMember.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Controls\MessageBubble.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\MessageChat.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\SystemNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Controls\UserChat.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Pages\ChatPage.xaml">
       <SubType>Designer</SubType>
@@ -144,8 +187,32 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\Icons\" />
-    <Folder Include="Assets\Images\" />
+    <Resource Include="Assets\Icons\bellicon.png" />
+    <Resource Include="Assets\Icons\callicon.png" />
+    <Resource Include="Assets\Icons\contacticon.png" />
+    <Resource Include="Assets\Icons\foldericon.png" />
+    <Resource Include="Assets\Icons\homeicon.png" />
+    <Resource Include="Assets\Icons\logoicon.jpg" />
+    <Resource Include="Assets\Icons\paperclipicon.png" />
+    <Resource Include="Assets\Icons\searchicon.png" />
+    <Resource Include="Assets\Icons\sendicon.png" />
+    <Resource Include="Assets\Icons\setticon.png" />
+    <Resource Include="Assets\Icons\videocallicon.png" />
+    <Resource Include="Assets\Images\a1.jpg" />
+    <Resource Include="Assets\Images\a10.jpg" />
+    <Resource Include="Assets\Images\a11.jpg" />
+    <Resource Include="Assets\Images\a12.jpg" />
+    <Resource Include="Assets\Images\a13.jpg" />
+    <Resource Include="Assets\Images\a14.jpg" />
+    <Resource Include="Assets\Images\a15.jpg" />
+    <Resource Include="Assets\Images\a2.jpg" />
+    <Resource Include="Assets\Images\a3.jpg" />
+    <Resource Include="Assets\Images\a4.jpg" />
+    <Resource Include="Assets\Images\a5.jpg" />
+    <Resource Include="Assets\Images\a6.jpg" />
+    <Resource Include="Assets\Images\a7.jpg" />
+    <Resource Include="Assets\Images\a8.jpg" />
+    <Resource Include="Assets\Images\a9.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

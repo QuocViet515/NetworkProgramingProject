@@ -23,5 +23,39 @@ namespace Pingme.Views.Pages
         {
             InitializeComponent();
         }
+
+        private void Search_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (Search.Text == "Tìm kiếm")
+            {
+                Search.Text = "";
+                Search.Foreground = Brushes.Black;
+                Search.HorizontalContentAlignment = HorizontalAlignment.Left;
+            }
+        }
+
+        private void Search_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(Search.Text))
+            {
+                Search.Text = "Tìm kiếm";
+                Search.Foreground = Brushes.Black;
+                Search.HorizontalContentAlignment = HorizontalAlignment.Center;
+            }
+        }
+
+        private void MessageInput_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (MessageInput.Text == "Nhắn gì đó . . .")
+                MessageInput.Text = "";
+        }
+
+        private void MessageInput_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(MessageInput.Text))
+                MessageInput.Text = "Nhắn gì đó . . .";
+        }
+
+
     }
 }

@@ -1,12 +1,32 @@
-﻿<Window x:Class="Pingme.Views.Controls.ContactItem"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Pingme.Views.Controls"
-        mc:Ignorable="d"
-        Title="ContactItem" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
-</Window>
+﻿<UserControl x:Class="Pingme.Views.Controls.ContactItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="80" Width="Auto">
+    <Border Background="#FFFFFF" CornerRadius="10" Margin="0,0,0,10" Padding="5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Avatar -->
+            <Ellipse Width="50" Height="50" Grid.Column="0" Margin="5,0,10,0" VerticalAlignment="Center">
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="{Binding AvatarPath, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- Tên -->
+            <Border Grid.Column="1"
+                    Background="#F2F2F2"
+                    CornerRadius="10"
+                    VerticalAlignment="Top"
+                    Padding="10,6">
+                <TextBlock Text="{Binding ContactName, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"
+                           Foreground="Black"/>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
