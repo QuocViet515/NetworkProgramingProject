@@ -184,31 +184,36 @@ namespace Pingme.Views.Controls
                 MessageBox.Show("Lỗi khi đổi ảnh:\n" + ex.Message + "\n" + ex.InnerException?.Message);
             }
         }
-
         private void SetEditMode(bool isEdit)
         {
-            // Toggle TextBlock vs TextBox
-            FullNameText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            FullNameText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
+            // Helper: Áp dụng style và trạng thái chỉnh sửa cho từng TextBox
+            void SetTextBoxEdit(TextBox textBox, bool editable)
+            {
+                textBox.IsReadOnly = !editable;
+                textBox.Style = (Style)FindResource(editable ? "EditModeTextBoxStyle" : "ReadOnlyTextBoxStyle");
+            }
+
+            // Các trường được phép chỉnh sửa
+            SetTextBoxEdit(FullNameText, isEdit);
+            SetTextBoxEdit(PhoneText, isEdit);
+            SetTextBoxEdit(BirthdayText, isEdit);
+            SetTextBoxEdit(AddressText, isEdit);
+
+            // Các trường không được chỉnh sửa
+            EmailText.IsReadOnly = true;
+            EmailText.Style = (Style)FindResource("ReadOnlyTextBoxStyle");
+
+            UserNameText.IsReadOnly = true;
+            UserNameText.Style = (Style)FindResource("ReadOnlyTextBoxStyle");
+
+            // Cập nhật lại nội dung (tránh mất sau Save)
             FullNameText.Text = currentUser.FullName;
-
-            EmailText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            EmailText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             EmailText.Text = currentUser.Email;
-
-            PhoneText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            PhoneText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             PhoneText.Text = currentUser.Phone;
-
-            BirthdayText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            BirthdayText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             BirthdayText.Text = currentUser.Birthday.ToString("dd/MM/yyyy");
-
-            AddressText.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
-            AddressText.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             AddressText.Text = currentUser.Address;
 
-            // Toggle nút
+            // Toggle các nút
             EditButton.Visibility = isEdit ? Visibility.Collapsed : Visibility.Visible;
             SaveButton.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;
             ChangeAvatar.Visibility = isEdit ? Visibility.Visible : Visibility.Collapsed;

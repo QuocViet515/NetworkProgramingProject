@@ -49,13 +49,13 @@ namespace Pingme.Views.Pages
                 var addr = new System.Net.Mail.MailAddress(EmailTextBox.Text);
                 if (addr.Address != EmailTextBox.Text)
                 {
-                    MessageBox.Show("Email không hợp lệ!");
+                    MessageBox.Show("Invalid email!");
                     return;
                 }
             }
             catch
             {
-                MessageBox.Show("Email không hợp lệ!");
+                MessageBox.Show("Invalid email!");
                 return;
             }
 
@@ -118,7 +118,7 @@ namespace Pingme.Views.Pages
                 var authResponse = await CreateFirebaseUser(email, password);
                 if (authResponse == null)
                 {
-                    MessageBox.Show("Đăng ký Firebase Authentication thất bại.");
+                    MessageBox.Show("Firebase Authentication registration failed.");
                     return;
                 }
                 string uid = authResponse.localId;
@@ -134,13 +134,13 @@ namespace Pingme.Views.Pages
 
                 if (usernameExists)
                 {
-                    MessageBox.Show("Username đã tồn tại. Vui lòng chọn Username khác");
+                    MessageBox.Show("Username already exists. Please choose another Username");
                     return;
                 }
 
                 if (!DateTime.TryParseExact(birthday, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedBirthday))
                 {
-                    MessageBox.Show("Ngày sinh không đúng định dạng dd/MM/yyyy!");
+                    MessageBox.Show("Date of birth is not in dd/MM/yyyy format!");
                     return;
                 }
 
@@ -161,9 +161,9 @@ namespace Pingme.Views.Pages
                 MessageBox.Show("Registered successfully!");
                 this.NavigationService.Navigate(new LoginPage());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show("Registration failed: " + ex.Message);
+                MessageBox.Show("Registration failed, please register again later.");
             }
         }
 

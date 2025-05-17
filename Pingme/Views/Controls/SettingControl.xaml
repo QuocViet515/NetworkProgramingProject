@@ -1,95 +1,142 @@
 ﻿<UserControl x:Class="Pingme.Views.Controls.SettingControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="White">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Tiêu đề -->
-        <TextBlock Grid.Row="0" Text="Setting" FontSize="28" FontWeight="SemiBold"
-                   HorizontalAlignment="Center" Margin="0,10" />
-
-        <!-- Nội dung setting -->
-        <Grid Grid.Row="1" Margin="20,10,20,10" Background="WhiteSmoke" HorizontalAlignment="Center">
+             Background="White"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Top"
+             MinWidth="300">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="30">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*" />
-                <ColumnDefinition Width="5*" />
-            </Grid.ColumnDefinitions>
 
-            <!-- Theme -->
-            <TextBlock Grid.Row="0" Grid.Column="0"
-                       Text="Theme" FontSize="16" 
-                       VerticalAlignment="Center" 
-                       Margin="5,10"/>
-            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
-                <RadioButton GroupName="ThemeGroup" Margin="10,0" IsChecked="True">
-                    <Image Source="/Assets/Icons/moon.png" Width="24"/>
-                </RadioButton>
-                <RadioButton GroupName="ThemeGroup" Margin="10,0">
-                    <Image Source="/Assets/Icons/sun.png" Width="24"/>
-                </RadioButton>
-            </StackPanel>
+            <!-- Tiêu đề -->
+            <TextBlock Grid.Row="0"
+                       Text="Cài đặt hệ thống"
+                       FontSize="26"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"
+                       Margin="0,10"/>
 
+            <!-- Nội dung -->
+            <Border Grid.Row="1" Background="WhiteSmoke" Padding="20" CornerRadius="10" Margin="0,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- ngôn ngữ -->
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="5*" />
+                    </Grid.ColumnDefinitions>
 
-            <!-- Notification -->
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Notification" FontSize="16" VerticalAlignment="Center" Margin="0,10"/>
-            <StackPanel Grid.Row="1" Grid.Column="1"  Background="White"
-                        Orientation="Horizontal" HorizontalAlignment="Center" 
-                        Margin="5,10">
-                <ToggleButton Width="50" Height="25" Margin="5"
-              Background="LightGray"
-              Content="🔔"
-              FontSize="14"
-              HorizontalAlignment="Center" />
+                    <!-- Chủ đề -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Chủ đề" FontSize="16" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                        <RadioButton GroupName="ThemeGroup" Margin="10,0" IsChecked="True">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="pack://application:,,,/Assets/Icons/moon.png" Width="24" Margin="0,0,5,0"/>
+                                <TextBlock Text="Tối" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton GroupName="ThemeGroup" Margin="10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="pack://application:,,,/Assets/Icons/sun.png" Width="24" Margin="0,0,5,0"/>
+                                <TextBlock Text="Sáng" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+                    </StackPanel>
 
-            </StackPanel>
-            <!-- Status -->
-            <TextBlock Grid.Row="2" Grid.Column="0" 
-                       Text="Status" FontSize="16" 
-                       VerticalAlignment="Center" 
-                       Margin="5,10"/>
-            <ToggleButton Grid.Row="2" Grid.Column="1"  Background="White"
-                          Width="50" Height="25" Margin="0,10" 
-                          HorizontalAlignment="Center" IsChecked="True"/>
+                    <!-- Thông báo -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Thông báo" FontSize="16" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <ToggleButton Width="50" Height="30" Background="LightGray" Content="🔔" FontSize="14"/>
+                    </StackPanel>
 
-            <!-- Sound -->
-            <TextBlock Grid.Row="3" Grid.Column="0" 
-                       Text="Sound" FontSize="16"
-                       VerticalAlignment="Center" 
-                       Margin="5,10"/>
-            <StackPanel Grid.Row="3" Grid.Column="1"  Background="White"
-                        Orientation="Horizontal" HorizontalAlignment="Center" 
-                        Margin="0,10">
-                <Slider x:Name="SoundSlider"
-                        Minimum="0" Maximum="100"
-                        Value="70"
-                        TickFrequency="2"
-                        IsSnapToTickEnabled="True"
-                        Width="120" Height="25"/>
-                <TextBlock  Text="{Binding ElementName=SoundSlider, Path=Value, StringFormat={}{0}%}"
-                            VerticalAlignment="Center" Margin="10,0,0,0"/>
-            </StackPanel>
+                    <!-- Trạng thái -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Trạng thái" FontSize="16" VerticalAlignment="Center" Margin="5"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <ToggleButton x:Name="StatusToggle"
+                                      Width="100" Height="35"
+                                      Click="StatusToggle_Click"
+                                      FontWeight="Bold"
+                                      IsChecked="True"
+                                      Margin="5"/>
+                    </StackPanel>
 
+                    <!-- Âm lượng -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Âm lượng" FontSize="16" VerticalAlignment="Center" Margin="5"/>
+                    <Grid Grid.Row="3" Grid.Column="1" Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="SoundSlider"
+                                Minimum="0" Maximum="100"
+                                Value="70"
+                                TickFrequency="2"
+                                IsSnapToTickEnabled="True"
+                                Height="25"
+                                VerticalAlignment="Center"
+                                Grid.Column="0"/>
+                        <TextBlock Text="{Binding ElementName=SoundSlider, Path=Value, StringFormat={}{0}%}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"
+                                   Grid.Column="1"/>
+                    </Grid>
+
+                    <!-- Ngôn ngữ -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Ngôn ngữ" FontSize="16" VerticalAlignment="Center" Margin="5"/>
+                    <ComboBox Grid.Row="4" Grid.Column="1"
+                              Width="150" HorizontalAlignment="Center" Margin="5"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Tiếng Việt"/>
+                        <ComboBoxItem Content="English"/>
+                    </ComboBox>
+                </Grid>
+            </Border>
+
+            <!-- Hàng nút Save và Đăng xuất -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Nút lưu -->
+                <Button x:Name="SaveButton"
+                        Content="Lưu thay đổi"
+                        Background="#4CAF50"
+                        Foreground="White"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Width="160" Height="45"
+                        HorizontalAlignment="Center"
+                        Margin="10,0"
+                        Click="SaveButton_Click"
+                        Grid.Column="0"/>
+
+                <!-- Nút đăng xuất -->
+                <Button x:Name="LogoutButton"
+                        Content="Đăng xuất"
+                        Background="#E74C3C"
+                        Foreground="White"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Width="160" Height="45"
+                        HorizontalAlignment="Center"
+                        Margin="10,0"
+                        Click="LogoutButton_Click"
+                        Grid.Column="1"/>
+            </Grid>
         </Grid>
-
-        <!-- Nút Save -->
-        <Button Grid.Row="2" Content="Save"
-                Background="#75D472"
-                Foreground="White"
-                FontSize="16"
-                FontWeight="Bold"
-                Width="120" Height="40"
-                HorizontalAlignment="Center"
-                Margin="0,10"/>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

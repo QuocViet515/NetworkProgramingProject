@@ -70,8 +70,8 @@ namespace Pingme.Views.Pages
                 }
                 else
                 {
-                    string error = await response.Content.ReadAsStringAsync();
-                    throw new Exception("Đăng nhập thất bại: " + error);
+                    //string error = await response.Content.ReadAsStringAsync();
+                    throw new Exception("Login failed please login again later !!!");
                 }
             }
         }
@@ -93,12 +93,17 @@ namespace Pingme.Views.Pages
 
             if (string.IsNullOrEmpty(email))
             {
-                MessageBox.Show("Không tìm thấy người dùng.");
+                //MessageBox.Show("User does not exist");
+                UsernameTextBoxError.Text = "Account does not exist!";
+                UsernameTextBoxError.Visibility = Visibility.Visible;
                 return;
             }
 
             try
             {
+                UsernameTextBoxError.Visibility =Visibility.Collapsed;
+                PasswordTextBoxError.Visibility = Visibility.Collapsed;
+
                 var auth = await SignInWithEmailPassword(email, password);
 
                 // Lưu thông tin đăng nhập vào Session
@@ -123,11 +128,11 @@ namespace Pingme.Views.Pages
                 var user = await firebase.Child("users").Child(SessionManager.UID).OnceSingleAsync<User>();
                 if (user == null)
                 {
-                    MessageBox.Show("Không tìm thấy thông tin người dùng.");
+                    MessageBox.Show("User information not found.");
                     return;
                 }
 
-                MessageBox.Show($"Chào {user.FullName}!");
+                MessageBox.Show($"Hi {user.FullName}!");
                 this.NavigationService.Navigate(new ProfilePage());
 
                 // Ghi nhớ đăng nhập
@@ -145,9 +150,11 @@ namespace Pingme.Views.Pages
                 }
                 Properties.Settings.Default.Save();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show("Lỗi đăng nhập: " + ex.Message);
+                //MessageBox.Show("Login failed: \nPlease enter correct password \nOr Press forgot password if you forgot");
+                PasswordTextBoxError.Text = "Please enter correct password";
+                PasswordTextBoxError.Visibility = Visibility.Visible;
             }
         }
 

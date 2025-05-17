@@ -60,6 +60,9 @@
                         <TextBlock Text="Login" FontSize="28" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
                         <!-- Username -->
+                        <TextBlock x:Name="UsernameTextBoxError"
+                                   Visibility="Collapsed" Foreground="Red" HorizontalAlignment="Center"/>
+
                         <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
                             <TextBox x:Name="UsernameTextBox"
                                      Style="{StaticResource PlaceholderTextBox}"
@@ -67,6 +70,8 @@
                         </Border>
 
                         <!-- Password -->
+                        <TextBlock x:Name="PasswordTextBoxError"
+                                 Visibility="Collapsed" Foreground="Red" HorizontalAlignment="Center"/>
                         <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
                             <Grid>
                                 <PasswordBox x:Name="PasswordBox"

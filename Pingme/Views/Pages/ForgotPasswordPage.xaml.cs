@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Firebase.Database;
 using Firebase.Database.Query;
+using Pingme.Helpers;
 
 namespace Pingme.Views.Pages
 {
@@ -26,7 +27,6 @@ namespace Pingme.Views.Pages
     {
         private readonly FirebaseClient _firebase = new FirebaseClient(
             "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        private readonly string firebaseApiKey = "AIzaSyDC_fCjmDw4IkAqhLjqWCzG02LRXmvKgB0";
         public ForgotPasswordPage()
         {
             InitializeComponent();
@@ -56,7 +56,7 @@ namespace Pingme.Views.Pages
                 try
                 {
                     var response = await client.PostAsync(
-                        $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={firebaseApiKey}",
+                        $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={SessionManager.FirebaseApiKey}",
                         content);
 
                     if (response.IsSuccessStatusCode)
