@@ -28,7 +28,7 @@
     </UserControl.Resources>
 
     <Border Margin="20" Padding="20" Background="WhiteSmoke" CornerRadius="15" BorderBrush="#DDD" BorderThickness="1">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" MaxWidth="400">
 
                 <!-- Avatar -->

@@ -15,15 +15,17 @@ using System.Windows.Shapes;
 
 namespace Pingme.Views.Controls
 {
-    public partial class ContactItem : UserControl
+    /// <summary>
+    /// Interaction logic for ChatHeader.xaml
+    /// </summary>
+    public partial class ChatHeader : UserControl
     {
-        public ContactItem()
+        public ChatHeader()
         {
             InitializeComponent();
         }
-
         public static readonly DependencyProperty ContactNameProperty =
-            DependencyProperty.Register("ContactName", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
+            DependencyProperty.Register("ContactName", typeof(string), typeof(ChatHeader), new PropertyMetadata(""));
 
         public string ContactName
         {
@@ -32,7 +34,7 @@ namespace Pingme.Views.Controls
         }
 
         public static readonly DependencyProperty AvatarPathProperty =
-            DependencyProperty.Register("AvatarPath", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
+            DependencyProperty.Register("AvatarPath", typeof(string), typeof(ChatHeader), new PropertyMetadata(""));
 
         public string AvatarPath
         {

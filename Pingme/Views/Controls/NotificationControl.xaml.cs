@@ -22,7 +22,7 @@ namespace Pingme.Views.Controls
     {
         public NotificationControl()
         {
-            InitializeComponent();
+            InitializeComponent(); 
         }
     }
 }

@@ -15,24 +15,29 @@ using System.Windows.Shapes;
 
 namespace Pingme.Views.Controls
 {
-    public partial class ContactItem : UserControl
+    /// <summary>
+    /// Interaction logic for UserChat.xaml
+    /// </summary>
+    public partial class UserChat : UserControl
     {
-        public ContactItem()
+        public UserChat()
         {
             InitializeComponent();
+            DataContext = this;
         }
 
-        public static readonly DependencyProperty ContactNameProperty =
-            DependencyProperty.Register("ContactName", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
-
-        public string ContactName
+        public static readonly DependencyProperty MessageProperty =
+            DependencyProperty.Register("Message", typeof(string), typeof(UserChat), new PropertyMetadata(""));
+        public string Message
         {
-            get => (string)GetValue(ContactNameProperty);
-            set => SetValue(ContactNameProperty, value);
+            get => (string)GetValue(MessageProperty);
+            set => SetValue(MessageProperty, value);
         }
+
+
 
         public static readonly DependencyProperty AvatarPathProperty =
-            DependencyProperty.Register("AvatarPath", typeof(string), typeof(ContactItem), new PropertyMetadata(""));
+            DependencyProperty.Register("AvatarPath", typeof(string), typeof(UserChat), new PropertyMetadata(""));
 
         public string AvatarPath
         {
