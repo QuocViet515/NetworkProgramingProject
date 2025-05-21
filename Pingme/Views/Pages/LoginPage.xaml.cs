@@ -33,7 +33,11 @@ namespace Pingme.Views.Pages
             bool success = await AuthService.LoginAsync(username, password);
             if (success)
             {
-                // ✅ Mở trang chat nếu đăng nhập thành công
+                // ✅ BẮT ĐẦU LẮNG NGHE CUỘC GỌI ĐẾN
+                var firebase = new FirebaseNotificationService();
+                firebase.StartListeningForCalls(AuthService.CurrentUser.id);
+
+                // ✅ Mở trang chat
                 var chatPage = new ChatPage();
                 Window parent = Window.GetWindow(this);
                 parent.Content = chatPage;
@@ -43,5 +47,6 @@ namespace Pingme.Views.Pages
                 ErrorText.Text = "Sai tên đăng nhập hoặc mật khẩu!";
             }
         }
+
     }
 }

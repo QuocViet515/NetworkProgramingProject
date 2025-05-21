@@ -60,7 +60,7 @@ namespace Pingme.Views.Controls
             CamToggleBtn.Content = isCamOn ? "🎥" : "🙈";
         }
 
-        private void Call_Click(object sender, RoutedEventArgs e)
+        private async void Call_Click(object sender, RoutedEventArgs e)
         {
             var viewModel = DataContext as ChatViewModel;
             if (viewModel == null || viewModel.SelectedUser == null)
@@ -68,7 +68,9 @@ namespace Pingme.Views.Controls
                 MessageBox.Show("❗ Chưa chọn người để gọi.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            MessageBox.Show($"MessageInputBar.SelectedUser = {viewModel?.SelectedUser?.fullName ?? "null"}");
+
+            MessageBox.Show($"📞 Gọi tới: {viewModel.SelectedUser.fullName}");
+
             string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
             string currentUserId = AuthService.CurrentUser.id;
             string peerUserId = viewModel.SelectedUser.id;
@@ -83,6 +85,12 @@ namespace Pingme.Views.Controls
             {
                 callWindow.Activate();
             }
+
+            // ✅ Gửi tín hiệu gọi qua Firebase
+            var firebase = new FirebaseNotificationService();
+            await firebase.SendCallRequest(currentUserId, peerUserId);
+            MessageBox.Show("✅ Đã gửi tín hiệu gọi qua Firebase!");
         }
+
     }
 }

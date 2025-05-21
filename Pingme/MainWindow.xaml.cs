@@ -8,19 +8,27 @@ namespace Pingme
 {
     public partial class MainWindow : Window
     {
-
         public MainWindow()
         {
             InitializeComponent();
+            
         }
+        private FirebaseNotificationService _notificationService;
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var firebase = new FirebaseService();
-            bool isConnected = await firebase.TestConnectionAsync();
+            if (AuthService.CurrentUser == null)
+            {
+                MessageBox.Show("User chưa đăng nhập.");
+                return;
+            }
 
-            if (!isConnected)
-                MessageBox.Show("Không thể kết nối Firebase", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            string currentUserId = AuthService.CurrentUser.id;
+
+            _notificationService = new FirebaseNotificationService();
+            _notificationService.StartListeningForCalls(currentUserId);
         }
+
 
     }
 }
