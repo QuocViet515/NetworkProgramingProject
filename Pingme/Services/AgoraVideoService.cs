@@ -142,19 +142,31 @@ namespace Pingme.Services
 
         public WF.Panel CreateRemotePanel(uint uid)
         {
-            var panel = new WF.Panel { Dock = WF.DockStyle.Fill, BackColor = Color.Gray }; // ✅
-            var host = new WindowsFormsHost { Child = panel };
-
-            _remoteHosts[uid] = host;
+            WF.Panel panel = null;
+            WindowsFormsHost host = null;
 
             WpfApp.Current.Dispatcher.Invoke(() =>
             {
-                RemoteVideoContainer.Children.Clear(); // Hoặc dùng Add nếu muốn nhiều user
+                panel = new WF.Panel
+                {
+                    Dock = WF.DockStyle.Fill,
+                    BackColor = Color.Gray
+                };
+
+                host = new WindowsFormsHost
+                {
+                    Child = panel
+                };
+
+                _remoteHosts[uid] = host;
+
+                RemoteVideoContainer.Children.Clear();  // hoặc .Add nếu support nhiều người
                 RemoteVideoContainer.Children.Add(host);
             });
 
             return panel;
         }
+
 
         public void RemoveRemoteVideo(uint uid)
         {

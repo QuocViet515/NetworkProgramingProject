@@ -1,6 +1,8 @@
 ﻿using Agora.Rtc;
 using System;
 using System.Windows.Forms;
+using WpfApp = System.Windows.Application;
+
 namespace Pingme.Services
 {
     public class UserEventHandler : IRtcEngineEventHandler
@@ -20,15 +22,22 @@ namespace Pingme.Services
         {
             Console.WriteLine($"👤 Người dùng mới: {remoteUid}");
 
-            var panel = _videoService.CreateRemotePanel(remoteUid);
-            var canvas = new VideoCanvas
+            // Tạo panel và setup canvas trong UI thread
+            WpfApp.Current.Dispatcher.Invoke(() =>
             {
-                view = (long)panel.Handle,
-                renderMode = RENDER_MODE_TYPE.RENDER_MODE_HIDDEN,
-                uid = remoteUid
-            };
-            _videoService.Engine.SetupRemoteVideo(canvas);
+                var panel = _videoService.CreateRemotePanel(remoteUid);
+
+                var canvas = new VideoCanvas
+                {
+                    view = (long)panel.Handle,
+                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_HIDDEN,
+                    uid = remoteUid
+                };
+
+                _videoService.Engine.SetupRemoteVideo(canvas);
+            });
         }
+
 
         public override void OnUserOffline(RtcConnection connection, uint remoteUid, USER_OFFLINE_REASON_TYPE reason)
         {
