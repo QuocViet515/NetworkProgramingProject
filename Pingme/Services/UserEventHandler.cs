@@ -20,7 +20,7 @@ namespace Pingme.Services
 
         public override void OnUserJoined(RtcConnection connection, uint remoteUid, int elapsed)
         {
-            Console.WriteLine($"👤 Người dùng mới: {remoteUid}");
+            MessageBox.Show($"👤 Người dùng mới: {remoteUid}");
 
             // Tạo panel và setup canvas trong UI thread
             WpfApp.Current.Dispatcher.Invoke(() =>
@@ -44,7 +44,21 @@ namespace Pingme.Services
             Console.WriteLine($"👋 Người dùng rời kênh: {remoteUid}");
             _videoService.RemoveRemoteVideo(remoteUid);
         }
+        public override void OnRemoteVideoStateChanged(
+       RtcConnection connection,
+       uint remoteUid,
+       REMOTE_VIDEO_STATE state,
+       REMOTE_VIDEO_STATE_REASON reason,
+       int elapsed)
+        {
+            Console.WriteLine($"📡 Remote video state: UID={remoteUid}, STATE={state}, REASON={reason}");
 
+            // Có thể mở rộng hiển thị trạng thái:
+            WpfApp.Current.Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show($"📡 UID: {remoteUid}\nSTATE: {state}\nREASON: {reason}");
+            });
+        }
     }
 
 }
