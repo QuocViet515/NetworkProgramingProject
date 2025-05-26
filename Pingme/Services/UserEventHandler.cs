@@ -20,7 +20,7 @@ namespace Pingme.Services
 
         public override void OnUserJoined(RtcConnection connection, uint remoteUid, int elapsed)
         {
-            MessageBox.Show($"👤 Người dùng mới: {remoteUid}");
+            //MessageBox.Show($"👤 Người dùng mới: {remoteUid}");
 
             // Tạo panel và setup canvas trong UI thread
             WpfApp.Current.Dispatcher.Invoke(() =>
@@ -56,7 +56,7 @@ namespace Pingme.Services
             // Có thể mở rộng hiển thị trạng thái:
             WpfApp.Current.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show($"📡 UID: {remoteUid}\nSTATE: {state}\nREASON: {reason}");
+                Console.WriteLine($"📡 UID: {remoteUid}\nSTATE: {state}\nREASON: {reason}");
             });
         }
     }

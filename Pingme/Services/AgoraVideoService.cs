@@ -101,7 +101,7 @@ namespace Pingme.Services
             var canvas = new VideoCanvas
             {
                 view = (long)_videoPanel.Handle,
-                renderMode = RENDER_MODE_TYPE.RENDER_MODE_HIDDEN,
+                renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT,
                 uid = 0
             };
 
@@ -160,7 +160,7 @@ namespace Pingme.Services
 
                 _remoteHosts[uid] = host;
 
-                RemoteVideoContainer.Children.Clear();  // hoặc .Add nếu support nhiều người
+                //RemoteVideoContainer.Children.Clear();  // hoặc .Add nếu support nhiều người
                 RemoteVideoContainer.Children.Add(host);
             });
 

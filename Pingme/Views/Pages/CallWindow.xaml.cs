@@ -33,7 +33,7 @@ namespace Pingme.Views.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Lỗi khi khởi tạo cuộc gọi: " + ex.Message);
+                Console.WriteLine("❌ Lỗi khi khởi tạo cuộc gọi: " + ex.Message);
             }
         }
 
