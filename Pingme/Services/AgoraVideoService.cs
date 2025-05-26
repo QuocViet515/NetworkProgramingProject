@@ -179,5 +179,22 @@ namespace Pingme.Services
                 _remoteHosts.Remove(uid);
             }
         }
+        public void SetLocalVideoEnabled(bool enabled)
+        {
+            if (enabled)
+                _engine.EnableLocalVideo(true);
+            else
+                _engine.EnableLocalVideo(false);
+        }
+
+        public void SetLocalAudioEnabled(bool enabled)
+        {
+            if (enabled)
+                _engine.EnableLocalAudio(true);
+            else
+                _engine.EnableLocalAudio(false);
+        }
+
+
     }
 }

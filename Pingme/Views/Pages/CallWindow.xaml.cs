@@ -1,6 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls.Primitives;
 using Pingme.Services;
-using System;
 
 namespace Pingme.Views.Pages
 {
@@ -18,7 +19,6 @@ namespace Pingme.Views.Pages
             _appId = appId;
             _channelName = channel;
 
-            // Khởi tạo dịch vụ video, truyền 2 container
             _videoService = new AgoraVideoService(LocalVideoContainer, RemoteVideoContainer);
 
             Loaded += CallWindow_Loaded;
@@ -39,13 +39,31 @@ namespace Pingme.Views.Pages
 
         private void CallWindow_Closed(object sender, EventArgs e)
         {
-            _videoService.LeaveChannel(); // Dọn dẹp khi đóng cửa sổ
+            _videoService.LeaveChannel();
         }
 
-        // (Nếu bạn vẫn dùng VideoContainer để test riêng thì giữ lại, còn không thì có thể bỏ)
-        //public void SetVideoControl(UIElement videoElement)
-        //{
-        //    VideoContainer.Content = videoElement;
-        //}
+        private void BtnToggleCamera_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as ToggleButton;
+            bool cameraOn = btn.IsChecked == true;
+            btn.Content = cameraOn ? "📷" : "🚫";
+
+            _videoService.SetLocalVideoEnabled(cameraOn);
+        }
+
+        private void BtnToggleMic_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as ToggleButton;
+            bool micOn = btn.IsChecked == true;
+            btn.Content = micOn ? "🎤" : "🔇";
+
+            _videoService.SetLocalAudioEnabled(micOn);
+        }
+
+        private void BtnEndCall_Click(object sender, RoutedEventArgs e)
+        {
+            _videoService.LeaveChannel();
+            this.Close();
+        }
     }
 }
