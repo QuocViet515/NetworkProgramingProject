@@ -30,7 +30,7 @@ namespace Pingme.Services
                 var canvas = new VideoCanvas
                 {
                     view = (long)panel.Handle,
-                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_HIDDEN,
+                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT,
                     uid = remoteUid
                 };
 
