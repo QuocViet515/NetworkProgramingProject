@@ -194,6 +194,7 @@
     <Compile Include="Models\GroupChat.cs" />
     <Compile Include="Models\ParticipantViewModel.cs" />
     <Compile Include="Resources\AppStyle.cs" />
+    <Compile Include="Services\AESService.cs" />
     <Compile Include="Services\AgoraVideoService.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\channelName.cs" />
@@ -201,6 +202,7 @@
     <Compile Include="Services\FileTransferService.cs" />
     <Compile Include="Services\FirebaseNotificationService.cs" />
     <Compile Include="Services\FirebaseService.cs" />
+    <Compile Include="Services\RSAService.cs" />
     <Compile Include="Services\UserEventHandler.cs" />
     <Compile Include="ViewModels\ChatViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />

@@ -28,39 +28,6 @@ namespace Pingme.Services
             return $"room_{ids[0]}_{ids[1]}";
         }
 
-        // Gửi tin nhắn và khởi tạo metadata phòng nếu cần
-        public async Task SendMessageAsync(string senderId, string receiverId, string content)
-        {
-            var chatRoomId = GetChatRoomId(senderId, receiverId);
-
-            var msg = new Message
-            {
-                SenderId = senderId,
-                ReceiverId = receiverId,
-                Content = content,
-                Timestamp = DateTime.UtcNow,
-                Type = "text",
-                IsRead = false
-            };
-
-            await _firebaseClient
-                .Child("messages")
-                .Child(chatRoomId)
-                .PostAsync(msg);
-
-            var metadata = new
-            {
-                participants = new[] { senderId, receiverId },
-                lastMessage = content,
-                lastUpdated = DateTime.UtcNow
-            };
-
-            await _firebaseClient
-                .Child("chat_rooms")
-                .Child(chatRoomId)
-                .PutAsync(metadata);
-        }
-
         // Lắng nghe tất cả tin nhắn trong phòng (ví dụ để load lịch sử hoặc debug)
         public void SubscribeToAllMessages(string chatRoomId)
         {
@@ -145,10 +112,6 @@ namespace Pingme.Services
                 return false;
             }
         }
-        public FirebaseClient GetClient()
-        {
-            return _firebaseClient;
-        }
         public async Task<List<Message>> LoadMessagesAsync(string chatRoomId)
         {
             var messages = await _firebaseClient
@@ -158,6 +121,45 @@ namespace Pingme.Services
 
             return messages.Select(m => m.Object).ToList();
         }
+        public async Task<User> GetUserByIdAsync(string userId)
+        {
+            var userSnapshot = await _firebaseClient
+                .Child("users")
+                .Child(userId)
+                .OnceSingleAsync<User>();
+
+            return userSnapshot;
+        }
+        public async Task<string> GetPrivateKeyAsync(string userId)
+        {
+            var privateKey = await _firebaseClient
+                .Child("users")
+                .Child(userId)
+                .Child("privateKey")
+                .OnceSingleAsync<string>();
+
+            return privateKey;
+        }
+        public async Task SendEncryptedMessageAsync(string roomId, Message message)
+        {
+            await _firebaseClient
+                .Child("messages")
+                .Child(roomId)
+                .PostAsync(message);
+
+            var metadata = new
+            {
+                participants = new[] { message.SenderId, message.ReceiverId },
+                lastMessage = "[Tin nhắn đã mã hóa]",
+                lastUpdated = DateTime.UtcNow
+            };
+
+            await _firebaseClient
+                .Child("chat_rooms")
+                .Child(roomId)
+                .PutAsync(metadata);
+        }
+
 
     }
 }

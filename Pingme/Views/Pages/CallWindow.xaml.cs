@@ -9,7 +9,6 @@ namespace Pingme.Views.Pages
     {
         private readonly string _appId;
         private readonly string _channelName;
-
         private readonly AgoraVideoService _videoService;
 
         public CallWindow(string appId, string channel)
@@ -33,7 +32,7 @@ namespace Pingme.Views.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ Lỗi khi khởi tạo cuộc gọi: " + ex.Message);
+                MessageBox.Show("❌ Lỗi khi khởi tạo cuộc gọi: " + ex.Message);
             }
         }
 
@@ -49,6 +48,10 @@ namespace Pingme.Views.Pages
             btn.Content = cameraOn ? "📷" : "🚫";
 
             _videoService.SetLocalVideoEnabled(cameraOn);
+
+            // Chuyển đổi giữa video và avatar
+            LocalVideoContainer.Visibility = cameraOn ? Visibility.Visible : Visibility.Collapsed;
+            LocalAvatar.Visibility = cameraOn ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void BtnToggleMic_Click(object sender, RoutedEventArgs e)

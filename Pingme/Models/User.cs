@@ -16,6 +16,7 @@ namespace Pingme.Models
         public string fullName { get; set; }
         public string avatarUrl { get; set; }
         public bool isOnline { get; set; }
+        public string PublicKey { get; set; }
         public DateTime createAt { get; set; }
         public DateTime lastActive { get; set; }
     }

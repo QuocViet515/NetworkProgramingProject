@@ -11,12 +11,21 @@
                     VerticalAlignment="Stretch" />
 
         <!-- Local video overlay -->
-        <ContentControl x:Name="LocalVideoContainer"
-                        Background="White"
-                        Width="200" Height="150"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Margin="10" />
+        <Grid Width="200" Height="150"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Margin="10">
+            <!-- Video shown when camera is on -->
+            <ContentControl x:Name="LocalVideoContainer"
+                            Background="Black"
+                            Visibility="Visible" />
+
+            <!-- Avatar shown when camera is off -->
+            <Image x:Name="LocalAvatar"
+                   Source="/Assets/Images/02.png"
+                   Stretch="UniformToFill"
+                   Visibility="Collapsed" />
+        </Grid>
 
         <!-- Controls panel -->
         <Border Background="#66000000"
