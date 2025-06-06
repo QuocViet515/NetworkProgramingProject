@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ namespace Pingme.Models
         public bool IsRead { get; set; }
         public string Type { get; set; }
         public Dictionary<string, string> SessionKeyEncrypted { get; set; }
+        [JsonIgnore]
+        public bool FromSelf { get; set; }
 
     }
 }

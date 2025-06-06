@@ -94,9 +94,25 @@ namespace Pingme.Services
         {
             var chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
 
-            _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId, message =>
+            _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId,async message =>
             {
                 OnNewMessageReceived?.Invoke(message);
+                var privateKey = await _firebaseService.GetPrivateKeyAsync(senderId);
+                if (message.SessionKeyEncrypted != null && message.SessionKeyEncrypted.ContainsKey(senderId))
+                {
+                    try
+                    {
+                        string encryptedKey = message.SessionKeyEncrypted[senderId];
+                        string aesKey = _rsaService.Decrypt(encryptedKey, privateKey);
+                        message.Content = _aesService.DecryptMessage(message.Content, aesKey);
+                    }
+                    catch
+                    {
+                        message.Content = "[Không thể giải mã]";
+                    }
+                }
+
+                OnNewMessageReceived?.Invoke(message); // Gửi ra UI
             });
         }
 

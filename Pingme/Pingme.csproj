@@ -186,6 +186,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\MessageAlignmentConverter.cs" />
+    <Compile Include="Converters\MessageBackgroundConverter.cs" />
+    <Compile Include="Converters\TestConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
