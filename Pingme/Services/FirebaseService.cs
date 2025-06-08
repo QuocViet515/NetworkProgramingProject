@@ -1,12 +1,13 @@
-﻿using Pingme.Models;
-using Firebase.Database;
+﻿using Firebase.Database;
 using Firebase.Database.Query;
 using Firebase.Database.Streaming;
+using Pingme.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 
 namespace Pingme.Services
 {
@@ -159,7 +160,5 @@ namespace Pingme.Services
                 .Child(roomId)
                 .PutAsync(metadata);
         }
-
-
     }
 }

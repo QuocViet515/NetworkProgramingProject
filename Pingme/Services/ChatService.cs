@@ -1,7 +1,9 @@
 ﻿using Firebase.Database;
+using Pingme.Helpers;
 using Pingme.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -19,7 +21,8 @@ namespace Pingme.Services
         {
             string roomId = FirebaseService.GetChatRoomId(currentUserId, targetUserId);
             var encryptedMessages = await _firebaseService.LoadMessagesAsync(roomId);
-            var privateKey = await _firebaseService.GetPrivateKeyAsync(currentUserId);
+            string privateKeyPath = KeyManager.LoadPrivateKeyPath(currentUserId);
+            string privateKey = File.ReadAllText(privateKeyPath);
 
             foreach (var msg in encryptedMessages)
             {
@@ -27,11 +30,8 @@ namespace Pingme.Services
                 {
                     try
                     {
-                        // Giải mã AES key đã được RSA mã hóa
                         string encryptedSessionKey = msg.SessionKeyEncrypted[currentUserId];
                         string aesKey = _rsaService.Decrypt(encryptedSessionKey, privateKey);
-
-                        // Giải mã nội dung tin nhắn
                         msg.Content = _aesService.DecryptMessage(msg.Content, aesKey);
                     }
                     catch (Exception ex)
@@ -61,11 +61,23 @@ namespace Pingme.Services
                 var sender = await _firebaseService.GetUserByIdAsync(senderId);
                 var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
 
-                // Mã hóa khóa AES bằng RSA cho cả hai phía
+                // ✅ Kiểm tra xem đã có public key chưa
+                if (string.IsNullOrWhiteSpace(sender.PublicKey))
+                {
+                    MessageBox.Show("Người gửi chưa có public key. Không thể gửi tin nhắn.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(receiver.PublicKey))
+                {
+                    MessageBox.Show("Người nhận chưa có public key. Không thể gửi tin nhắn.");
+                    return;
+                }
+
+                // Mã hóa khóa AES bằng RSA
                 string encryptedKeyForSender = _rsaService.Encrypt(aesKey, sender.PublicKey);
                 string encryptedKeyForReceiver = _rsaService.Encrypt(aesKey, receiver.PublicKey);
 
-                // Tạo tin nhắn
                 string roomId = FirebaseService.GetChatRoomId(senderId, receiverId);
                 var message = new Message
                 {
@@ -81,7 +93,6 @@ namespace Pingme.Services
                     }
                 };
 
-                // Gửi lên Firebase
                 await _firebaseService.SendEncryptedMessageAsync(roomId, message);
             }
             catch (Exception ex)
@@ -92,12 +103,13 @@ namespace Pingme.Services
 
         public void ListenForMessages(string senderId, string receiverId)
         {
-            var chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
 
-            _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId,async message =>
+            _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId, async message =>
             {
-                OnNewMessageReceived?.Invoke(message);
-                var privateKey = await _firebaseService.GetPrivateKeyAsync(senderId);
+                string privateKeyPath = KeyManager.LoadPrivateKeyPath(senderId);
+                string privateKey = File.ReadAllText(privateKeyPath);
+
                 if (message.SessionKeyEncrypted != null && message.SessionKeyEncrypted.ContainsKey(senderId))
                 {
                     try
@@ -111,14 +123,20 @@ namespace Pingme.Services
                         message.Content = "[Không thể giải mã]";
                     }
                 }
+                else
+                {
+                    message.Content = "[Không có khóa giải mã]";
+                }
 
-                OnNewMessageReceived?.Invoke(message); // Gửi ra UI
+                message.FromSelf = message.SenderId == senderId;
+
+                OnNewMessageReceived?.Invoke(message);
             });
         }
 
         public Task MarkMessagesAsReadAsync(string senderId, string receiverId)
         {
-            var chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
             return _firebaseService.MarkMessagesAsReadAsync(chatRoomId, senderId);
         }
     }
