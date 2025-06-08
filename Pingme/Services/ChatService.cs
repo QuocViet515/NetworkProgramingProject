@@ -108,31 +108,41 @@ namespace Pingme.Services
             _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId, async message =>
             {
                 string privateKeyPath = KeyManager.LoadPrivateKeyPath(senderId);
-                string privateKey = File.ReadAllText(privateKeyPath);
+                string privateKey = null;
 
-                if (message.SessionKeyEncrypted != null && message.SessionKeyEncrypted.ContainsKey(senderId))
+                if (!File.Exists(privateKeyPath))
                 {
-                    try
-                    {
-                        string encryptedKey = message.SessionKeyEncrypted[senderId];
-                        string aesKey = _rsaService.Decrypt(encryptedKey, privateKey);
-                        message.Content = _aesService.DecryptMessage(message.Content, aesKey);
-                    }
-                    catch
-                    {
-                        message.Content = "[Không thể giải mã]";
-                    }
+                    MessageBox.Show($"❌ Không tìm thấy private key ở đường dẫn:\n{privateKeyPath}");
+                    message.Content = "[Không tìm thấy khóa giải mã]";
                 }
                 else
                 {
-                    message.Content = "[Không có khóa giải mã]";
+                    privateKey = File.ReadAllText(privateKeyPath);
+
+                    if (message.SessionKeyEncrypted != null && message.SessionKeyEncrypted.ContainsKey(senderId))
+                    {
+                        try
+                        {
+                            string encryptedKey = message.SessionKeyEncrypted[senderId];
+                            string aesKey = _rsaService.Decrypt(encryptedKey, privateKey);
+                            message.Content = _aesService.DecryptMessage(message.Content, aesKey);
+                        }
+                        catch
+                        {
+                            message.Content = "[Không thể giải mã]";
+                        }
+                    }
+                    else
+                    {
+                        message.Content = "[Không có khóa giải mã]";
+                    }
                 }
 
                 message.FromSelf = message.SenderId == senderId;
-
                 OnNewMessageReceived?.Invoke(message);
             });
         }
+
 
         public Task MarkMessagesAsReadAsync(string senderId, string receiverId)
         {
