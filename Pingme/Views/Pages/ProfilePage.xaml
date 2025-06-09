@@ -12,17 +12,16 @@
         </Grid.RowDefinitions>
 
         <!-- ==== TIÊU ĐỀ ==== -->
-        <Border Grid.Row="0">
+        <Border Grid.Row="0" Margin="15,10,15,0">
             <Border.Effect>
                 <DropShadowEffect Color="Gray" BlurRadius="10" ShadowDepth="5"/>
             </Border.Effect>
-            <Grid Height="80" VerticalAlignment="Top" Margin="15,10,15,0" Background="White">
+            <Grid Height="80" Background="White">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Logo + tên ứng dụng -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                     <Ellipse Height="60" Width="60" Margin="0,0,10,0">
                         <Ellipse.Fill>
@@ -32,21 +31,13 @@
                     <TextBlock Text="Ping me" FontWeight="Bold" FontSize="26" VerticalAlignment="Center" Foreground="Black"/>
                 </StackPanel>
 
-                <!-- Nút chuyển sang Chat -->
-                <Button Click="GoToChat_Click"
-                        Width="50" Height="50"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Margin="0,0,10,0"
-                        BorderBrush="#CCC"
-                        BorderThickness="1"
-                        Cursor="Hand">
+                <Button Click="GoToChat_Click" Width="50" Height="50" Margin="0,0,10,0"
+                        BorderBrush="#CCC" BorderThickness="1" Cursor="Hand"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Grid>
-                                <Ellipse Fill="{TemplateBinding Background}"
-                                         Stroke="{TemplateBinding BorderBrush}"
-                                         StrokeThickness="{TemplateBinding BorderThickness}" />
+                                <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}" />
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                         </ControlTemplate>
@@ -66,18 +57,18 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left Panel -->
-            <Border Grid.Column="0">
+            <Border Grid.Column="0" Margin="0,0,10,0">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" BlurRadius="10" ShadowDepth="5"/>
                 </Border.Effect>
-                <Grid Background="White" Margin="5,0">
+                <Grid Background="White">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
                     <!-- HEADER BUTTONS -->
-                    <Grid Grid.Column="0" Background="WhiteSmoke" Margin="10,10,10,10" Height="60">
+                    <Grid Background="WhiteSmoke" Margin="10" Height="60">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
@@ -86,41 +77,30 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Notification -->
                         <Button Grid.Column="0" Style="{StaticResource CircleIconButtonStyle}" Click="BtnNotification_Click" Margin="5,0">
                             <Image Source="/Assets/Icons/notification.png" Width="24" Height="24"/>
                         </Button>
-
-                        <!-- Friends & Group -->
                         <Button Grid.Column="1" Style="{StaticResource CircleIconButtonStyle}" Click="BtnFriendGroup_Click" Margin="5,0">
                             <Image Source="/Assets/Icons/user.png" Width="24" Height="24"/>
                         </Button>
-
-                        <!-- Settings -->
                         <Button Grid.Column="2" Style="{StaticResource CircleIconButtonStyle}" Click="BtnSetting_Click" Margin="5,0">
                             <Image Source="/Assets/Icons/setting.png" Width="24" Height="24"/>
                         </Button>
-
-                        <!-- Search box -->
                         <Border Grid.Column="3" BorderThickness="0.5" BorderBrush="Black" CornerRadius="15" Margin="5,0" Height="40">
-                            <TextBox x:Name="Search"
-                                    Style="{StaticResource PlaceholderTextBox}"
-                                    Tag="Search ..." BorderThickness="0"/>
+                            <TextBox x:Name="Search" Style="{StaticResource PlaceholderTextBox}" Tag="Search ..." BorderThickness="0"/>
                         </Border>
-
-                        <!-- Search button -->
                         <Button Grid.Column="4" Style="{StaticResource CircleIconButtonStyle}" Click="BtnSearch_Click" Margin="5,0">
                             <Image Source="/Assets/Icons/search.png" Width="24" Height="24"/>
                         </Button>
                     </Grid>
 
-                    <!-- Nội dung động -->
+                    <!-- Dynamic Content -->
                     <ContentControl x:Name="LeftPanelContent" Grid.Row="1" Margin="10"/>
                 </Grid>
             </Border>
 
             <!-- Right Panel -->
-            <Border Grid.Column="1" >
+            <Border Grid.Column="1">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" BlurRadius="10" ShadowDepth="5"/>
                 </Border.Effect>

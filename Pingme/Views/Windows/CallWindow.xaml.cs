@@ -10,17 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pingme.Views.Pages
+namespace Pingme.Views.Windows
 {
     /// <summary>
-    /// Interaction logic for CallPage.xaml
+    /// Interaction logic for CallWindow.xaml
     /// </summary>
-    public partial class CallPage : Page
+    public partial class CallWindow : Window
     {
-        public CallPage()
+        public CallWindow()
         {
             InitializeComponent();
         }

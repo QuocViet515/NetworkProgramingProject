@@ -10,20 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Pingme.Views.Pages
+namespace Pingme.Views.Controls
 {
     /// <summary>
-    /// Interaction logic for ChatPage.xaml
+    /// Interaction logic for ChatDetailControl.xaml
     /// </summary>
-    public partial class ChatPage : Page
+    public partial class ChatDetailControl : UserControl
     {
-        public ChatPage()
+        public ChatDetailControl()
         {
             InitializeComponent();
-
-            GroupInforPanel.IsGroupChat = false;  // neu la nhom la true con ca nhan la false
         }
     }
 }

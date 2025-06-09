@@ -84,6 +84,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
     <Style x:Key="AccButton" TargetType="Button">
         <Setter Property="Width" Value="50"/>
         <Setter Property="Height" Value="50"/>
@@ -127,4 +128,75 @@
         </Setter>
     </Style>
     <helpers:BoolToAngleConverter x:Key="BoolToAngleConverter"/>
+    <helpers:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter"/>
+    <helpers:InverseBooleanToOpacityConverter x:Key="InverseBooleanToOpacityConverter"/>
+    <helpers:SoundIndexConverter x:Key="SoundIndexConverter"/>
+    <Style x:Key="ToggleButtonItem" TargetType="ToggleButton">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#CCC"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Ellipse Fill="{TemplateBinding Background}"
+                             Stroke="{TemplateBinding BorderBrush}"
+                             StrokeThickness="{TemplateBinding BorderThickness}"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ToggleButton cho Theme với hình -->
+    <Style x:Key="ImageToggleSwitchStyle" TargetType="ToggleButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Background="White" CornerRadius="5" Padding="5" BorderBrush="#ccc" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Image Source="/Assets/Icons/moon.png" Width="20" Height="20" Margin="5,0"
+                               Opacity="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource InverseBooleanToOpacityConverter}}"/>
+                            <Image Source="/Assets/Icons/sun.png" Width="20" Height="20" Margin="5,0"
+                               Opacity="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToOpacityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Toggle kiểu On/Off như Notification -->
+    <Style x:Key="SwitchToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="60"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Border x:Name="SwitchTrack"
+                            Background="Tomato"
+                            CornerRadius="15"/>
+                        <Ellipse x:Name="SwitchThumb"
+                             Fill="White"
+                             Width="24" Height="24"
+                             Margin="3,3,0,3"
+                             HorizontalAlignment="Left"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SwitchTrack" Property="Background" Value="LightGreen"/>
+                            <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="SwitchThumb" Property="Margin" Value="0,3,3,3"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

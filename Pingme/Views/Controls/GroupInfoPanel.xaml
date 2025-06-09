@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.GroupInfoPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pingme.Views.Controls"
+             xmlns:controls="clr-namespace:Pingme.Views.Controls"
+             x:Name="RootControl">
+    <StackPanel>
+
+        <!-- Nút chức năng -->
+        <Border Background="#FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <UniformGrid Columns="4">
+                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/callicon.png" />
+                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/videocallicon.png" />
+                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/contacticon.png" />
+                <ToggleButton x:Name="ToggleInfo"
+                              Style="{StaticResource ToggleButtonItem}"
+                              Tag="/Assets/Icons/profileicon.png"
+                              ToolTip="Thông tin người dùng hoặc nhóm" />
+            </UniformGrid>
+        </Border>
+
+        <!-- Panel hồ sơ người dùng hoặc thành viên nhóm -->
+        <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <ContentControl x:Name="InfoContent"/>
+        </Border>
+
+        <!-- Tài liệu -->
+        <Border Background="#FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <StackPanel>
+                <Border Background="#F2F2F2" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                    <TextBlock Text="Tài liệu" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14"/>
+                </Border>
+
+                <Border Background="#F2F2F2" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                    <TextBlock Text="Hình ảnh &amp; Video" FontWeight="Bold"/>
+                </Border>
+
+                <Border Background="#F2F2F2" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                    <TextBlock Text="Tài liệu" FontWeight="Bold"/>
+                </Border>
+
+                <Border Background="#F2F2F2" CornerRadius="10" Padding="10">
+                    <TextBlock Text="Liên kết" FontWeight="Bold"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

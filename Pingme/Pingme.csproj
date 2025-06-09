@@ -220,16 +220,20 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\BoolToAngleConverter.cs" />
+    <Compile Include="Helpers\BoolToOpacityConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\FirebaseAuthResponse.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\SessionManager.cs" />
+    <Compile Include="Helpers\SoundIndexConverter.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
     <Compile Include="Models\CallLog.cs" />
     <Compile Include="Models\Chat.cs" />
+    <Compile Include="Models\ChatTag.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\Notification.cs" />
+    <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\CallService.cs" />
     <Compile Include="Services\ChatGroupService.cs" />
@@ -251,17 +255,29 @@
     <Compile Include="Views\Controls\CallControl.xaml.cs">
       <DependentUpon>CallControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\ChatDetailControl.xaml.cs">
+      <DependentUpon>ChatDetailControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ChatHeader.xaml.cs">
       <DependentUpon>ChatHeader.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\ChatListControl.xaml.cs">
+      <DependentUpon>ChatListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ChatSeparator.xaml.cs">
       <DependentUpon>ChatSeparator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ChatTagController.xaml.cs">
+      <DependentUpon>ChatTagController.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ContactItem.xaml.cs">
       <DependentUpon>ContactItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\FileAttachment.xaml.cs">
       <DependentUpon>FileAttachment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\GroupInfoPanel.xaml.cs">
+      <DependentUpon>GroupInfoPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\GroupMember.xaml.cs">
       <DependentUpon>GroupMember.xaml</DependentUpon>
@@ -305,8 +321,8 @@
     <Compile Include="Views\Controls\UserChat.xaml.cs">
       <DependentUpon>UserChat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Pages\CallPage.xaml.cs">
-      <DependentUpon>CallPage.xaml</DependentUpon>
+    <Compile Include="Views\Controls\UserProfileCard.xaml.cs">
+      <DependentUpon>UserProfileCard.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ChatPage.xaml.cs">
       <DependentUpon>ChatPage.xaml</DependentUpon>
@@ -325,6 +341,9 @@
     </Compile>
     <Compile Include="Views\Pages\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\CallWindow.xaml.cs">
+      <DependentUpon>CallWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\CropImageWindow.xaml.cs">
       <DependentUpon>CropImageWindow.xaml</DependentUpon>
@@ -349,11 +368,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\ChatDetailControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\ChatHeader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\ChatListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\ChatSeparator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\ChatTagController.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -362,6 +393,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\FileAttachment.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\GroupInfoPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -421,7 +456,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Pages\CallPage.xaml">
+    <Page Include="Views\Controls\UserProfileCard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -446,6 +481,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\RegisterPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\CallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -539,6 +578,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\sendicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\bell.png" />
+    <Resource Include="Assets\Icons\mute.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />

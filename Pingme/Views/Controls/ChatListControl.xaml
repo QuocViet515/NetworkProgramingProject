@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.ChatListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Pingme.Views.Controls"
+             xmlns:controls="clr-namespace:Pingme.Views.Controls"
+             Height="Auto" Width="Auto">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tìm kiếm -->
+        <Border Grid.Row="0" Background="#FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <DockPanel VerticalAlignment="Center">
+                <Button Width="50" Height="25" Background="Transparent" BorderThickness="0">
+                    <Image Source="/Assets/Icons/search.png" Width="25" Height="25"/>
+                </Button>
+                <Border Background="#F2F2F2" CornerRadius="10" Width="200">
+                    <TextBox Name="Search"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="Black"
+                             FontWeight="Bold"
+                             Text="Tìm kiếm"
+                             Padding="5"
+                             VerticalContentAlignment="Center"
+                             HorizontalContentAlignment="Center"
+                             Width="180"/>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- Danh sách nhóm, bạn bè -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
+                      PanningMode="VerticalOnly" CanContentScroll="True">
+            <StackPanel>
+                <controls:ContactItem ContactName="Group 10 (NT106.P21.ANTT)" AvatarPath="/Assets/Images/a1.jpg"/>
+                <controls:ContactItem ContactName="Anh Tú" AvatarPath="/Assets/Icons/avater-default.png"/>
+                <!-- Add more ContactItems as needed -->
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

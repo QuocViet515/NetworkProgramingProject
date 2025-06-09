@@ -1,80 +1,86 @@
 ﻿<UserControl x:Class="Pingme.Views.Controls.NotificationControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#F2F2F2">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20" HorizontalAlignment="Center" Width="480">
+             Background="White">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- Tiêu đề -->
-            <TextBlock Text="Notification (3)"
-                       FontSize="22" FontWeight="SemiBold"
-                       HorizontalAlignment="Center"
-                       Margin="0,10"/>
+        <!-- Tiêu đề -->
+        <TextBlock Grid.Row="0" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <Run Text="Notification "/>
+            <Run Text="(3)" Foreground="Red"/>
+        </TextBlock>
 
-            <!-- Danh sách thông báo -->
-            <StackPanel Orientation="Vertical" Margin="0,10" Background="White">
+        <!-- Container chính có nền xám nhạt -->
+        <Border Grid.Row="1" Background="#F4F4F4" CornerRadius="10" Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
 
-                <!-- THÔNG BÁO 1 -->
-                <Border CornerRadius="10" BorderThickness="1" BorderBrush="#DDD" Margin="0,10" Background="White">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Ellipse Width="40" Height="40" Grid.Column="0" Margin="0,0,10,0">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Ping me" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="Đã có phiên bản cập nhật mới"
-                                       Foreground="Purple" FontSize="13"/>
+                    <!-- Thông báo 1 -->
+                    <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <StackPanel>
+                                <TextBlock Text="Ping me" FontWeight="Bold"/>
+                                <Border Background="#EEEEEE" CornerRadius="5" Padding="4" Margin="0,5,0,0">
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="Đã có "/>
+                                        <Run Text="phiên bản cập nhật mới" Foreground="Purple" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
-                    </Grid>
-                </Border>
+                    </Border>
 
-                <!-- THÔNG BÁO 2 -->
-                <Border CornerRadius="10" BorderThickness="1" BorderBrush="#DDD" Margin="0,10" Background="White">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Ellipse Width="40" Height="40" Grid.Column="0" Margin="0,0,10,0">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="/Assets/Icons/avatar-default.png"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Thu Nữ" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="Bạn đã lỡ một cuộc gọi từ Thu Nữ"
-                                       Foreground="Crimson" FontSize="13"/>
+                    <!-- Thông báo 2 -->
+                    <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="/Assets/Icons/avatar-default.png"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <StackPanel>
+                                <TextBlock Text="Thu Nữ" FontWeight="Bold"/>
+                                <Border Background="#EEEEEE" CornerRadius="5" Padding="4" Margin="0,5,0,0">
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="Bạn đã lỡ một cuộc gọi từ "/>
+                                        <Run Text="Thu Nữ" Foreground="Red" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
-                    </Grid>
-                </Border>
+                    </Border>
 
-                <!-- THÔNG BÁO 3 -->
-                <Border CornerRadius="10" BorderThickness="1" BorderBrush="#DDD" Margin="0,10" Background="White">
-                    <Grid Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Ellipse Width="40" Height="40" Grid.Column="0" Margin="0,0,10,0">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="/Assets/Icons/avatar-default.png"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="Nhóm 10" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="Đã bắt đầu cuộc họp Báo cáo tiến độ"
-                                       Foreground="Green" FontSize="13"/>
+                    <!-- Thông báo 3 -->
+                    <Border Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="/Assets/Icons/avatar-default.png"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <StackPanel>
+                                <TextBlock Text="Nhóm 10" FontWeight="Bold"/>
+                                <Border Background="#EEEEEE" CornerRadius="5" Padding="4" Margin="0,5,0,0">
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="Đã bắt đầu cuộc họp "/>
+                                        <Run Text="Báo cáo tiến độ" Foreground="Green" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
-                    </Grid>
-                </Border>
+                    </Border>
 
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
 </UserControl>
