@@ -84,7 +84,9 @@ namespace Pingme.Services
 
         // Lắng nghe cuộc gọi đến (từ Firebase realtime)
         public void StartListeningForCalls(string userId)
+
         {
+            StopListening();
             Console.WriteLine($"📡 Listening for calls on: {userId}");
             Console.WriteLine("Bạn là: " + AuthService.CurrentUser.id);
             string firebasePath = $"calls/{userId}";

@@ -8,14 +8,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
-
+using System.Reactive.Disposables;
 namespace Pingme.Services
 {
     public class FirebaseService
     {
         private readonly FirebaseClient _firebaseClient;
         public event Action<Message> OnNewMessageReceived;
-
+        private IDisposable _currentListener;
         public FirebaseService()
         {
             _firebaseClient = new FirebaseClient("https://fir-36ac0-default-rtdb.firebaseio.com/");
@@ -49,6 +49,10 @@ namespace Pingme.Services
         // Lắng nghe chỉ tin nhắn nhận (ví dụ phía người dùng A đang nhận tin từ B)
         public void SubscribeToIncomingMessages(string chatRoomId, string currentUserId, Action<Message> onNewMessage)
         {
+
+            // 🔁 Huỷ listener cũ nếu có
+            _currentListener?.Dispose();
+
             _firebaseClient
                 .Child("messages")
                 .Child(chatRoomId)
@@ -56,7 +60,9 @@ namespace Pingme.Services
                 .Where(f => !string.IsNullOrEmpty(f.Key))
                 .Subscribe(d =>
                 {
-                    if (d.Object != null && !d.Object.IsRead && d.Object.ReceiverId == currentUserId)
+                    if (d.Object != null &&
+                        !d.Object.IsRead &&
+                        d.Object.ReceiverId == currentUserId)
                     {
                         onNewMessage?.Invoke(d.Object);
                     }
@@ -83,7 +89,11 @@ namespace Pingme.Services
                 }
             }
         }
-
+        public void UnsubscribeAll()
+        {
+            _currentListener?.Dispose();
+            _currentListener = null;
+        }
         // Lấy tất cả user trừ người hiện tại
         public async Task<List<User>> GetAllUsersExceptCurrentAsync(string currentUserId)
         {
