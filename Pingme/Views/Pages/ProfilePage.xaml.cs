@@ -70,7 +70,7 @@ namespace Pingme.Views.Pages
             RenderSearchResults();
         }
 
-        private void RenderSearchResults()
+        private async void RenderSearchResults()
         {
             SearchResultsPanel.Items.Clear();
 
@@ -89,27 +89,77 @@ namespace Pingme.Views.Pages
                 info.Children.Add(new TextBlock { Text = user.FullName });
                 info.Children.Add(new TextBlock { Text = user.Email, FontStyle = FontStyles.Italic });
 
-                var addBtn = new Button
+                var allFriends = await _firebaseService.GetAllFriendsAsync(); // THÊM DÒNG NÀY NẾU CHƯA CÓ
+                var isFriend = allFriends.Any(f =>
+                    f.Status == "accept" &&
+                    ((f.User1 == SessionManager.UID && f.User2 == user.Id) ||
+                     (f.User2 == SessionManager.UID && f.User1 == user.Id)));
+
+                var isWaiting = allFriends.Any(f =>
+                    f.Status == "waiting" &&
+                    ((f.User1 == SessionManager.UID && f.User2 == user.Id) ||
+                     (f.User2 == SessionManager.UID && f.User1 == user.Id)));
+
+                Button actionBtn;
+                if (isFriend)
                 {
-                    Content = "Kết bạn",
-                    Margin = new Thickness(5),
-                    Padding = new Thickness(5)
-                };
-                addBtn.Click += async (s, e) => await SendFriendRequest(user);
+                    actionBtn = new Button
+                    {
+                        Content = "Chat",
+                        Background = Brushes.LightGreen,
+                        Margin = new Thickness(5),
+                        Padding = new Thickness(5)
+                    };
+                    actionBtn.Click += (s, e) =>
+                    {
+                        this.NavigationService?.Navigate(new ChatPage());
+                    };
+                }
+                else if (isWaiting)
+                {
+                    actionBtn = new Button
+                    {
+                        Content = "Đang chờ",
+                        IsEnabled = false,
+                        Margin = new Thickness(5),
+                        Padding = new Thickness(5)
+                    };
+                }
+                else
+                {
+                    actionBtn = new Button
+                    {
+                        Content = "Kết bạn",
+                        Background = Brushes.LightSkyBlue,
+                        Margin = new Thickness(5),
+                        Padding = new Thickness(5)
+                    };
+                    actionBtn.Click += async (s, e) => await SendFriendRequest(user);
+                }
 
                 var wrap = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(5) };
                 wrap.Children.Add(avatar);
                 wrap.Children.Add(info);
-                wrap.Children.Add(addBtn);
+                wrap.Children.Add(actionBtn);
 
                 SearchResultsPanel.Items.Add(wrap);
             }
 
             SearchPopup.IsOpen = _searchResults.Count > 0;
         }
-
         private async Task SendFriendRequest(User targetUser)
         {
+            var allFriends = await _firebaseService.GetAllFriendsAsync();
+            var exists = allFriends.Any(f =>
+                (f.User1 == SessionManager.UID && f.User2 == targetUser.Id) ||
+                (f.User2 == SessionManager.UID && f.User1 == targetUser.Id));
+
+            if (exists)
+            {
+                MessageBox.Show("Yêu cầu đã tồn tại hoặc đã là bạn.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var friend = new Friend
             {
                 Id = Guid.NewGuid().ToString(),
@@ -124,7 +174,12 @@ namespace Pingme.Views.Pages
                 Id = Guid.NewGuid().ToString(),
                 ReceiverId = targetUser.Id,
                 Type = "friend_request",
-                Data = new Dictionary<string, string> { { "from", SessionManager.UID } },
+                Data = new Dictionary<string, string>
+        {
+            { "from", SessionManager.UID },
+            { "fromName", SessionManager.CurrentUser?.FullName ?? "Người dùng" },
+            { "fromAvatar", SessionManager.CurrentUser?.AvatarUrl ?? "" }
+        },
                 IsRead = false,
                 CreatedAt = DateTime.UtcNow
             };
@@ -133,6 +188,7 @@ namespace Pingme.Views.Pages
             await _firebaseService.AddNotificationAsync(notification);
             MessageBox.Show("Yêu cầu kết bạn đã được gửi.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
             // Có thể trigger mở Popup ở đây nếu cần

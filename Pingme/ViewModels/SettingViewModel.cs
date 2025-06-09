@@ -2,6 +2,11 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Pingme.Views.Pages;
+using System.Windows.Controls;
+using System.Windows;
+using Pingme;
+
 
 namespace Pingme.ViewModels
 {
@@ -52,7 +57,14 @@ namespace Pingme.ViewModels
 
         private void Logout()
         {
-            // TODO: Đăng xuất và chuyển về màn hình đăng nhập
+            // Xóa thông tin phiên người dùng
+            SessionManager.Clear();
+
+            // Truy cập MainWindow và điều hướng Frame
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.MainFrame.Navigate(new LoginPage());
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

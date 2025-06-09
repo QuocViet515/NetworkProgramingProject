@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace Pingme.Helpers
 {
@@ -55,5 +56,13 @@ namespace Pingme.Helpers
                 }
             }
         }
+        public static void Clear()
+        {
+            UID = null;
+            IdToken = null;
+            RefreshToken = null;
+            CurrentUser = null;
+        }
+
     }
 }
