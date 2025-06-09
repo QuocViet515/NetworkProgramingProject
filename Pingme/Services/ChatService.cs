@@ -21,23 +21,30 @@ namespace Pingme.Services
         {
             string roomId = FirebaseService.GetChatRoomId(currentUserId, targetUserId);
             var encryptedMessages = await _firebaseService.LoadMessagesAsync(roomId);
-            string privateKeyPath = KeyManager.LoadPrivateKeyPath(currentUserId);
-            string privateKey = File.ReadAllText(privateKeyPath);
+            string userId = currentUserId;
 
             foreach (var msg in encryptedMessages)
             {
-                if (msg.SessionKeyEncrypted != null && msg.SessionKeyEncrypted.ContainsKey(currentUserId))
+                if (msg.SessionKeyEncrypted != null && msg.SessionKeyEncrypted.ContainsKey(userId))
                 {
                     try
                     {
-                        string encryptedSessionKey = msg.SessionKeyEncrypted[currentUserId];
-                        string aesKey = _rsaService.Decrypt(encryptedSessionKey, privateKey);
+                        string encryptedSessionKey = msg.SessionKeyEncrypted[userId];
+                        Console.WriteLine($"🔐 AES Key mã hóa (Base64): {encryptedSessionKey}");
+
+                        // ✅ Decrypt bằng userId
+                        string aesKey = _rsaService.Decrypt(encryptedSessionKey, userId);
+
+                        Console.WriteLine($"🔓 AES Key đã giải mã: {aesKey}");
+                        Console.WriteLine($"🧾 Nội dung đã mã hóa: {msg.Content}");
+
                         msg.Content = _aesService.DecryptMessage(msg.Content, aesKey);
+                        Console.WriteLine($"✅ Nội dung đã giải mã: {msg.Content}");
                     }
                     catch (Exception ex)
                     {
                         msg.Content = "[Không thể giải mã]";
-                        Console.WriteLine("Decrypt error: " + ex.Message);
+                        Console.WriteLine("❌ Decrypt error: " + ex.Message);
                     }
                 }
                 else
@@ -53,15 +60,12 @@ namespace Pingme.Services
         {
             try
             {
-                // Sinh khóa AES tạm thời và mã hóa nội dung
                 string aesKey = _aesService.GenerateAesKey();
                 string encryptedContent = _aesService.EncryptMessage(plainContent, aesKey);
 
-                // Lấy public key của người gửi và người nhận
                 var sender = await _firebaseService.GetUserByIdAsync(senderId);
                 var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
 
-                // ✅ Kiểm tra xem đã có public key chưa
                 if (string.IsNullOrWhiteSpace(sender.PublicKey))
                 {
                     MessageBox.Show("Người gửi chưa có public key. Không thể gửi tin nhắn.");
@@ -74,9 +78,14 @@ namespace Pingme.Services
                     return;
                 }
 
-                // Mã hóa khóa AES bằng RSA
-                string encryptedKeyForSender = _rsaService.Encrypt(aesKey, sender.PublicKey);
-                string encryptedKeyForReceiver = _rsaService.Encrypt(aesKey, receiver.PublicKey);
+                string encryptedKeyForSender = _rsaService.EncryptWithXml(aesKey, sender.PublicKey);
+                string encryptedKeyForReceiver = _rsaService.EncryptWithXml(aesKey, receiver.PublicKey);
+
+
+                Console.WriteLine($"📤 Gửi AES key đến: {receiver.userName}");
+                Console.WriteLine($"🔐 Public key của người nhận (50 ký tự đầu): {receiver.PublicKey.Substring(0, 50)}...");
+                Console.WriteLine($"🔐 AES key gốc: {aesKey}");
+                Console.WriteLine($"🧊 AES key mã hóa (RSA): {encryptedKeyForReceiver}");
 
                 string roomId = FirebaseService.GetChatRoomId(senderId, receiverId);
                 var message = new Message
@@ -101,48 +110,57 @@ namespace Pingme.Services
             }
         }
 
-        public void ListenForMessages(string senderId, string receiverId)
+        public void ListenForMessages(string currentUserId, string targetUserId)
         {
-            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            string chatRoomId = FirebaseService.GetChatRoomId(currentUserId, targetUserId);
+            string userId = currentUserId;
 
-            _firebaseService.SubscribeToIncomingMessages(chatRoomId, senderId, async message =>
+            _firebaseService.SubscribeToIncomingMessages(chatRoomId, currentUserId, async message =>
             {
-                string privateKeyPath = KeyManager.LoadPrivateKeyPath(senderId);
-                string privateKey = null;
+                string privPath = KeyManager.GetPrivateKeyPath(userId);
+                Console.WriteLine($"👂 Nghe tin nhắn mới từ room: {chatRoomId}");
+                Console.WriteLine($"🔐 Đang kiểm tra private key tại: {privPath}");
 
-                if (!File.Exists(privateKeyPath))
+                if (!File.Exists(privPath))
                 {
-                    MessageBox.Show($"❌ Không tìm thấy private key ở đường dẫn:\n{privateKeyPath}");
                     message.Content = "[Không tìm thấy khóa giải mã]";
+                    Console.WriteLine($"❌ Không tìm thấy private key tại: {privPath}");
+                }
+                else if (message.SessionKeyEncrypted == null || !message.SessionKeyEncrypted.ContainsKey(userId))
+                {
+                    message.Content = "[Không có khóa giải mã]";
+                    Console.WriteLine($"⚠️ Không có khóa AES RSA cho user {userId} trong message.");
+
+                    if (message.SessionKeyEncrypted != null)
+                        Console.WriteLine("📦 SessionKeyEncrypted keys: " + string.Join(", ", message.SessionKeyEncrypted.Keys));
+                    else
+                        Console.WriteLine("📦 SessionKeyEncrypted is null.");
                 }
                 else
                 {
-                    privateKey = File.ReadAllText(privateKeyPath);
+                    try
+                    {
+                        string encryptedKey = message.SessionKeyEncrypted[userId];
+                        Console.WriteLine($"🔐 Encrypted AES key: {encryptedKey}");
 
-                    if (message.SessionKeyEncrypted != null && message.SessionKeyEncrypted.ContainsKey(senderId))
-                    {
-                        try
-                        {
-                            string encryptedKey = message.SessionKeyEncrypted[senderId];
-                            string aesKey = _rsaService.Decrypt(encryptedKey, privateKey);
-                            message.Content = _aesService.DecryptMessage(message.Content, aesKey);
-                        }
-                        catch
-                        {
-                            message.Content = "[Không thể giải mã]";
-                        }
+                        string aesKey = _rsaService.Decrypt(encryptedKey, userId);
+                        Console.WriteLine($"🔓 AES key được giải mã: {aesKey}");
+
+                        Console.WriteLine($"🧾 Encrypted content: {message.Content}");
+                        message.Content = _aesService.DecryptMessage(message.Content, aesKey);
+                        Console.WriteLine($"✅ Tin nhắn đã giải mã: {message.Content}");
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        message.Content = "[Không có khóa giải mã]";
+                        message.Content = "[Không thể giải mã]";
+                        Console.WriteLine($"❌ Lỗi giải mã với message từ {message.SenderId} lúc {message.Timestamp}: {ex.Message}");
                     }
                 }
 
-                message.FromSelf = message.SenderId == senderId;
+                message.FromSelf = message.SenderId == currentUserId;
                 OnNewMessageReceived?.Invoke(message);
             });
         }
-
 
         public Task MarkMessagesAsReadAsync(string senderId, string receiverId)
         {

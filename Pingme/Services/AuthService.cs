@@ -29,9 +29,8 @@ namespace Pingme.Services
 
             CurrentUser = user;
 
-            // 🔐 Nếu chưa có public key, tạo và cập nhật
-            if (string.IsNullOrWhiteSpace(user.PublicKey))
-                await EnsureKeyPairAsync(user.id);
+            // 🔐 Nếu chưa có key cục bộ, tạo và đẩy public key nếu cần
+            await EnsureKeyPairAsync(user.id, user.PublicKey);
 
             return true;
         }
@@ -51,7 +50,7 @@ namespace Pingme.Services
 
             CurrentUser = user;
 
-            await EnsureKeyPairAsync(userId);
+            await EnsureKeyPairAsync(userId, null);
 
             return true;
         }
@@ -61,32 +60,34 @@ namespace Pingme.Services
             CurrentUser = null;
         }
 
-        // 📌 Tự động tạo public/private key nếu chưa có
-        private static async Task EnsureKeyPairAsync(string userId)
+        // 📌 Tạo public/private key nếu chưa có
+        private static async Task EnsureKeyPairAsync(string userId, string publicKeyFromFirebase)
         {
-            if (KeyManager.HasPrivateKey(userId))
-                return;
+            if (!KeyManager.HasPrivateKey(userId))
+            {
+                Console.WriteLine($"🔧 Tạo key mới cho {userId}...");
+                bool ok = rsaService.GenerateKeysForUser(userId);
 
-            KeyManager.EnsureKeyFolder();
+                if (!ok)
+                    throw new Exception("RSA key generation failed.");
+            }
+            else
+            {
+                Console.WriteLine($"🟢 Private key đã tồn tại cho {userId}.");
+            }
 
-            string tempPub = Path.GetTempFileName();
-            string tempPriv = Path.GetTempFileName();
+            // 🔄 Nếu Firebase chưa có publicKey → đẩy lên
+            if (string.IsNullOrWhiteSpace(publicKeyFromFirebase))
+            {
+                string pubXml = KeyManager.LoadPublicKeyContent(userId);
 
-            bool success = rsaService.GenerateKeys(tempPub, tempPriv);
-            if (!success)
-                throw new Exception("RSA key generation failed.");
+                await client
+                    .Child("users")
+                    .Child(userId)
+                    .PatchAsync(new { publicKey = pubXml });
 
-            KeyManager.SaveKeyFiles(userId, tempPub, tempPriv);
-
-            string publicKeyPem = File.ReadAllText(tempPub);
-
-            await client
-                .Child("users")
-                .Child(userId)
-                .PatchAsync(new { publicKey = publicKeyPem });
-
-            File.Delete(tempPub);
-            File.Delete(tempPriv);
+                Console.WriteLine($"⬆️ Đã upload publicKey cho {userId} lên Firebase.");
+            }
         }
     }
 }
