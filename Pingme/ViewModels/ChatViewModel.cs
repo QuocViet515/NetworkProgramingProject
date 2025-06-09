@@ -3,6 +3,7 @@ using Pingme.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,16 +36,22 @@ namespace Pingme.ViewModels
 
         public ChatViewModel()
         {
-            _chatService.OnNewMessageReceived = (msg) =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    msg.FromSelf = msg.SenderId == AuthService.CurrentUser.id;
-                    Messages.Add(msg);
-                });
-            };
-
+            _chatService.OnNewMessageReceived = HandleNewMessage;
             LoadUsers(); // Load danh sách người dùng
+        }
+
+        private void HandleNewMessage(Message msg)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                msg.FromSelf = msg.SenderId == AuthService.CurrentUser.id;
+
+                // 🔐 Kiểm tra tin nhắn đã tồn tại chưa
+                if (!Messages.Any(m => m.Timestamp == msg.Timestamp && m.SenderId == msg.SenderId))
+                {
+                    Messages.Add(msg);
+                }
+            });
         }
 
         public async void LoadUsers()
