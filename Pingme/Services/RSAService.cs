@@ -114,7 +114,7 @@ namespace Pingme.Services
     public class RSAService
     {
         // Tạo và lưu khóa RSA cho userId
-        public bool GenerateKeysForUser(string userId, int keySize = 2048)
+        public bool GenerateKeysForUser(string userId, int keySize = 4096)
         {
             try
             {

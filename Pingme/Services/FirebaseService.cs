@@ -16,6 +16,7 @@ namespace Pingme.Services
         private readonly FirebaseClient _firebaseClient;
         public event Action<Message> OnNewMessageReceived;
         private IDisposable _currentListener;
+        private DateTime _subscriptionStartTime = DateTime.UtcNow;
         public FirebaseService()
         {
             _firebaseClient = new FirebaseClient("https://fir-36ac0-default-rtdb.firebaseio.com/");
@@ -49,9 +50,9 @@ namespace Pingme.Services
         // Lắng nghe chỉ tin nhắn nhận (ví dụ phía người dùng A đang nhận tin từ B)
         public void SubscribeToIncomingMessages(string chatRoomId, string currentUserId, Action<Message> onNewMessage)
         {
+            _currentListener?.Dispose(); // hủy listener cũ
 
-            // 🔁 Huỷ listener cũ nếu có
-            _currentListener?.Dispose();
+            _subscriptionStartTime = DateTime.UtcNow; // ghi lại thời điểm bắt đầu
 
             _firebaseClient
                 .Child("messages")
@@ -60,11 +61,14 @@ namespace Pingme.Services
                 .Where(f => !string.IsNullOrEmpty(f.Key))
                 .Subscribe(d =>
                 {
-                    if (d.Object != null &&
-                        !d.Object.IsRead &&
-                        d.Object.ReceiverId == currentUserId)
+                    var msg = d.Object;
+
+                    if (msg != null &&
+                        msg.ReceiverId == currentUserId &&
+                        !msg.IsRead &&
+                        msg.Timestamp > _subscriptionStartTime)
                     {
-                        onNewMessage?.Invoke(d.Object);
+                        onNewMessage?.Invoke(msg);
                     }
                 });
         }
