@@ -165,7 +165,7 @@ namespace Pingme.Services
             byte[] key = Convert.FromBase64String(base64Key);
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
@@ -197,7 +197,7 @@ namespace Pingme.Services
 
                 using (var aes = Aes.Create())
                 {
-                    aes.KeySize = 128;
+                    aes.KeySize = 256;
                     aes.Key = key;
                     aes.IV = iv;
                     aes.Mode = CipherMode.CBC;
@@ -222,7 +222,7 @@ namespace Pingme.Services
             byte[] key = Convert.FromBase64String(base64Key);
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
@@ -249,7 +249,7 @@ namespace Pingme.Services
                 fsInput.Read(iv, 0, iv.Length); // đọc IV đầu file
 
                 var aes = Aes.Create();
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.IV = iv;
                 aes.Mode = CipherMode.CBC;
@@ -261,5 +261,37 @@ namespace Pingme.Services
                 cryptoStream.CopyTo(fsOutput);
             }
         }
+        public void EncryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv)
+        {
+            using (var aes = Aes.Create())
+            {
+                aes.KeySize = 256;
+                aes.Key = key;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                output.Write(iv, 0, iv.Length); // prepend IV
+                var cryptoStream = new CryptoStream(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
+                input.CopyTo(cryptoStream);
+            }
+        }
+
+        public void DecryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv)
+        {
+            var aes = Aes.Create();
+            aes.KeySize = 256;
+            aes.Key = key;
+            aes.IV = iv;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.PKCS7;
+
+            // Bỏ phần IV đầu (đã truyền rồi)
+            input.Read(new byte[iv.Length], 0, iv.Length);
+
+            var cryptoStream = new CryptoStream(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            cryptoStream.CopyTo(output);
+        }
+
     }
 }
