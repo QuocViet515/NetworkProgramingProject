@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pingme.Models
 {
-    internal class Notification
+    public class Notification
     {
         public string Id { get; set; }
         public string ReceiverId { get; set; }

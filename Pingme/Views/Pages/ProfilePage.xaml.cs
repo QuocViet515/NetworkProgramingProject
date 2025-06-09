@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Pingme.Helpers;
+using Pingme.Models;
+using Pingme.Services;
 using Pingme.Views.Controls;
 
 namespace Pingme.Views.Pages
@@ -21,6 +24,9 @@ namespace Pingme.Views.Pages
     /// </summary>
     public partial class ProfilePage : Page
     {
+        private UserService _userService = new UserService();
+        private FirebaseService _firebaseService = new FirebaseService();
+        private List<User> _searchResults = new List<User>();
         public ProfilePage()
         {
             InitializeComponent();
@@ -47,9 +53,94 @@ namespace Pingme.Views.Pages
         {
             LeftPanelContent.Content = new MyFriendAndGroupControl();
         }
-        private void BtnSearch_Click(object sender, RoutedEventArgs e) 
+        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            string keyword = SearchTextBox.Text.Trim().ToLower();
+            if (keyword.Length < 2)
+            {
+                SearchPopup.IsOpen = false;
+                return;
+            }
 
+            var allUsers = await _userService.GetAllUsersAsync();
+            _searchResults = allUsers
+                .Where(u => u.FullName.ToLower().Contains(keyword) && u.Id != SessionManager.UID)
+                .ToList();
+
+            RenderSearchResults();
         }
+
+        private void RenderSearchResults()
+        {
+            SearchResultsPanel.Items.Clear();
+
+            foreach (var user in _searchResults)
+            {
+                var avatar = new Image
+                {
+                    Width = 40,
+                    Height = 40,
+                    Margin = new Thickness(5),
+                    Source = new BitmapImage(new Uri(user.AvatarUrl, UriKind.RelativeOrAbsolute))
+                };
+
+                var info = new StackPanel { Margin = new Thickness(5) };
+                info.Children.Add(new TextBlock { Text = $"@{user.UserName}" });
+                info.Children.Add(new TextBlock { Text = user.FullName });
+                info.Children.Add(new TextBlock { Text = user.Email, FontStyle = FontStyles.Italic });
+
+                var addBtn = new Button
+                {
+                    Content = "Kết bạn",
+                    Margin = new Thickness(5),
+                    Padding = new Thickness(5)
+                };
+                addBtn.Click += async (s, e) => await SendFriendRequest(user);
+
+                var wrap = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(5) };
+                wrap.Children.Add(avatar);
+                wrap.Children.Add(info);
+                wrap.Children.Add(addBtn);
+
+                SearchResultsPanel.Items.Add(wrap);
+            }
+
+            SearchPopup.IsOpen = _searchResults.Count > 0;
+        }
+
+        private async Task SendFriendRequest(User targetUser)
+        {
+            var friend = new Friend
+            {
+                Id = Guid.NewGuid().ToString(),
+                User1 = SessionManager.UID,
+                User2 = targetUser.Id,
+                Status = "waiting",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid().ToString(),
+                ReceiverId = targetUser.Id,
+                Type = "friend_request",
+                Data = new Dictionary<string, string> { { "from", SessionManager.UID } },
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _firebaseService.AddFriendAsync(friend);
+            await _firebaseService.AddNotificationAsync(notification);
+            MessageBox.Show("Yêu cầu kết bạn đã được gửi.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            // Có thể trigger mở Popup ở đây nếu cần
+            if (_searchResults.Count > 0)
+            {
+                SearchPopup.IsOpen = true;
+            }
+        }
+
     }
 }

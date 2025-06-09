@@ -31,5 +31,14 @@ namespace Pingme.Services
             return null;
         }
 
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            var users = await _firebase.Child("users").OnceAsync<User>();
+            return users.Select(u =>
+            {
+                u.Object.Id = u.Key;
+                return u.Object;
+            }).ToList();
+        }
     }
 }

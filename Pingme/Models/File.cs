@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pingme.Models
 {
-    internal class File
+    public class File
     {
         public string Id { get; set; }
         public string MessageId { get; set; }

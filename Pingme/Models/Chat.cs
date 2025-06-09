@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pingme.Models
 {
-    internal class Chat
+    public class Chat
     {
         public string Id { get; set; }
         public string User1 { get; set; }

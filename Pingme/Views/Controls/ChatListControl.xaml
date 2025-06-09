@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pingme.Views.Controls"
              xmlns:controls="clr-namespace:Pingme.Views.Controls"
-             Height="Auto" Width="Auto">
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="300">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -28,19 +30,24 @@
                              Padding="5"
                              VerticalContentAlignment="Center"
                              HorizontalContentAlignment="Center"
-                             Width="180"/>
+                             Width="180"
+                             GotFocus="Search_GotFocus"
+                             LostFocus="Search_LostFocus"/>
                 </Border>
             </DockPanel>
         </Border>
 
-        <!-- Danh sách nhóm, bạn bè -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden"
-                      PanningMode="VerticalOnly" CanContentScroll="True">
-            <StackPanel>
-                <controls:ContactItem ContactName="Group 10 (NT106.P21.ANTT)" AvatarPath="/Assets/Images/a1.jpg"/>
-                <controls:ContactItem ContactName="Anh Tú" AvatarPath="/Assets/Icons/avater-default.png"/>
-                <!-- Add more ContactItems as needed -->
-            </StackPanel>
+        <!-- Danh sách chat -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Chats}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:ContactItem
+                            ContactName="{Binding User2}" 
+                            AvatarPath="/Assets/Icons/avatar-default.png"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
     </Grid>
 </UserControl>
