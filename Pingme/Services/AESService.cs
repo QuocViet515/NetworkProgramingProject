@@ -153,7 +153,7 @@ namespace Pingme.Services
         {
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.GenerateKey();
                 return Convert.ToBase64String(aes.Key);
             }
