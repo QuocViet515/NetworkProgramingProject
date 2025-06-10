@@ -15,7 +15,7 @@ namespace Pingme.Models
         public string ReceiverId { get; set; }
         public bool IsRead { get; set; }
         public string FileName { get; set; }  
-
+        public string Hash { get; set; }  // Thêm thuộc tính hash
         public string Type { get; set; }
         public Dictionary<string, string> SessionKeyEncrypted { get; set; }
         [JsonIgnore]

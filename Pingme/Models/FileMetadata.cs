@@ -14,5 +14,7 @@ namespace Pingme.Models
         public long timestamp { get; set; }
         public string senderId { get; set; }
         public string receiverId { get; set; }
+        public string hash { get; set; }  // ✅ Thêm dòng này
+
     }
 }

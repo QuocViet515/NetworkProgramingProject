@@ -158,9 +158,18 @@ namespace Pingme.Services
                 return Convert.ToBase64String(aes.Key);
             }
         }
+        public string ComputeSHA256(string text)
+        {
+            using (var sha = SHA256.Create())
+            {
+                byte[] data = Encoding.UTF8.GetBytes(text);
+                byte[] hash = sha.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
 
         // ==== MÃ HÓA / GIẢI MÃ CHUỖI ====
-        public string EncryptMessage(string plainText, string base64Key)
+        public (string EncryptedText, string Hash) EncryptMessageWithHash(string plainText, string base64Key)
         {
             byte[] key = Convert.FromBase64String(base64Key);
             using (var aes = Aes.Create())
@@ -178,46 +187,56 @@ namespace Pingme.Services
 
                     string ivBase64 = Convert.ToBase64String(aes.IV);
                     string cipherBase64 = Convert.ToBase64String(cipherBytes);
-                    return $"{ivBase64}:{cipherBase64}";
+                    string encryptedText = $"{ivBase64}:{cipherBase64}";
+                    string hash = ComputeSHA256(plainText);
+
+                    return (encryptedText, hash);
                 }
             }
         }
 
-       public string DecryptMessage(string encryptedText, string base64Key)
-{
-    try
-    {
-        if (string.IsNullOrWhiteSpace(encryptedText))
-            return "[Không thể giải mã] (Nội dung rỗng hoặc null)";
 
-        string[] parts = encryptedText.Split(':');
-        if (parts.Length != 2)
-            return "[Không thể giải mã] (Sai định dạng)";
-
-        byte[] iv = Convert.FromBase64String(parts[0]);
-        byte[] cipherBytes = Convert.FromBase64String(parts[1]);
-        byte[] key = Convert.FromBase64String(base64Key);
-
-        using (var aes = Aes.Create())
+        public (string PlainText, bool IsValid) DecryptMessageWithHashCheck(string encryptedText, string base64Key, string expectedHash)
         {
-            aes.KeySize = 256;
-            aes.Key = key;
-            aes.IV = iv;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
-
-            using (var decryptor = aes.CreateDecryptor())
+            try
             {
-                byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-                return Encoding.UTF8.GetString(plainBytes);
+                if (string.IsNullOrWhiteSpace(encryptedText))
+                    return ("[Không thể giải mã] (Nội dung rỗng hoặc null)", false);
+
+                string[] parts = encryptedText.Split(':');
+                if (parts.Length != 2)
+                    return ("[Không thể giải mã] (Sai định dạng)", false);
+
+                byte[] iv = Convert.FromBase64String(parts[0]);
+                byte[] cipherBytes = Convert.FromBase64String(parts[1]);
+                byte[] key = Convert.FromBase64String(base64Key);
+
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = 256;
+                    aes.Key = key;
+                    aes.IV = iv;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+
+                    using (var decryptor = aes.CreateDecryptor())
+                    {
+                        byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
+                        string plainText = Encoding.UTF8.GetString(plainBytes);
+
+                        string recomputedHash = ComputeSHA256(plainText);
+                        bool isValid = expectedHash == recomputedHash;
+
+                        return (plainText, isValid);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return ($"[Không thể giải mã] ({ex.Message})", false);
             }
         }
-    }
-    catch (Exception ex)
-    {
-        return $"[Không thể giải mã] ({ex.Message})";
-    }
-}
+
 
 
         // ==== MÃ HÓA / GIẢI MÃ FILE ====

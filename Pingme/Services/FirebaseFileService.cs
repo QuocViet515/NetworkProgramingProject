@@ -64,12 +64,15 @@ namespace Pingme.Services
                 await _storageClient.UploadObjectAsync(_bucketName, storagePath, null, stream);
             }
 
+            byte[] encryptedBytes = File.ReadAllBytes(tempEncryptedPath);
+            string hash = ComputeSHA256(encryptedBytes); // ✅ Tính hash của file mã hóa
             // Lưu metadata vào Firebase
             var metadata = new
             {
                 fileName = Path.GetFileName(filePath),
                 storagePath = storagePath,
                 encryptedAESKeyIV = encryptedKeyIV,
+                hash = hash,
                 timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 senderId = senderId,
                 receiverId = receiverId
@@ -79,6 +82,7 @@ namespace Pingme.Services
             string base64AesKey = Convert.ToBase64String(aesKey);
             string encryptedKeyForSender = _rsaService.EncryptWithXml(base64AesKey, sender.PublicKey);
             string encryptedKeyForReceiver = _rsaService.EncryptWithXml(base64AesKey, receiver.PublicKey);
+
 
             // ✅ Sau khi lưu metadata xong...
             var message = new Message
@@ -114,8 +118,16 @@ namespace Pingme.Services
 
             File.Delete(tempEncryptedPath);
         }
+        private string ComputeSHA256(byte[] data)
+        {
+            using (var sha = SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
 
-       public async Task DownloadAndDecryptFileAsync(
+        public async Task DownloadAndDecryptFileAsync(
     string fileId, string receiverPrivateKeyPath, string fullOutputPath)
 {
     var metadata = await _firebaseClient
@@ -141,9 +153,14 @@ namespace Pingme.Services
     {
         await _storageClient.DownloadObjectAsync(_bucketName, storagePath, outStream);
     }
+            byte[] encryptedBytes = File.ReadAllBytes(tempPath);
+            string downloadedHash = ComputeSHA256(encryptedBytes);
 
-    // ✅ Giải mã và ghi đúng nơi đã chọn
-    using (var input = new FileStream(tempPath, FileMode.Open, FileAccess.Read))
+            if (downloadedHash != metadata.hash)
+                throw new Exception("❌ Dữ liệu không toàn vẹn! File có thể đã bị sửa hoặc tải lỗi.");
+    
+            // ✅ Giải mã và ghi đúng nơi đã chọn
+            using (var input = new FileStream(tempPath, FileMode.Open, FileAccess.Read))
     using (var output = new FileStream(fullOutputPath, FileMode.Create, FileAccess.Write))
     {
         _aesService.DecryptFileWithStreams(input, output, aesKey);

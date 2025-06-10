@@ -93,7 +93,13 @@ namespace Pingme.ViewModels
                             if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.id, out string encryptedKey))
                             {
                                 string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.id);
-                                msg.Content = _aesService.DecryptMessage(msg.Content, aesKey);
+
+                                // ✅ Giải mã có kiểm tra hash
+                                var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Content, aesKey, msg.Hash);
+
+                                msg.Content = isValid
+                                    ? plainText
+                                    : $"[Không thể giải mã] (Hash không khớp)";
                             }
                             else
                             {
@@ -105,17 +111,14 @@ namespace Pingme.ViewModels
                             msg.Content = $"[Không thể giải mã] ({ex.Message})";
                         }
                     }
-
-                    // ✅ Với file: KHÔNG giải mã `Content` vì đó là fileId
-                    // Giữ nguyên msg.Content = fileId hoặc bạn có thể hiển thị như này:
                     else if (msg.Type == "file")
                     {
-                        msg.Content =msg.Content;
+                        // Không cần giải mã nếu là file
+                        msg.Content = msg.Content;
                     }
 
                     Messages.Add(msg);
                 }
-
 
                 _chatService.ListenForMessages(AuthService.CurrentUser.id, SelectedUser.id);
             }
@@ -124,6 +127,7 @@ namespace Pingme.ViewModels
                 MessageBox.Show("Lỗi tải lịch sử chat: " + ex.Message);
             }
         }
+
 
         public async Task SendMessage(string content)
         {
