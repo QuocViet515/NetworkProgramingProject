@@ -1,8 +1,10 @@
-﻿using Pingme.Models;
+﻿using Pingme.Helpers;
+using Pingme.Models;
 using Pingme.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -14,7 +16,8 @@ namespace Pingme.ViewModels
     {
         private readonly ChatService _chatService = new ChatService();
         private readonly FirebaseService _firebaseService = new FirebaseService();
-
+        private readonly RSAService _rsaService = new RSAService();
+        private readonly AESService _aesService = new AESService();
         public ObservableCollection<Message> Messages { get; set; } = new ObservableCollection<Message>();
         public ObservableCollection<User> UserList { get; set; } = new ObservableCollection<User>();
 
@@ -82,8 +85,37 @@ namespace Pingme.ViewModels
                 foreach (var msg in messages)
                 {
                     msg.FromSelf = msg.SenderId == AuthService.CurrentUser.id;
+
+                    if (msg.Type == "text")
+                    {
+                        try
+                        {
+                            if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.id, out string encryptedKey))
+                            {
+                                string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.id);
+                                msg.Content = _aesService.DecryptMessage(msg.Content, aesKey);
+                            }
+                            else
+                            {
+                                msg.Content = "[Không tìm thấy khóa giải mã]";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            msg.Content = $"[Không thể giải mã] ({ex.Message})";
+                        }
+                    }
+
+                    // ✅ Với file: KHÔNG giải mã `Content` vì đó là fileId
+                    // Giữ nguyên msg.Content = fileId hoặc bạn có thể hiển thị như này:
+                    else if (msg.Type == "file")
+                    {
+                        msg.Content =msg.Content;
+                    }
+
                     Messages.Add(msg);
                 }
+
 
                 _chatService.ListenForMessages(AuthService.CurrentUser.id, SelectedUser.id);
             }

@@ -165,7 +165,7 @@ namespace Pingme.Services
             byte[] key = Convert.FromBase64String(base64Key);
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
@@ -183,38 +183,42 @@ namespace Pingme.Services
             }
         }
 
-        public string DecryptMessage(string encryptedText, string base64Key)
+       public string DecryptMessage(string encryptedText, string base64Key)
+{
+    try
+    {
+        if (string.IsNullOrWhiteSpace(encryptedText))
+            return "[Không thể giải mã] (Nội dung rỗng hoặc null)";
+
+        string[] parts = encryptedText.Split(':');
+        if (parts.Length != 2)
+            return "[Không thể giải mã] (Sai định dạng)";
+
+        byte[] iv = Convert.FromBase64String(parts[0]);
+        byte[] cipherBytes = Convert.FromBase64String(parts[1]);
+        byte[] key = Convert.FromBase64String(base64Key);
+
+        using (var aes = Aes.Create())
         {
-            try
+            aes.KeySize = 256;
+            aes.Key = key;
+            aes.IV = iv;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.PKCS7;
+
+            using (var decryptor = aes.CreateDecryptor())
             {
-                string[] parts = encryptedText.Split(':');
-                if (parts.Length != 2)
-                    return "[Không thể giải mã] (Sai định dạng)";
-
-                byte[] iv = Convert.FromBase64String(parts[0]);
-                byte[] cipherBytes = Convert.FromBase64String(parts[1]);
-                byte[] key = Convert.FromBase64String(base64Key);
-
-                using (var aes = Aes.Create())
-                {
-                    aes.KeySize = 128;
-                    aes.Key = key;
-                    aes.IV = iv;
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
-
-                    using (var decryptor = aes.CreateDecryptor())
-                    {
-                        byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-                        return Encoding.UTF8.GetString(plainBytes);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return $"[Không thể giải mã] ({ex.Message})";
+                byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
+                return Encoding.UTF8.GetString(plainBytes);
             }
         }
+    }
+    catch (Exception ex)
+    {
+        return $"[Không thể giải mã] ({ex.Message})";
+    }
+}
+
 
         // ==== MÃ HÓA / GIẢI MÃ FILE ====
         public void EncryptFile(string inputPath, string outputPath, string base64Key)
@@ -222,7 +226,7 @@ namespace Pingme.Services
             byte[] key = Convert.FromBase64String(base64Key);
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
@@ -249,7 +253,7 @@ namespace Pingme.Services
                 fsInput.Read(iv, 0, iv.Length); // đọc IV đầu file
 
                 var aes = Aes.Create();
-                aes.KeySize = 128;
+                aes.KeySize = 256;
                 aes.Key = key;
                 aes.IV = iv;
                 aes.Mode = CipherMode.CBC;
@@ -261,5 +265,53 @@ namespace Pingme.Services
                 cryptoStream.CopyTo(fsOutput);
             }
         }
+        public void EncryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv)
+        {
+            using (var aes = Aes.Create())
+            {
+                aes.KeySize = 256;
+                aes.Key = key;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                // Ghi IV vào đầu file
+                output.Write(iv, 0, iv.Length);
+
+                using (var cryptoStream = new CryptoStream(output, aes.CreateEncryptor(), CryptoStreamMode.Write, leaveOpen: true))
+                {
+                    input.CopyTo(cryptoStream);
+                }
+
+                // Đảm bảo stream ngoài không bị đóng nếu dùng MemoryStream
+                output.Flush();
+            }
+        }
+
+
+        public void DecryptFileWithStreams(Stream input, Stream output, byte[] key)
+        {
+            byte[] iv = new byte[16];
+            int read = input.Read(iv, 0, iv.Length);
+            if (read != 16)
+                throw new Exception("Không đọc đủ IV từ đầu file");
+
+            using (var aes = Aes.Create())
+            {
+                aes.KeySize = 256;
+                aes.Key = key;
+                aes.IV = iv;
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+
+                using (var cryptoStream = new CryptoStream(input, aes.CreateDecryptor(), CryptoStreamMode.Read, leaveOpen: true))
+                {
+                    cryptoStream.CopyTo(output);
+                }
+
+                output.Flush();
+            }
+        }
+
     }
 }

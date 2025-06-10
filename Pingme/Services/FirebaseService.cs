@@ -174,5 +174,15 @@ namespace Pingme.Services
                 .Child(roomId)
                 .PutAsync(metadata);
         }
+        public async Task<string> GetPublicKeyAsync(string userId)
+        {
+            var user = await _firebaseClient
+                .Child("users")
+                .Child(userId)
+                .OnceSingleAsync<dynamic>();
+
+            // Đọc trường publicKey
+            return user?.publicKey;
+        }
     }
 }

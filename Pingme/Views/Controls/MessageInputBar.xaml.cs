@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -35,16 +36,53 @@ namespace Pingme.Views.Controls
             }
         }
 
-        private void AttachFile_Click(object sender, RoutedEventArgs e)
+        private async void AttachFile_Click(object sender, RoutedEventArgs e)
         {
+            var viewModel = DataContext as ChatViewModel;
             var openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                MessageBox.Show($"📁 Gửi file: {System.IO.Path.GetFileName(filePath)}");
-                // TODO: gửi file lên ViewModel
+                string fileName = Path.GetFileName(filePath);
+                MessageBox.Show($"📁 Đang gửi file: {fileName}");
+
+                string senderId = AuthService.CurrentUser.id;
+                string receiverId = viewModel.SelectedUser.id;
+
+                if (string.IsNullOrEmpty(receiverId))
+                {
+                    MessageBox.Show("❌ Chưa chọn người nhận!");
+                    return;
+                }
+
+                try
+                {
+                    var firebaseService = new FirebaseService();
+                    string receiverPublicKeyXml = await firebaseService.GetPublicKeyAsync(receiverId);
+
+                    Console.WriteLine("🧾 filePath: " + filePath);
+                    Console.WriteLine("📥 receiverId: " + receiverId);
+                    Console.WriteLine("📤 senderId: " + senderId);
+                    Console.WriteLine("🔐 receiverPublicKeyXml (50 ký tự đầu): " + receiverPublicKeyXml?.Substring(0, Math.Min(receiverPublicKeyXml.Length, 50)));
+
+                    var fileService = new FirebaseFileService();
+                    await fileService.UploadEncryptedFileAsync(
+                        filePath,
+                        receiverPublicKeyXml,
+                        senderId,
+                        receiverId
+                    );
+
+                    MessageBox.Show($"✅ File \"{fileName}\" đã gửi thành công!");
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"❌ Lỗi khi gửi file: {ex.Message}");
+                }
             }
         }
+
 
         private void ToggleMic_Click(object sender, RoutedEventArgs e)
         {
