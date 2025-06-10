@@ -369,15 +369,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\FileTypeToVisibilityConverter.cs" />
     <Compile Include="Converters\MessageAlignmentConverter.cs" />
     <Compile Include="Converters\MessageBackgroundConverter.cs" />
-    <Compile Include="Converters\TestConverter.cs" />
+    <Compile Include="Converters\TextTypeToVisibilityConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\KeyManager.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
     <Compile Include="Models\CallRequest.cs" />
-    <Compile Include="Models\FileMessage.cs" />
+    <Compile Include="Models\FileMetadata.cs" />
     <Compile Include="Models\GroupChat.cs" />
     <Compile Include="Models\ParticipantViewModel.cs" />
     <Compile Include="Resources\AppStyle.cs" />

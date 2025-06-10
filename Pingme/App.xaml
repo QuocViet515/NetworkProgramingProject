@@ -7,8 +7,10 @@
 
     <Application.Resources>
 
-        <conv:MessageBackgroundConverter x:Key="MessageBackgroundConverter" />
-        <conv:MessageAlignmentConverter x:Key="MessageAlignmentConverter" />
+        <conv:FileTypeToVisibilityConverter x:Key="FileTypeToVisibilityConverter"/>
+        <conv:TextTypeToVisibilityConverter x:Key="TextTypeToVisibilityConverter"/>
+        <conv:MessageAlignmentConverter x:Key="MessageAlignmentConverter"/>
+        <conv:MessageBackgroundConverter x:Key="MessageBackgroundConverter"/>
         <Style x:Key="RoundButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="60"/>
             <Setter Property="Height" Value="60"/>

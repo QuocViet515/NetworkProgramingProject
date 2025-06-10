@@ -121,7 +121,12 @@ namespace Pingme.Services
                 Console.WriteLine($"👂 Nghe tin nhắn mới từ room: {chatRoomId}");
                 Console.WriteLine($"🔐 Đang kiểm tra private key tại: {privPath}");
 
-                if (!File.Exists(privPath))
+                if (message.Type == "file")
+                {
+                    // Không giải mã nếu là tin nhắn file
+                    Console.WriteLine($"📁 Tin nhắn file, content là fileId: {message.Content}");
+                }
+                else if (!File.Exists(privPath))
                 {
                     message.Content = "[Không tìm thấy khóa giải mã]";
                     Console.WriteLine($"❌ Không tìm thấy private key tại: {privPath}");
@@ -161,6 +166,7 @@ namespace Pingme.Services
                 OnNewMessageReceived?.Invoke(message);
             });
         }
+
 
         public Task MarkMessagesAsReadAsync(string senderId, string receiverId)
         {

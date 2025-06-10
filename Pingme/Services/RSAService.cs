@@ -218,6 +218,29 @@ namespace Pingme.Services
                 return "[Lỗi giải mã]";
             }
         }
+        public string DecryptWithXml(string encryptedText, string privateKeyXml)
+        {
+            try
+            {
+                using (var rsa = new RSACryptoServiceProvider())
+                {
+                    rsa.FromXmlString(privateKeyXml);
+                    byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
+                    byte[] decryptedBytes = rsa.Decrypt(encryptedBytes, true); // OAEP
+                    return Encoding.UTF8.GetString(decryptedBytes);
+                }
+            }
+            catch (CryptographicException ex)
+            {
+                Console.WriteLine($"❌ RSA Decrypt CryptographicException: {ex.Message}");
+                return "[Lỗi giải mã]";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ RSA Decrypt Exception: {ex.Message}");
+                return "[Lỗi giải mã]";
+            }
+        }
 
 
 
