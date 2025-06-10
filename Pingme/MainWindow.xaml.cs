@@ -3,6 +3,19 @@ using System.Windows;
 using Microsoft.Win32;
 using Pingme.Services;
 using Pingme.Views.Pages;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Pingme.Models;
 
 namespace Pingme
 {
@@ -11,24 +24,7 @@ namespace Pingme
         public MainWindow()
         {
             InitializeComponent();
-            
+            MainFrame.Navigate(new HomePage()); // Load HomePage khi vừa mở app
         }
-        private FirebaseNotificationService _notificationService;
-
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (AuthService.CurrentUser == null)
-            {
-                MessageBox.Show("User chưa đăng nhập.");
-                return;
-            }
-
-            string currentUserId = AuthService.CurrentUser.id;
-
-            _notificationService = new FirebaseNotificationService();
-            _notificationService.StartListeningForCalls(currentUserId);
-        }
-
-
     }
 }

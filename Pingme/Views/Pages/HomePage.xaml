@@ -1,0 +1,85 @@
+﻿<Page x:Class="Pingme.Views.Pages.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="WhiteSmoke">
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- KHỐI TRÁI -->
+        <Grid Grid.Column="0" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Logo app -->
+                <RowDefinition Height="*"/>
+                <!-- Khối giữa -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Logo app (trên cùng) -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <Ellipse Width="60" Height="60">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="Ping me." FontSize="26" FontWeight="Bold"
+                   VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <!-- 2. Nội dung giữa -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <!-- 2. Hình minh họa Ping-me -->
+                <Image Source="/Assets/Icons/Ping-me.png"
+               Width="150" Height="100" Margin="0,0,0,20"
+               HorizontalAlignment="Center"/>
+
+                <!-- 3. Tiêu đề lớn -->
+                <TextBlock Text="Chat with Ping me"
+                   FontSize="34" FontWeight="Bold"
+                   TextAlignment="Center" HorizontalAlignment="Center"/>
+
+                <!-- 4. Slogan -->
+                <TextBlock Text="Simple. Fast. Real-time."
+                   FontSize="18" Foreground="Gray"
+                   TextAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <!-- 5. Nút -->
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
+                    <Button Content="Login" Width="110" Height="40" Margin="0,0,10,0"
+                    Background="#29A8FF" Foreground="White" FontSize="16"
+                    BorderBrush="Transparent" Padding="10,5"
+                    Cursor="Hand" Click="LoginButton_Click"
+                    Style="{StaticResource RoundedButtonStyle}" />
+                    <Button Content="Sign up" Width="110" Height="40"
+                    Background="#29A8FF" Foreground="White" FontSize="16"
+                    BorderBrush="Transparent" Padding="10,5"
+                    Cursor="Hand" Click="SignupButton_Click"
+                    Style="{StaticResource RoundedButtonStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- KHỐI PHẢI - HÌNH MÁY TÍNH -->
+        <Image Grid.Column="1"
+               Source="/Assets/Images/desktop-homepage.png"
+               Stretch="Uniform"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Margin="20"/>
+
+        <!-- DÒNG SLOGAN CUỐI -->
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                   Text="A simple app for messaging, video calling, and staying connected with the people you care about."
+                   FontStyle="Italic" FontFamily="Segoe UI"
+                   FontSize="18" Foreground="Gray"
+                   TextAlignment="Center" HorizontalAlignment="Center" Margin="0,20"/>
+    </Grid>
+</Page>

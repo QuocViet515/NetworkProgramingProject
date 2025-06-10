@@ -1,0 +1,140 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.ProfileInfoControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+
+    <UserControl.Resources>
+        <Style x:Key="EditModeTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Margin="20" Padding="20" Background="WhiteSmoke" CornerRadius="15" BorderBrush="#DDD" BorderThickness="1">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" MaxWidth="400">
+
+                <!-- Avatar -->
+                <Grid HorizontalAlignment="Center" Background="White">
+                    <Grid Margin="15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Border Width="130" Height="130" CornerRadius="65" BorderThickness="4" BorderBrush="LightGray">
+                                <Ellipse Width="120" Height="120">
+                                    <Ellipse.Fill>
+                                        <ImageBrush x:Name="AvatarBrush" ImageSource="/Assets/Icons/avatar-default.png"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <Button x:Name="ChangeAvatar"
+                                    Content="Đổi ảnh"
+                                    Click="ChangeAvatar_Click"
+                                    FontSize="14"
+                                    Style="{StaticResource RoundedButtonStyle}"
+                                    Background="#29A8FF" Foreground="White"
+                                    Width="100" Margin="0,10,0,0"
+                                    Visibility="Collapsed"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0" Visibility="Visible" x:Name="NameAndPenButton">
+                                <TextBlock x:Name="DisplayUserName" FontSize="22" FontWeight="Bold" Text="Tên người dùng"/>
+                                <Button x:Name="EditButton"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Margin="5,0,0,0"
+                                        Cursor="Hand"
+                                        Click="EditButton_Click">
+                                    <Image Source="/Assets/Icons/edit-pen.png" Width="16" Height="16"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- Thông tin -->
+                <Grid Margin="20,20,20,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Nút Save -->
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Username -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="UserNameText" Grid.Row="0" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Full Name -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Full Name:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="FullNameText" Grid.Row="1" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Email -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Email:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="EmailText" Grid.Row="2" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Phone -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="PhoneText" Grid.Row="3" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Birthday -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Birthday:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="BirthdayText" Grid.Row="4" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Address -->
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Address:" FontWeight="Bold" Margin="0,5" VerticalAlignment="Center"/>
+                    <TextBox x:Name="AddressText" Grid.Row="5" Grid.Column="1" Margin="5"
+                             Style="{StaticResource ReadOnlyTextBoxStyle}" IsReadOnly="True"/>
+
+                    <!-- Save button -->
+                    <Button x:Name="SaveButton"
+                            Grid.Row="6" Grid.ColumnSpan="2"
+                            Content="Save"
+                            Width="100" Height="35"
+                            Margin="0,20,0,0"
+                            Background="#4CAF50"
+                            Foreground="White"
+                            BorderBrush="Transparent"
+                            FontWeight="Bold"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Center"
+                            Click="SaveButton_Click"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

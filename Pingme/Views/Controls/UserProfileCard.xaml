@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.UserProfileCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Border Background="#F2F2F2" CornerRadius="10" Padding="10">
+        <StackPanel Margin="10">
+            <TextBlock Text="{Binding FullName, ElementName=Root}" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+            <UniformGrid Columns="2" Margin="0,5">
+                <TextBlock Text="Tên đăng nhập:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding UserName, ElementName=Root}"/>
+
+                <TextBlock Text="Email:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Email, ElementName=Root}"/>
+
+                <TextBlock Text="Số điện thoại:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Phone, ElementName=Root}"/>
+
+                <TextBlock Text="Ngày sinh:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Birthday, ElementName=Root, StringFormat='{}{0:dd/MM/yyyy}'}"/>
+
+                <TextBlock Text="Địa chỉ:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Address, ElementName=Root}"/>
+
+                <TextBlock Text="Trạng thái:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Status, ElementName=Root}"/>
+            </UniformGrid>
+        </StackPanel>
+    </Border>
+</UserControl>

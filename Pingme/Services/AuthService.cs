@@ -1,93 +1,76 @@
-﻿using Firebase.Database;
-using Firebase.Database.Query;
-using Pingme.Helpers;
-using Pingme.Models;
-using System;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Pingme.Services
 {
-    public static class AuthService
+    internal class AuthService
     {
-        public static User CurrentUser { get; private set; }
+        private const string ApiKey = "AIzaSyDC_fCjmDw4IkAqhLjqWCzG02LRXmvKgB0";
 
-        private static readonly FirebaseClient client = new FirebaseClient("https://fir-36ac0-default-rtdb.firebaseio.com/");
-        private static readonly RSAService rsaService = new RSAService();
+        private static readonly HttpClient client = new HttpClient();
 
-        public static async Task<bool> LoginAsync(string username, string password)
+        public class AuthResult
         {
-            var users = await client.Child("users").OnceAsync<User>();
-
-            var user = users
-                .Select(u => u.Object)
-                .FirstOrDefault(u => u.userName == username && u.password == password);
-
-            if (user == null)
-                return false;
-
-            CurrentUser = user;
-
-            // 🔐 Nếu chưa có key cục bộ, tạo và đẩy public key nếu cần
-            await EnsureKeyPairAsync(user.id, user.PublicKey);
-
-            return true;
+            public string LocalId { get; set; }
+            public string IdToken { get; set; }
+            public string Email { get; set; }
+            public string ErrorMessage { get; set; }
         }
 
-        public static async Task<bool> RegisterAsync(string username, string password)
+        public static async Task<AuthResult> LoginAsync(string email, string password)
         {
-            string userId = Guid.NewGuid().ToString();
-
-            var user = new User
+            var data = new
             {
-                id = userId,
-                userName = username,
-                password = password
+                email,
+                password,
+                returnSecureToken = true
             };
 
-            await client.Child("users").Child(userId).PutAsync(user);
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var res = await client.PostAsync($"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={ApiKey}", content);
+            var resContent = await res.Content.ReadAsStringAsync();
 
-            CurrentUser = user;
-
-            await EnsureKeyPairAsync(userId, null);
-
-            return true;
-        }
-
-        public static void Logout()
-        {
-            CurrentUser = null;
-        }
-
-        // 📌 Tạo public/private key nếu chưa có
-        private static async Task EnsureKeyPairAsync(string userId, string publicKeyFromFirebase)
-        {
-            if (!KeyManager.HasPrivateKey(userId))
-            {
-                Console.WriteLine($"🔧 Tạo key mới cho {userId}...");
-                bool ok = rsaService.GenerateKeysForUser(userId);
-
-                if (!ok)
-                    throw new Exception("RSA key generation failed.");
-            }
+            if (res.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<AuthResult>(resContent);
             else
+                return new AuthResult { ErrorMessage = resContent };
+        }
+
+        public static async Task<AuthResult> RegisterAsync(string email, string password)
+        {
+            var data = new
             {
-                Console.WriteLine($"🟢 Private key đã tồn tại cho {userId}.");
-            }
+                email,
+                password,
+                returnSecureToken = true
+            };
 
-            // 🔄 Nếu Firebase chưa có publicKey → đẩy lên
-            if (string.IsNullOrWhiteSpace(publicKeyFromFirebase))
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var res = await client.PostAsync($"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={ApiKey}", content);
+            var resContent = await res.Content.ReadAsStringAsync();
+
+            if (res.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<AuthResult>(resContent);
+            else
+                return new AuthResult { ErrorMessage = resContent };
+        }
+
+        public static async Task<bool> SendPasswordResetEmail(string email)
+        {
+            var data = new
             {
-                string pubXml = KeyManager.LoadPublicKeyContent(userId);
+                requestType = "PASSWORD_RESET",
+                email = email
+            };
 
-                await client
-                    .Child("users")
-                    .Child(userId)
-                    .PatchAsync(new { publicKey = pubXml });
-
-                Console.WriteLine($"⬆️ Đã upload publicKey cho {userId} lên Firebase.");
-            }
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var res = await client.PostAsync($"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={ApiKey}", content);
+            return res.IsSuccessStatusCode;
         }
     }
 }
