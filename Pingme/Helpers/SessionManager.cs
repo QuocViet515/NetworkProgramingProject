@@ -63,6 +63,9 @@ namespace Pingme.Helpers
             RefreshToken = null;
             CurrentUser = null;
         }
-
+        public static Dictionary<string, User> CurrentUserMap { get; set; } = new Dictionary<string, User>();
+        public static Dictionary<string, Message> LastMessages { get; set; } = new Dictionary<string, Message>();
+        public static Dictionary<string, ChatGroup> CurrentGroups { get; set; } = new Dictionary<string, ChatGroup>();
+        public static Dictionary<string, Chat> CurrentChats { get; set; } = new Dictionary<string, Chat>();
     }
 }

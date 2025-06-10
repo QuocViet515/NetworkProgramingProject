@@ -11,13 +11,10 @@
         <!-- Nút chức năng -->
         <Border Background="#FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
             <UniformGrid Columns="4">
-                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/callicon.png" />
-                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/videocallicon.png" />
-                <Button Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/contacticon.png" />
-                <ToggleButton x:Name="ToggleInfo"
-                              Style="{StaticResource ToggleButtonItem}"
-                              Tag="/Assets/Icons/profileicon.png"
-                              ToolTip="Thông tin người dùng hoặc nhóm" />
+                <Button x:Name="CallButton" Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/callicon.png" Click="CallButton_Click"/>
+                <Button x:Name="VideoCallButton" Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/videocallicon.png" Click="VideoCallButton_Click"/>
+                <Button x:Name="UserInfoButton" Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/profileicon.png" Click="UserInfoButton_Click"/>
+                <Button x:Name="PinMessageButton" Style="{StaticResource ButtonItem}" Tag="/Assets/Icons/paperclipicon.png" Click="PinMessageButton_Click"/>
             </UniformGrid>
         </Border>
 

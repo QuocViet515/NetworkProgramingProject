@@ -4,7 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pingme.Views.Controls"
-             xmlns:controls="clr-namespace:Pingme.Views.Controls">
+             xmlns:controls="clr-namespace:Pingme.Views.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="600">
+
     <Border CornerRadius="10" Padding="5" Margin="10">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -21,20 +24,13 @@
             </Grid.RowDefinitions>
 
             <!-- Thanh tiêu đề -->
-            <controls:ChatHeader ContactName="Group 10 (NT106.P21.ANTT)" AvatarPath="/Assets/Icons/avatar-default.png"/>
+            <controls:ChatHeader x:Name="ChatHeader"
+                                 ContactName="Tên người/nhóm"
+                                 AvatarPath="/Assets/Icons/avatar-default.png" Margin="10,10,10,20"/>
 
             <!-- Danh sách tin nhắn -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" PanningMode="VerticalOnly" CanContentScroll="True">
-                <StackPanel Name="ChatPanel" Margin="10">
-                    <controls:ChatSeparator DateText="11 / 3 / 2025"/>
-                    <controls:MessageChat AvatarPath="/Assets/Icons/avatar-default.png" Message="Chào mọi người"/>
-                    <controls:MessageChat AvatarPath="/Assets/Icons/avatar-default.png" Message="Chào các bạn"/>
-                    <controls:UserChat AvatarPath="/Assets/Icons/avatar-default.png" Message="Giờ mình phân công công việc nha"/>
-                    <controls:MessageChat AvatarPath="/Assets/Icons/avatar-default.png" Message="Oke bạn"/>
-                    <controls:UserChat AvatarPath="/Assets/Icons/avatar-default.png" Message="Mọi người vào nhận công việc nha"/>
-                    <controls:ChatSeparator DateText="28 / 3 / 2025"/>
-                    <controls:SystemNotification AvatarPath="/Assets/Icons/avatar-default.png" Message="Đã rời khỏi nhóm"/>
-                </StackPanel>
+                <StackPanel Name="ChatPanel" Margin="10"/>
             </ScrollViewer>
 
             <!-- Khung nhập tin nhắn -->
@@ -58,7 +54,8 @@
                                  Text="Nhắn gì đó . . ." />
                     </Border>
 
-                    <Button Grid.Column="2" Margin="5,5,2,3" Background="Transparent" BorderThickness="0" ToolTip="Gửi">
+                    <Button Grid.Column="2" Margin="5,5,2,3" Background="Transparent" BorderThickness="0" 
+                            ToolTip="Gửi" Click="SendButton_Click">
                         <Image Source="/Assets/Icons/sendicon.png" Width="51" Height="50"/>
                     </Button>
                 </Grid>

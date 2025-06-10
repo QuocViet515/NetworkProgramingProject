@@ -25,21 +25,31 @@ namespace Pingme.Views.Controls
 
         private async void LoadNotifications()
         {
-            var userId = SessionManager.UID;
-            var allNotifications = await _firebaseService.GetNotificationsByUserAsync(userId);
+            try
+            {
+                NotificationsPanel.Children.Clear(); // Clear cũ
 
-            int unreadCount = allNotifications.Count(n => !n.IsRead);
-            NotificationHeader.Text = $"Notification ({unreadCount})";
+                var userId = SessionManager.UID;
+                var allNotifications = await _firebaseService.GetNotificationsByUserAsync(userId);
 
-            var grouped = allNotifications
-                .GroupBy(n => n.Type)
-                .ToDictionary(g => g.Key, g => g.ToList());
+                int unreadCount = allNotifications.Count(n => !n.IsRead);
+                NotificationHeader.Text = $"Notification ({unreadCount})";
 
-            ShowGrouped(grouped, "new_message", "📩 Tin nhắn mới");
-            ShowGrouped(grouped, "friend_request", "👥 Yêu cầu kết bạn");
-            ShowGrouped(grouped, "call_active", "📞 Cuộc gọi đang diễn ra");
-            ShowGrouped(grouped, "call_missed", "❌ Cuộc gọi nhỡ");
+                var grouped = allNotifications
+                    .GroupBy(n => n.Type)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                ShowGrouped(grouped, "new_message", "📩 Tin nhắn mới");
+                ShowGrouped(grouped, "friend_request", "👥 Yêu cầu kết bạn");
+                ShowGrouped(grouped, "call_active", "📞 Cuộc gọi đang diễn ra");
+                ShowGrouped(grouped, "call_missed", "❌ Cuộc gọi nhỡ");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải thông báo: " + ex.Message);
+            }
         }
+
         private void ShowGrouped(Dictionary<string, List<Notification>> grouped, string typeKey, string header)
         {
             if (!grouped.ContainsKey(typeKey)) return;
@@ -76,16 +86,10 @@ namespace Pingme.Views.Controls
                 Opacity = noti.IsRead ? 0.5 : 1.0
             };
 
-            string senderName = "Ping me";
+            string senderName = noti.Data.TryGetValue("fromName", out var fromName) ? fromName : "Ping me";
+            string avatarUrl = noti.Data.TryGetValue("fromAvatar", out var fromAvatar) ? fromAvatar : "/Assets/Icons/logo-app.jpg";
             string message = "Bạn có thông báo mới.";
             Brush messageColor = Brushes.Black;
-            string avatarUrl = "../../Assets/Icons/logo-app.jpg";
-
-            if (noti.Data.TryGetValue("fromName", out var fromName))
-                senderName = fromName;
-
-            if (noti.Data.TryGetValue("fromAvatar", out var fromAvatar))
-                avatarUrl = fromAvatar;
 
             switch (noti.Type)
             {
@@ -107,16 +111,18 @@ namespace Pingme.Views.Controls
                     break;
             }
 
-            // Avatar
             var avatar = new Ellipse
             {
                 Width = 48,
                 Height = 48,
                 Margin = new Thickness(0, 0, 12, 0),
-                Fill = new ImageBrush(new BitmapImage(new Uri(avatarUrl, UriKind.RelativeOrAbsolute)))
+                //Fill = new ImageBrush(new BitmapImage(new Uri(avatarUrl, UriKind.RelativeOrAbsolute)))
+                Fill = new ImageBrush(new BitmapImage(new Uri(
+                    string.IsNullOrWhiteSpace(avatarUrl) ? "../../Assets/Icons/logo-app.jpg" : avatarUrl,
+                    UriKind.RelativeOrAbsolute)))
+
             };
 
-            // Text
             var nameBlock = new TextBlock
             {
                 Text = senderName,
@@ -142,7 +148,6 @@ namespace Pingme.Views.Controls
             textStack.Children.Add(nameBlock);
             textStack.Children.Add(messageBox);
 
-            // Buttons
             var detailBtn = new Button
             {
                 Content = "Chi tiết",
@@ -153,36 +158,42 @@ namespace Pingme.Views.Controls
             };
             detailBtn.Click += async (s, e) =>
             {
-                noti.IsRead = true;
-                noti.ReadAt = DateTime.UtcNow;
-                await _firebaseService.UpdateNotificationAsync(noti);
-
-                if (noti.Type == "friend_request" && noti.Data.TryGetValue("from", out var fromId))
+                try
                 {
-                    var senderUser = await _firebaseService.GetUserByIdAsync(fromId);
+                    noti.IsRead = true;
+                    noti.ReadAt = DateTime.UtcNow;
+                    await _firebaseService.UpdateNotificationAsync(noti);
 
-                    var dialog = new Window
+                    if (noti.Type == "friend_request" && noti.Data.TryGetValue("from", out var fromId))
                     {
-                        Title = "Yêu cầu kết bạn",
-                        Width = 300,
-                        Height = 250,
-                        Content = CreateFriendRequestDialog(senderUser, noti.Id),
-                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                        ResizeMode = ResizeMode.NoResize
-                    };
-                    dialog.ShowDialog();
+                        var senderUser = await _firebaseService.GetUserByIdAsync(fromId);
 
-                    NotificationsPanel.Children.Clear();
-                    LoadNotifications();
+                        var dialog = new Window
+                        {
+                            Title = "Yêu cầu kết bạn",
+                            Width = 300,
+                            Height = 250,
+                            Content = CreateFriendRequestDialog(senderUser, noti.Id),
+                            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                            ResizeMode = ResizeMode.NoResize
+                        };
+                        dialog.ShowDialog();
+
+                        NotificationsPanel.Children.Clear();
+                        LoadNotifications();
+                    }
+                    else if (noti.Data.TryGetValue("chatId", out var chatId))
+                    {
+                        MessageBox.Show($"Đi đến Chat với ID: {chatId}");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không tìm thấy thông tin chi tiết.");
+                    }
                 }
-                else if (noti.Data.TryGetValue("chatId", out var chatId))
+                catch (Exception ex)
                 {
-                    // 📌 CHỖ NÀY: ĐIỀU HƯỚNG ĐẾN CHATPAGE THEO chatId (sẽ dùng sau khi bạn hoàn thiện điều hướng ChatPage)
-                    MessageBox.Show($"Đi đến Chat với ID: {chatId}");
-                }
-                else
-                {
-                    MessageBox.Show("Không tìm thấy thông tin chi tiết.");
+                    MessageBox.Show("Lỗi khi xử lý thông báo: " + ex.Message);
                 }
             };
 
@@ -205,7 +216,6 @@ namespace Pingme.Views.Controls
             buttonStack.Children.Add(detailBtn);
             buttonStack.Children.Add(deleteBtn);
 
-            // Layout theo cột
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(60) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -223,6 +233,7 @@ namespace Pingme.Views.Controls
             border.Child = grid;
             return border;
         }
+
         private StackPanel CreateFriendRequestDialog(User senderUser, string notificationId)
         {
             var panel = new StackPanel { Margin = new Thickness(10) };

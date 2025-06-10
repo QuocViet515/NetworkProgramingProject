@@ -31,6 +31,29 @@ namespace Pingme.Views.Pages
         {
             InitializeComponent();
         }
+        public ProfilePage(string section = "profile")
+        {
+            InitializeComponent();
+
+            Loaded += (s, e) =>
+            {
+                switch (section)
+                {
+                    case "notification":
+                        LeftPanelContent.Content = new NotificationControl();
+                        break;
+                    case "setting":
+                        LeftPanelContent.Content = new SettingControl();
+                        break;
+                    case "friendgroup":
+                        LeftPanelContent.Content = new MyFriendAndGroupControl();
+                        break;
+                    default:
+                        LeftPanelContent.Content = new SettingControl(); // Mặc định
+                        break;
+                }
+            };
+        }
         private void GoToChat_Click(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new ChatPage());

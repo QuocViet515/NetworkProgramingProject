@@ -4,22 +4,106 @@
              Background="White">
     <StackPanel Margin="20">
         <!-- Friend Title -->
-        <TextBlock Text="Friends"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"
-                   Margin="0,10"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+            <TextBlock Text="Friends"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+            <Button Content="+"
+                    Width="30"
+                    Height="30"
+                    Margin="10,0,0,0"
+                    Background="LightGreen"
+                    BorderThickness="0"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    ToolTip="Thêm bạn"
+                    Click="AddFriend_Click"
+                    Cursor="Hand"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    BorderBrush="Transparent"
+                    FontSize="16">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15"
+                                SnapsToDevicePixels="True">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Background" Value="LightGreen"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#4CAF50"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
 
         <Border Background="#F4F4F4" CornerRadius="10" Padding="10" Margin="0,5,0,20">
             <WrapPanel x:Name="FriendPanel" HorizontalAlignment="Left"/>
         </Border>
 
         <!-- Group Title -->
-        <TextBlock Text="Groups"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,10"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="Groups"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+            <Button Content="+"
+                    Width="30"
+                    Height="30"
+                    Margin="10,0,0,0"
+                    Background="LightGreen"
+                    BorderThickness="0"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    ToolTip="Tạo nhóm mới"
+                    Click="AddGroup_Click"
+                    Cursor="Hand"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    BorderBrush="Transparent"
+                    FontSize="16">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15"
+                                SnapsToDevicePixels="True">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Background" Value="LightGreen"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#4CAF50"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
 
         <Border Background="#F4F4F4" CornerRadius="10" Padding="10">
             <WrapPanel x:Name="GroupPanel" HorizontalAlignment="Left"/>

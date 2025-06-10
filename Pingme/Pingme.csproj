@@ -220,6 +220,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\BoolToAngleConverter.cs" />
+    <Compile Include="Helpers\BoolToBrushConverter.cs" />
     <Compile Include="Helpers\BoolToOpacityConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\FirebaseAuthResponse.cs" />
@@ -229,6 +230,7 @@
     <Compile Include="Helpers\TimeFormatHelper.cs" />
     <Compile Include="Models\CallLog.cs" />
     <Compile Include="Models\Chat.cs" />
+    <Compile Include="Models\ChatDisplayExtensions.cs" />
     <Compile Include="Models\ChatTag.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\Friend.cs" />
@@ -344,6 +346,9 @@
     </Compile>
     <Compile Include="Views\Windows\CallWindow.xaml.cs">
       <DependentUpon>CallWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\CreateGroupDialog.xaml.cs">
+      <DependentUpon>CreateGroupDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\CropImageWindow.xaml.cs">
       <DependentUpon>CropImageWindow.xaml</DependentUpon>
@@ -488,6 +493,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\CreateGroupDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\CropImageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -582,6 +591,9 @@
   <ItemGroup>
     <Resource Include="Assets\Icons\bell.png" />
     <Resource Include="Assets\Icons\mute.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\profileicon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
