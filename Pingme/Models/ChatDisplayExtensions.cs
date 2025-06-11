@@ -43,7 +43,7 @@ namespace Pingme.Models
                 if (!string.IsNullOrEmpty(LastMessageId) &&
                     SessionManager.LastMessages.TryGetValue(LastMessageId, out var msg))
                 {
-                    return msg.Text ?? "[File]";
+                    return msg.Content ?? "[File]";
                 }
                 return "";
             }
@@ -76,7 +76,7 @@ namespace Pingme.Models
                 if (!string.IsNullOrEmpty(LastMessageId) &&
                     SessionManager.LastMessages.TryGetValue(LastMessageId, out var msg))
                 {
-                    return msg.Text ?? "[File]";
+                    return msg.Content ?? "[File]";
                 }
                 return "";
             }

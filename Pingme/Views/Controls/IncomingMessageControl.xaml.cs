@@ -26,5 +26,4 @@ namespace Pingme.Views.Controls
             MessageTextBlock.Text = text;
         }
     }
-
 }

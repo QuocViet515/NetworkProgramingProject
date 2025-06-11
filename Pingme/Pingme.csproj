@@ -43,8 +43,44 @@
     <Reference Include="Firebase.Storage, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\FirebaseStorage.net.1.0.3\lib\netstandard1.1\Firebase.Storage.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Api.Gax, Version=4.9.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Api.Gax.4.9.0\lib\net462\Google.Api.Gax.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Api.Gax.Rest, Version=4.9.0.0, Culture=neutral, PublicKeyToken=3ec5ea7f18953e47, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Api.Gax.Rest.4.9.0\lib\net462\Google.Api.Gax.Rest.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis, Version=1.70.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Apis.1.70.0\lib\net462\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth, Version=1.70.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Apis.Auth.1.70.0\lib\net462\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.70.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Apis.Core.1.70.0\lib\net462\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Oauth2.v2, Version=1.68.0.1869, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Apis.Oauth2.v2.1.68.0.1869\lib\net462\Google.Apis.Oauth2.v2.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Storage.v1, Version=1.69.0.3707, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Apis.Storage.v1.1.69.0.3707\lib\net462\Google.Apis.Storage.v1.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Storage.V1, Version=4.13.0.0, Culture=neutral, PublicKeyToken=185c282632e132a0, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Cloud.Storage.V1.4.13.0\lib\net462\Google.Cloud.Storage.V1.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageResizer, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ImageResizer.4.2.8\lib\net45\ImageResizer.dll</HintPath>
+    </Reference>
     <Reference Include="LiteDB, Version=5.0.21.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
       <HintPath>packages\LiteDB.5.0.21\lib\net45\LiteDB.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.Cryptography, Version=9.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.Cryptography.9.0.5\lib\net462\Microsoft.Bcl.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.DependencyInjection.Abstractions.6.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
@@ -77,6 +113,10 @@
       <HintPath>packages\System.Diagnostics.Tracing.4.3.0\lib\net462\System.Diagnostics.Tracing.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Formats.Asn1, Version=9.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Formats.Asn1.9.0.5\lib\net462\System.Formats.Asn1.dll</HintPath>
     </Reference>
     <Reference Include="System.Globalization.Calendars, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Globalization.Calendars.4.3.0\lib\net46\System.Globalization.Calendars.dll</HintPath>
@@ -119,6 +159,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
@@ -167,6 +208,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Security" />
     <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Security.Cryptography.Algorithms.4.3.1\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
       <Private>True</Private>
@@ -176,6 +218,9 @@
       <HintPath>packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.OpenSsl, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Security.Cryptography.OpenSsl.5.0.0\lib\net461\System.Security.Cryptography.OpenSsl.dll</HintPath>
     </Reference>
     <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
@@ -187,6 +232,9 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Security.Cryptography.Xml, Version=9.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Security.Cryptography.Xml.9.0.5\lib\net462\System.Security.Cryptography.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Text.RegularExpressions.4.3.1\lib\net463\System.Text.RegularExpressions.dll</HintPath>
       <Private>True</Private>
@@ -195,8 +243,14 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.Ribbon35, Version=3.5.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\System.Windows.Forms.Ribbon35.3.5.8.0\lib\net35\System.Windows.Forms.Ribbon35.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -213,28 +267,45 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\FileTypeToVisibilityConverter.cs" />
+    <Compile Include="Converters\MessageAlignmentConverter.cs" />
+    <Compile Include="Converters\MessageBackgroundConverter.cs" />
+    <Compile Include="Converters\TextTypeToVisibilityConverter.cs" />
     <Compile Include="Helpers\BoolToAngleConverter.cs" />
     <Compile Include="Helpers\BoolToBrushConverter.cs" />
     <Compile Include="Helpers\BoolToOpacityConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\FirebaseAuthResponse.cs" />
+    <Compile Include="Helpers\KeyManager.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\SessionManager.cs" />
     <Compile Include="Helpers\SoundIndexConverter.cs" />
     <Compile Include="Helpers\TimeFormatHelper.cs" />
     <Compile Include="Models\CallLog.cs" />
+    <Compile Include="Models\CallRequest.cs" />
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\ChatDisplayExtensions.cs" />
     <Compile Include="Models\ChatTag.cs" />
     <Compile Include="Models\File.cs" />
+    <Compile Include="Models\FileMetadata.cs" />
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\Notification.cs" />
+    <Compile Include="Models\ParticipantViewModel.cs" />
+    <Compile Include="Services\AESService.cs" />
+    <Compile Include="Services\AgoraVideoService.cs" />
+    <Compile Include="Services\channelName.cs" />
+    <Compile Include="Services\FileTransferService.cs" />
+    <Compile Include="Services\FirebaseFileService.cs" />
+    <Compile Include="Services\FirebaseNotificationService.cs" />
+    <Compile Include="Services\RSAService.cs" />
+    <Compile Include="Services\UserEventHandler.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\CallService.cs" />
@@ -284,6 +355,9 @@
     <Compile Include="Views\Controls\GroupMember.xaml.cs">
       <DependentUpon>GroupMember.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\IncomingMessageControl.xaml.cs">
+      <DependentUpon>IncomingMessageControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\MessageBubble.xaml.cs">
       <DependentUpon>MessageBubble.xaml</DependentUpon>
     </Compile>
@@ -292,6 +366,9 @@
     </Compile>
     <Compile Include="Views\Controls\MessageInputBar.xaml.cs">
       <DependentUpon>MessageInputBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\MessageList.xaml.cs">
+      <DependentUpon>MessageList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\MyFriendAndGroupControl.xaml.cs">
       <DependentUpon>MyFriendAndGroupControl.xaml</DependentUpon>
@@ -302,11 +379,17 @@
     <Compile Include="Views\Controls\OnlineIndicator.xaml.cs">
       <DependentUpon>OnlineIndicator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\OutgoingMessageControl.xaml.cs">
+      <DependentUpon>OutgoingMessageControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ProfileInfoControl.xaml.cs">
       <DependentUpon>ProfileInfoControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\SettingControl.xaml.cs">
       <DependentUpon>SettingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\Sidebar.xaml.cs">
+      <DependentUpon>Sidebar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\StatusBar.xaml.cs">
       <DependentUpon>StatusBar.xaml</DependentUpon>
@@ -409,6 +492,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\IncomingMessageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\MessageBubble.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -420,6 +507,10 @@
     <Page Include="Views\Controls\MessageInputBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\MessageList.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\MyFriendAndGroupControl.xaml">
       <SubType>Designer</SubType>
@@ -433,6 +524,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\OutgoingMessageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\ProfileInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -440,6 +535,10 @@
     <Page Include="Views\Controls\SettingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\Sidebar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\StatusBar.xaml">
       <SubType>Designer</SubType>
@@ -523,6 +622,73 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="AgoraBin\agorartc.deps.json" />
+    <None Include="AgoraBin\AgoraRtcWrapper.lib" />
+    <None Include="AgoraBin\C_Sharp-API_Example.deps.json" />
+    <None Include="AgoraBin\C_Sharp-API_Example.runtimeconfig.dev.json" />
+    <None Include="AgoraBin\C_Sharp-API_Example.runtimeconfig.json" />
+    <None Include="fonts\fontawesome-webfont.eot" />
+    <None Include="protos\google\api\annotations.proto" />
+    <None Include="protos\google\api\auth.proto" />
+    <None Include="protos\google\api\backend.proto" />
+    <None Include="protos\google\api\billing.proto" />
+    <None Include="protos\google\api\client.proto" />
+    <None Include="protos\google\api\config_change.proto" />
+    <None Include="protos\google\api\consumer.proto" />
+    <None Include="protos\google\api\context.proto" />
+    <None Include="protos\google\api\control.proto" />
+    <None Include="protos\google\api\distribution.proto" />
+    <None Include="protos\google\api\documentation.proto" />
+    <None Include="protos\google\api\endpoint.proto" />
+    <None Include="protos\google\api\error_reason.proto" />
+    <None Include="protos\google\api\field_behavior.proto" />
+    <None Include="protos\google\api\field_info.proto" />
+    <None Include="protos\google\api\http.proto" />
+    <None Include="protos\google\api\httpbody.proto" />
+    <None Include="protos\google\api\label.proto" />
+    <None Include="protos\google\api\launch_stage.proto" />
+    <None Include="protos\google\api\log.proto" />
+    <None Include="protos\google\api\logging.proto" />
+    <None Include="protos\google\api\metric.proto" />
+    <None Include="protos\google\api\monitored_resource.proto" />
+    <None Include="protos\google\api\monitoring.proto" />
+    <None Include="protos\google\api\policy.proto" />
+    <None Include="protos\google\api\quota.proto" />
+    <None Include="protos\google\api\resource.proto" />
+    <None Include="protos\google\api\routing.proto" />
+    <None Include="protos\google\api\service.proto" />
+    <None Include="protos\google\api\source_info.proto" />
+    <None Include="protos\google\api\system_parameter.proto" />
+    <None Include="protos\google\api\usage.proto" />
+    <None Include="protos\google\api\visibility.proto" />
+    <None Include="protos\google\rpc\code.proto" />
+    <None Include="protos\google\rpc\context\attribute_context.proto" />
+    <None Include="protos\google\rpc\context\audit_context.proto" />
+    <None Include="protos\google\rpc\error_details.proto" />
+    <None Include="protos\google\rpc\http.proto" />
+    <None Include="protos\google\rpc\status.proto" />
+    <None Include="protos\google\type\calendar_period.proto" />
+    <None Include="protos\google\type\color.proto" />
+    <None Include="protos\google\type\date.proto" />
+    <None Include="protos\google\type\datetime.proto" />
+    <None Include="protos\google\type\dayofweek.proto" />
+    <None Include="protos\google\type\decimal.proto" />
+    <None Include="protos\google\type\expr.proto" />
+    <None Include="protos\google\type\fraction.proto" />
+    <None Include="protos\google\type\interval.proto" />
+    <None Include="protos\google\type\latlng.proto" />
+    <None Include="protos\google\type\localized_text.proto" />
+    <None Include="protos\google\type\money.proto" />
+    <None Include="protos\google\type\month.proto" />
+    <None Include="protos\google\type\phone_number.proto" />
+    <None Include="protos\google\type\postal_address.proto" />
+    <None Include="protos\google\type\quaternion.proto" />
+    <None Include="protos\google\type\timeofday.proto" />
+    <None Include="service-account.json" />
+    <Resource Include="fonts\fontawesome-webfont.ttf" />
+    <None Include="fonts\fontawesome-webfont.woff" />
+    <None Include="fonts\fontawesome-webfont.woff2" />
+    <Resource Include="fonts\FontAwesome.otf" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -594,6 +760,85 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\profileicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AgoraBin\agorartc.dll" />
+    <Content Include="AgoraBin\AgoraRtcWrapper.dll" />
+    <Content Include="AgoraBin\agora_rtc_sdk.dll" />
+    <Content Include="AgoraBin\C_Sharp-API_Example.dll" />
+    <Content Include="AgoraBin\glfw3.dll" />
+    <Content Include="AgoraBin\libagora-core.dll" />
+    <Content Include="AgoraBin\libagora-fdkaac.dll" />
+    <Content Include="AgoraBin\libagora-ffmpeg.dll" />
+    <Content Include="AgoraBin\libagora-soundtouch.dll" />
+    <Content Include="AgoraBin\libagora-wgc.dll" />
+    <Content Include="AgoraBin\libagora_ai_echo_cancellation_extension.dll" />
+    <Content Include="AgoraBin\libagora_ai_noise_suppression_extension.dll" />
+    <Content Include="AgoraBin\libagora_audio_beauty_extension.dll" />
+    <Content Include="AgoraBin\libagora_clear_vision_extension.dll" />
+    <Content Include="AgoraBin\libagora_content_inspect_extension.dll" />
+    <Content Include="AgoraBin\libagora_drm_loader_extension.dll" />
+    <Content Include="AgoraBin\libagora_face_detection_extension.dll" />
+    <Content Include="AgoraBin\libagora_screen_capture_extension.dll" />
+    <Content Include="AgoraBin\libagora_segmentation_extension.dll" />
+    <Content Include="AgoraBin\libagora_spatial_audio_extension.dll" />
+    <Content Include="AgoraBin\libagora_udrm3_extension.dll" />
+    <Content Include="AgoraBin\libagora_video_decoder_extension.dll" />
+    <Content Include="AgoraBin\libagora_video_encoder_extension.dll" />
+    <Content Include="AgoraBin\libagora_video_quality_analyzer_extension.dll" />
+    <Content Include="AgoraBin\LitJSON.dll" />
+    <Content Include="AgoraBin\SharpDX.Direct3D9.dll" />
+    <Content Include="AgoraBin\SharpDX.dll" />
+    <Content Include="AgoraBin\SharpDX.Mathematics.dll" />
+    <Content Include="AgoraBin\video_dec.dll" />
+    <Content Include="AgoraBin\video_enc.dll" />
+    <Content Include="Content\font-awesome.css" />
+    <Content Include="Content\font-awesome.min.css" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
+    <Content Include="Services\aes_key.dll" />
+    <Content Include="Services\RSA_DLL.dll" />
+    <Resource Include="Updates.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Thêm tất cả các DLL cần dùng -->
+    <Reference Include="AgoraRtcWrapper">
+      <HintPath>AgoraBin\AgoraRtcWrapper.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="agorartc">
+      <HintPath>AgoraBin\agorartc.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="agora_rtc_sdk">
+      <HintPath>AgoraBin\agora_rtc_sdk.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="C_Sharp-API_Example">
+      <HintPath>AgoraBin\C_Sharp-API_Example.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="LitJSON">
+      <HintPath>AgoraBin\LitJSON.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SharpDX">
+      <HintPath>AgoraBin\SharpDX.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>AgoraBin\SharpDX.Direct3D9.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>AgoraBin\SharpDX.Mathematics.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Copy các DLL native phụ trợ vào thư mục output khi build -->
+    <None Update="AgoraBin\*.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />

@@ -16,5 +16,8 @@ namespace Pingme.Models
         public long FileSize { get; set; }
         public string FileUrl { get; set; }
         public DateTime UploadedAt { get; set; }
+
+        public string EncryptedAESKeyIV { get; set; }
+        public string Hash { get; set; }
     }
 }

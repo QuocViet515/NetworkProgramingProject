@@ -6,11 +6,19 @@ using System.Windows.Media.Imaging;
 using Pingme.Helpers;
 using Pingme.Views.Windows;
 using Pingme.Models;
+using Pingme.Services;
+using Pingme.ViewModels;
 
 namespace Pingme.Views.Controls
 {
     public partial class GroupInfoPanel : UserControl
     {
+
+        private AgoraVideoService _videoService;
+        private bool isMicOn = true;
+        private bool isCamOn = true;
+        private CallWindow callWindow;
+
         public bool IsGroupChat { get; set; } = true;
         public string SelectedChatId { get; set; } // cần set từ ChatPage
 
@@ -21,12 +29,47 @@ namespace Pingme.Views.Controls
 
         private void CallButton_Click(object sender, RoutedEventArgs e)
         {
-            new CallWindow().Show();
+            var viewModel = DataContext as ChatViewModel;
+            string peerUserId = viewModel.SelectedUser.Id;
+
+            string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
+            string currentUserId = AuthService.CurrentUser.Id;
+
+            string channel = $"call_{currentUserId}_{peerUserId}";
+            new CallWindow(appId, channel).Show();
         }
 
-        private void VideoCallButton_Click(object sender, RoutedEventArgs e)
+        private async void VideoCallButton_Click(object sender, RoutedEventArgs e)
         {
-            new CallWindow().Show(); // Có thể thêm param phân biệt cuộc gọi video
+            var viewModel = DataContext as ChatViewModel;
+            if (viewModel == null || viewModel.SelectedUser == null)
+            {
+                MessageBox.Show("❗ Chưa chọn người để gọi.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBox.Show($"📞 Gọi tới: {viewModel.SelectedUser.FullName}");
+            string peerUserId = viewModel.SelectedUser.Id;
+
+            string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
+            string currentUserId = AuthService.CurrentUser.Id;
+
+            string channel = $"call_{currentUserId}_{peerUserId}";
+
+            if (callWindow == null || !callWindow.IsLoaded)
+            {
+                callWindow = new CallWindow(appId, channel);
+                callWindow.Show();
+            }
+            else
+            {
+                callWindow.Activate();
+            }
+
+            // ✅ Gửi tín hiệu gọi qua Firebase
+            var firebase = new FirebaseNotificationService();
+            await firebase.SendCallRequest(currentUserId, peerUserId);
+            MessageBox.Show("✅ Đã gửi tín hiệu gọi qua Firebase!");
         }
 
         private void UserInfoButton_Click(object sender, RoutedEventArgs e)

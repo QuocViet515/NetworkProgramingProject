@@ -3,6 +3,7 @@ using Firebase.Database.Query;
 using Newtonsoft.Json;
 using Pingme.Helpers;
 using Pingme.Models;
+using Pingme.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,6 +132,44 @@ namespace Pingme.Views.Pages
                     MessageBox.Show("User information not found.");
                     return;
                 }
+
+                // 🔐 Tạo khóa RSA nếu chưa có
+                var rsa = new RSAService();
+                try
+                {
+                    rsa.EnsureUserKeyExists(SessionManager.UID);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("❌ Lỗi khi tạo khóa RSA: " + ex.Message);
+                    return;
+                }
+
+                // 🔐 Upload publicKey nếu chưa có
+                if (string.IsNullOrWhiteSpace(user.PublicKey))
+                {
+                    //string pubKeyXml = System.IO.File.ReadAllText(KeyManager.GetPublicKeyPath(SessionManager.UID));
+                    string pubKeyPath = KeyManager.GetPublicKeyPath(SessionManager.UID);
+                    if (!System.IO.File.Exists(pubKeyPath))
+                    {
+                        MessageBox.Show("❌ Không tìm thấy public key. Vui lòng đăng nhập lại.");
+                        return;
+                    }
+                    string pubKeyXml = System.IO.File.ReadAllText(pubKeyPath);
+
+                    user.PublicKey = pubKeyXml;
+
+                    await firebase.Child("users").Child(SessionManager.UID).PutAsync(user);
+                    Console.WriteLine("✅ Uploaded missing public key to Firebase");
+                }
+
+                if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                {
+                    MessageBox.Show("❌ Không lấy được thông tin người dùng.");
+                    return;
+                }
+
+                SessionManager.CurrentUser = user;
 
                 MessageBox.Show($"Hi {user.FullName}!");
                 this.NavigationService.Navigate(new ProfilePage());
