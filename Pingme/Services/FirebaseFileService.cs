@@ -93,12 +93,31 @@ namespace Pingme.Services
 
 
             // ✅ Sau khi lưu metadata xong...
+            //var message = new Message
+            //{
+            //    SenderId = senderId,
+            //    ReceiverId = receiverId,
+            //    Type = "file",
+            //    FileId = fileId,  // Tách riêng, không dùng Content
+            //    FileName = Path.GetFileName(filePath),
+            //    SentAt = DateTime.UtcNow,
+            //    IsRead = false,
+            //    SessionKeyEncrypted = new Dictionary<string, string>
+            //    {
+            //        { senderId, encryptedKeyForSender },
+            //        { receiverId, encryptedKeyForReceiver }
+            //    }
+            //};
+            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+
             var message = new Message
             {
+                Id = Guid.NewGuid().ToString(),                        // ✅ Gán Id
+                ChatId = chatRoomId,                                   // ✅ Gán ChatId
                 SenderId = senderId,
                 ReceiverId = receiverId,
                 Type = "file",
-                FileId = fileId,  // Tách riêng, không dùng Content
+                FileId = fileId,
                 FileName = Path.GetFileName(filePath),
                 SentAt = DateTime.UtcNow,
                 IsRead = false,
@@ -110,12 +129,34 @@ namespace Pingme.Services
             };
 
 
+            //string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            //await _firebaseClient
+            //    .Child("messages")
+            //    .Child(message.Id)
+            //    .PutAsync(message);
+            //var data = new Dictionary<string, object>
+            //{
+            //    { "SenderId", message.SenderId },
+            //    { "ReceiverId", message.ReceiverId },
+            //    { "FileId", message.FileId },
+            //    { "FileName", message.FileName },
+            //    { "Type", message.Type },
+            //    { "SentAt", message.SentAt },
+            //    { "IsRead", message.IsRead },
+            //    { "SessionKeyEncrypted", message.SessionKeyEncrypted }
+            //};
 
-            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            //await _firebaseClient
+            //    .Child("messages")
+            //    .Child(message.Id)
+            //    .PutAsync(data);
             await _firebaseClient
                 .Child("messages")
                 .Child(chatRoomId)
-                .PostAsync(message);
+                .Child(message.Id)
+                .PutAsync(message); // sử dụng object Message đầy đủ
+
+
             _chatService.OnNewMessageReceived?.Invoke(message);
 
 
