@@ -59,11 +59,11 @@ namespace Pingme.Views.Controls
         private async Task LoadMessagesAsync()
         {
 
-            //var messages = await firebase.Child("messages").OnceAsync<Message>();
-            var messages = await firebase
-                .Child("messages")
-                .Child(currentChatId)
-                .OnceAsync<Message>();
+            var messages = await firebase.Child("messages").OnceAsync<Message>();
+            //var messages = await firebase
+            //    .Child("messages")
+            //    .Child(currentChatId)
+            //    .OnceAsync<Message>();
 
 
             foreach (var item in messages)
