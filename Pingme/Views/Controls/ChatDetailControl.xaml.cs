@@ -11,6 +11,7 @@ using Pingme.Services;
 using Microsoft.Win32;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pingme.Views.Controls
 {
@@ -64,12 +65,18 @@ namespace Pingme.Views.Controls
             //    .Child("messages")
             //    .Child(currentChatId)
             //    .OnceAsync<Message>();
+            var sortedMessages = messages
+                .Select(m => m.Object)
+                .Where(m => m.ChatId == currentChatId)
+                .OrderBy(m => m.SentAt)
+                .ToList();
 
-
-            foreach (var item in messages)
+            //foreach (var item in messages)
+            foreach (var msg in sortedMessages)
             {
-                var msg = item.Object;
-                if (msg.ChatId != currentChatId) continue;
+                //var msg = item.Object;
+
+                //if (msg.ChatId != currentChatId) continue;
 
                 if (msg.Type == "file" && !string.IsNullOrEmpty(msg.FileId))
                 {
@@ -111,7 +118,7 @@ namespace Pingme.Views.Controls
                         if (!string.IsNullOrEmpty(aesKey))
                         {
                             //var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash);
-                            var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Hash);
+                            var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
                             decryptedText = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
                         }
                     }
@@ -161,19 +168,52 @@ namespace Pingme.Views.Controls
             string aesKey = _aesService.GenerateAesKey();
 
             // 2. Mã hóa tin nhắn
-            var (cipher, iv, hash) = _aesService.EncryptMessageWithHash(plainText, aesKey);
+            var (cipher, iv, tag, hash) = _aesService.EncryptMessageWithHash(plainText, aesKey);
 
             // 3. Mã hóa AES key với public key người nhận
             Dictionary<string, string> encryptedKeys = new Dictionary<string, string>();
             if (!isGroup)
             {
-                var receiverPublicKey = await new FirebaseService().GetPublicKeyAsync(receiverId);
-                if (string.IsNullOrEmpty(receiverPublicKey))
+                //var receiverPublicKey = await new FirebaseService().GetPublicKeyAsync(receiverId);
+                //if (string.IsNullOrEmpty(receiverPublicKey))
+                //{
+                //    MessageBox.Show("❌ Không tìm thấy khoá công khai của người nhận.");
+                //    return;
+                //}
+
+                ////encryptedKeys[receiverId] = _rsaService.Encrypt(aesKey, receiverPublicKey);
+                //encryptedKeys[receiverId] = _rsaService.EncryptWithXml(aesKey, receiverPublicKey);
+                var firebaseService = new FirebaseService();
+
+                // Lấy public key và chữ ký của người nhận
+                string receiverPublicKey = await firebaseService.GetPublicKeyAsync(receiverId);
+                string receiverSignature = await firebaseService.GetPublicKeySignatureAsync(receiverId);
+
+                if (string.IsNullOrEmpty(receiverPublicKey) || string.IsNullOrEmpty(receiverSignature))
                 {
-                    MessageBox.Show("❌ Không tìm thấy khoá công khai của người nhận.");
+                    MessageBox.Show("❌ Không thể xác thực khóa công khai của người nhận.");
                     return;
                 }
-                //encryptedKeys[receiverId] = _rsaService.Encrypt(aesKey, receiverPublicKey);
+
+                // Tải public key của domain (CA)
+                string domainPubKeyPath = "C:\\Apache24\\conf\\ssl\\ec-public-key.pem";
+                string domainPem = System.IO.File.ReadAllText(domainPubKeyPath);
+
+                // Xác minh chữ ký ECDSA
+                var verifier = new ECDsaVerifier();
+                bool isValid = verifier.Verify(receiverPublicKey, receiverSignature, domainPem);
+                // Normalize PublicKey giống với lúc ký
+                //string normalizedPubKey = receiverPublicKey.Replace("\r", "").Replace("\n", "").Replace("  ", "").Trim();
+
+                //bool isValid = verifier.Verify(normalizedPubKey, receiverSignature, domainPem);
+
+                if (!isValid)
+                {
+                    MessageBox.Show("⚠️ Public key của người nhận không hợp lệ hoặc đã bị giả mạo.");
+                    return;
+                }
+
+                // Mã hóa AES key bằng public key người nhận
                 encryptedKeys[receiverId] = _rsaService.EncryptWithXml(aesKey, receiverPublicKey);
             }
             encryptedKeys[SessionManager.UID] = _rsaService.EncryptWithXml(aesKey, SessionManager.CurrentUser.PublicKey);
@@ -186,12 +226,14 @@ namespace Pingme.Views.Controls
                 ReceiverId = receiverId,
                 Ciphertext = cipher,
                 IV = iv,
+                Tag = tag,  // THÊM tag vào message
                 Hash = hash,
                 IsGroup = isGroup,
                 Type = "text",
                 SentAt = DateTime.UtcNow,
                 SessionKeyEncrypted = encryptedKeys
             };
+
 
             await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
             ChatPanel.Children.Add(new OutgoingMessageControl(plainText));
@@ -232,9 +274,50 @@ namespace Pingme.Views.Controls
                     string receiverPublicKeyXml = await firebaseService.GetPublicKeyAsync(receiverId);
 
                     var fileService = new FirebaseFileService();
-                    await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId);
-
+                    //await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId);
                     MessageBox.Show($"✅ File \"{fileName}\" đã gửi thành công!");
+                    var fileId = await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId);                    // hoặc bạn lấy ID thực từ FirebaseStorage nếu có
+                    var msg = new Message
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ChatId = currentChatId,
+                        SenderId = senderId,
+                        ReceiverId = receiverId,
+                        IsGroup = isGroup,
+                        Type = "file",
+                        FileId = fileId,
+                        FileName = fileName,
+                        SentAt = DateTime.UtcNow
+                    };
+                    await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+
+                    // Hiển thị luôn file trong giao diện
+                    var button = new Button
+                    {
+                        Content = $"📥 Tải xuống: {fileName}",
+                        Tag = fileId,
+                        Margin = new Thickness(5),
+                        Padding = new Thickness(10)
+                    };
+                    button.Click += async (s, args) =>
+                    {
+                        var dialog = new SaveFileDialog { FileName = fileName };
+                        if (dialog.ShowDialog() == true)
+                        {
+                            try
+                            {
+                                string privateKeyPath = KeyManager.GetPrivateKeyPath(senderId);
+                                await new FirebaseFileService().DownloadAndDecryptFileAsync(fileId, privateKeyPath, dialog.FileName);
+                                MessageBox.Show("✅ Tải và giải mã thành công!");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                            }
+                        }
+                    };
+                    ChatPanel.Children.Add(button);
+                    ScrollToBottom();
                 }
                 catch (Exception ex)
                 {

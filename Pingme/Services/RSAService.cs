@@ -157,15 +157,24 @@ namespace Pingme.Services
             string pubXml = KeyManager.LoadPublicKeyContent(userId);
             return EncryptWithXml(plainText, pubXml);
         }
-        public string EncryptWithXml(string plainText, string publicKeyXml)
+        //public string EncryptWithXml(string plainText, string publicKeyXml)
+        //{
+        //    using (var rsa = new RSACryptoServiceProvider())
+        //    {
+        //        rsa.FromXmlString(publicKeyXml);
+        //        byte[] data = System.Text.Encoding.UTF8.GetBytes(plainText);
+        //        byte[] encrypted = rsa.Encrypt(data, true);
+        //        return Convert.ToBase64String(encrypted);
+        //    }
+        //}
+        public string EncryptWithXml(string plaintext, string publicKeyXml)
         {
-            using (var rsa = new RSACryptoServiceProvider())
-            {
-                rsa.FromXmlString(publicKeyXml);
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(plainText);
-                byte[] encrypted = rsa.Encrypt(data, true);
-                return Convert.ToBase64String(encrypted);
-            }
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(publicKeyXml);
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plaintext);
+            byte[] encryptedBytes = rsa.Encrypt(plainBytes, true); // OAEP
+            //return Convert.ToBase64String(encryptedBytes);
+            return Convert.ToBase64String(encryptedBytes).Replace("\r", "").Replace("\n", "").Replace(" ", "");
         }
 
 
@@ -216,32 +225,47 @@ namespace Pingme.Services
                 return "[Lỗi giải mã]";
             }
         }
-        public string DecryptWithXml(string encryptedText, string privateKeyXml)
+        //public string DecryptWithXml(string encryptedText, string privateKeyXml)
+        //{
+        //    try
+        //    {
+        //        using (var rsa = new RSACryptoServiceProvider())
+        //        {
+        //            rsa.FromXmlString(privateKeyXml);
+        //            byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
+        //            byte[] decryptedBytes = rsa.Decrypt(encryptedBytes, true); // OAEP
+        //            return Encoding.UTF8.GetString(decryptedBytes);
+        //        }
+        //    }
+        //    catch (CryptographicException ex)
+        //    {
+        //        Console.WriteLine($"❌ RSA Decrypt CryptographicException: {ex.Message}");
+        //        return "[Lỗi giải mã]";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"❌ RSA Decrypt Exception: {ex.Message}");
+        //        return "[Lỗi giải mã]";
+        //    }
+        //}
+        public string DecryptWithXml(string base64Ciphertext, string privateKeyXml)
         {
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(privateKeyXml);
+
             try
             {
-                using (var rsa = new RSACryptoServiceProvider())
-                {
-                    rsa.FromXmlString(privateKeyXml);
-                    byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
-                    byte[] decryptedBytes = rsa.Decrypt(encryptedBytes, true); // OAEP
-                    return Encoding.UTF8.GetString(decryptedBytes);
-                }
-            }
-            catch (CryptographicException ex)
-            {
-                Console.WriteLine($"❌ RSA Decrypt CryptographicException: {ex.Message}");
-                return "[Lỗi giải mã]";
+                string cleaned = base64Ciphertext.Trim().Replace("\n", "").Replace("\r", "").Replace(" ", ""); // CHẶN lỗi xuống dòng từ Firebase
+                byte[] cipherBytes = Convert.FromBase64String(cleaned);
+                byte[] decryptedBytes = rsa.Decrypt(cipherBytes, true);
+                return Encoding.UTF8.GetString(decryptedBytes);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ RSA Decrypt Exception: {ex.Message}");
-                return "[Lỗi giải mã]";
+                Console.WriteLine("❌ RSA Decrypt failed: " + ex.Message);
+                throw;
             }
         }
-
-
-
 
         // ======== MÃ HÓA / GIẢI MÃ FILE =========
 

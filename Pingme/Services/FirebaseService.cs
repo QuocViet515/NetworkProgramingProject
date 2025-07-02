@@ -62,6 +62,30 @@ namespace Pingme.Services
             return await _client.Child("users").Child(userId).Child("privateKey").OnceSingleAsync<string>();
         }
 
+        /// <summary>
+        /// Truy vấn chữ ký ECDSA của public key người dùng từ Firebase.
+        /// </summary>
+        /// <param name="uid">ID người dùng</param>
+        /// <returns>Chữ ký dạng Base64 nếu có, hoặc null</returns>
+        public async Task<string> GetPublicKeySignatureAsync(string uid)
+        {
+            try
+            {
+                var result = await _client
+                    .Child("users")
+                    .Child(uid)
+                    .Child("PublicKeySignature")
+                    .OnceSingleAsync<string>();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[FirebaseService] Không thể lấy chữ ký ECDSA của user {uid}: {ex.Message}");
+                return null;
+            }
+        }
+
         // ---------- FRIEND ----------
         public Task AddFriendAsync(Friend friend) =>
             _client.Child("friends").Child(friend.Id).PutAsync(friend);

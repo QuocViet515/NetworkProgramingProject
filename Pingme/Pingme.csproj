@@ -37,6 +37,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="Firebase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\FirebaseDatabase.net.5.0.0\lib\netstandard2.0\Firebase.dll</HintPath>
     </Reference>
@@ -293,6 +296,7 @@
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\ChatDisplayExtensions.cs" />
     <Compile Include="Models\ChatTag.cs" />
+    <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\FileMetadata.cs" />
     <Compile Include="Models\Friend.cs" />
@@ -301,11 +305,14 @@
     <Compile Include="Services\AESService.cs" />
     <Compile Include="Services\AgoraVideoService.cs" />
     <Compile Include="Services\channelName.cs" />
+    <Compile Include="Services\ECDsaVerifier.cs" />
     <Compile Include="Services\FileTransferService.cs" />
     <Compile Include="Services\FirebaseFileService.cs" />
     <Compile Include="Services\FirebaseNotificationService.cs" />
+    <Compile Include="Services\IdentifyPublicKeyService.cs" />
     <Compile Include="Services\RSAService.cs" />
     <Compile Include="Services\UserEventHandler.cs" />
+    <Compile Include="ViewModels\EmployeeModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\CallService.cs" />

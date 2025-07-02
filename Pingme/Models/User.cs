@@ -23,7 +23,7 @@ namespace Pingme.Models
         //public string Password { get; set; }
         public string PublicKey { get; set; } //RSA Public Key dùng để mã hóa AES key
 
-
+        public string PublicKeySignature { get; set; } // Chữ ký của PublicKey, dùng để xác thực tính toàn vẹn của PublicKey
         //public string id { get; set; }
         //public string userName { get; set; }
         //public string password { get; set; }

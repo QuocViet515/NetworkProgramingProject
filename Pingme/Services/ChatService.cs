@@ -34,7 +34,14 @@ namespace Pingme.Services
                         string aesKey = _rsaService.Decrypt(encryptedSessionKey, userId);
 
                         //var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash ?? "");
-                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Hash ?? "");
+                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                            msg.Ciphertext,
+                            aesKey,
+                            msg.IV,
+                            msg.Tag,
+                            msg.Hash ?? ""
+                        );
+
 
                         msg.Content = decryptedText + (isValid ? "" : "\n⚠️ Tin nhắn có thể đã bị thay đổi!");
                     }
@@ -60,7 +67,8 @@ namespace Pingme.Services
                 string aesKey = _aesService.GenerateAesKey();
 
                 // Sử dụng hàm mới: EncryptMessageWithHash
-                var (encryptedContent, iv, contentHash) = _aesService.EncryptMessageWithHash(plainContent, aesKey);
+                var (encryptedContent, iv, tag, contentHash) = _aesService.EncryptMessageWithHash(plainContent, aesKey);
+
 
                 var sender = await _firebaseService.GetUserByIdAsync(senderId);
                 var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
@@ -80,9 +88,11 @@ namespace Pingme.Services
                     SenderId = senderId,
                     ReceiverId = receiverId,
                     Ciphertext = encryptedContent,
+                    IV = iv,
+                    Tag = tag,
                     SentAt = DateTime.UtcNow,
                     IsRead = false,
-                    Hash = contentHash, // Hash từ nội dung gốc trước mã hóa
+                    Hash = contentHash,
                     SessionKeyEncrypted = new Dictionary<string, string>
                     {
                         { senderId, encryptedKeyForSender },
@@ -92,6 +102,7 @@ namespace Pingme.Services
                     IsDeleted = false,
                     IsEdited = false
                 };
+
 
                 await _firebaseService.SendEncryptedMessageAsync(roomId, message);
             }
@@ -131,7 +142,13 @@ namespace Pingme.Services
                         string aesKey = _rsaService.Decrypt(encryptedKey, userId);
 
                         //var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(message.Ciphertext, aesKey, message.Hash ?? "");
-                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(message.Ciphertext, aesKey, message.IV, message.Hash ?? "");
+                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                             message.Ciphertext,
+                             aesKey,
+                             message.IV,
+                             message.Tag,
+                             message.Hash ?? ""
+                         );
 
                         message.Content = decryptedText + (isValid ? "" : "\n⚠️ Tin nhắn có thể đã bị thay đổi!");
                     }

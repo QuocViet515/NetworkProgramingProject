@@ -93,18 +93,29 @@ namespace Pingme.Views.Pages
             RenderSearchResults();
         }
 
-        private async void RenderSearchResults()
+        private async /*void*/ Task RenderSearchResults()
         {
             SearchResultsPanel.Items.Clear();
 
+            var allFriends = await _firebaseService.GetAllFriendsAsync();
+
             foreach (var user in _searchResults)
             {
+                // Avatar
+                BitmapImage avatarImage = null;
+                try
+                {
+                    avatarImage = new BitmapImage(new Uri(user.AvatarUrl ?? "", UriKind.RelativeOrAbsolute));
+                }
+                catch { avatarImage = null; }
+
                 var avatar = new Image
                 {
                     Width = 40,
                     Height = 40,
                     Margin = new Thickness(5),
-                    Source = new BitmapImage(new Uri(user.AvatarUrl, UriKind.RelativeOrAbsolute))
+                    //Source = /*new BitmapImage(new Uri(user.AvatarUrl, UriKind.RelativeOrAbsolute))*/
+                    Source = avatarImage
                 };
 
                 var info = new StackPanel { Margin = new Thickness(5) };
@@ -112,7 +123,8 @@ namespace Pingme.Views.Pages
                 info.Children.Add(new TextBlock { Text = user.FullName });
                 info.Children.Add(new TextBlock { Text = user.Email, FontStyle = FontStyles.Italic });
 
-                var allFriends = await _firebaseService.GetAllFriendsAsync(); // THÊM DÒNG NÀY NẾU CHƯA CÓ
+                //var allFriends = await _firebaseService.GetAllFriendsAsync(); // THÊM DÒNG NÀY NẾU CHƯA CÓ
+                // Check friendship status
                 var isFriend = allFriends.Any(f =>
                     f.Status == "accept" &&
                     ((f.User1 == SessionManager.UID && f.User2 == user.Id) ||
@@ -123,6 +135,7 @@ namespace Pingme.Views.Pages
                     ((f.User1 == SessionManager.UID && f.User2 == user.Id) ||
                      (f.User2 == SessionManager.UID && f.User1 == user.Id)));
 
+                // Action button
                 Button actionBtn;
                 if (isFriend)
                 {
@@ -160,6 +173,7 @@ namespace Pingme.Views.Pages
                     actionBtn.Click += async (s, e) => await SendFriendRequest(user);
                 }
 
+                // Wrap and add to panel
                 var wrap = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(5) };
                 wrap.Children.Add(avatar);
                 wrap.Children.Add(info);

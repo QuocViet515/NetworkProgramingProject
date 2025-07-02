@@ -10,6 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace Pingme.Services
 {
     internal class FirebaseFileService
@@ -39,30 +40,43 @@ namespace Pingme.Services
             _storageClient = StorageClient.Create(credential);
         }
 
-        public async Task UploadEncryptedFileAsync(
-            string filePath,
-            string receiverPublicKeyXml,
-            string senderId,
+        //public async Task UploadEncryptedFileAsync(
+        //    string filePath,
+        //    string receiverPublicKeyXml,
+        //    string senderId,
+        //    string receiverId)
+        public async Task<string> UploadEncryptedFileAsync(
+            string filePath, 
+            string receiverPublicKeyXml, 
+            string senderId, 
             string receiverId)
         {
             // Tạo AES key và IV
             string aesKeyString = _aesService.GenerateAesKey();
             byte[] aesKey = Convert.FromBase64String(aesKeyString);
-            byte[] iv = new byte[16];
+            //byte[] iv = new byte[16];
+            byte[] iv = new byte[12];
             using (var rng = RandomNumberGenerator.Create())
                 rng.GetBytes(iv);
 
             // Mã hóa file vào temp
             string tempEncryptedPath = Path.GetTempFileName();
+            byte[] tag;
             using (var input = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             using (var output = new FileStream(tempEncryptedPath, FileMode.Create, FileAccess.Write))
             {
-                _aesService.EncryptFileWithStreams(input, output, aesKey, iv);
+                //_aesService.EncryptFileWithStreams(input, output, aesKey, iv);
+                _aesService.EncryptFileWithStreams(input, output, aesKey, iv, out tag);
             }
 
             // Mã hóa AES key + IV
-            string keyIVBase64 = Convert.ToBase64String(aesKey) + ":" + Convert.ToBase64String(iv);
-            string encryptedKeyIV = _rsaService.EncryptWithXml(keyIVBase64, receiverPublicKeyXml);
+            //string keyIVBase64 = Convert.ToBase64String(aesKey) + ":" + Convert.ToBase64String(iv);
+            //string keyIVBase64 = Convert.ToBase64String(aesKey) + ":" + Convert.ToBase64String(iv) + ":" + Convert.ToBase64String(tag);
+            //string encryptedKeyIV = _rsaService.EncryptWithXml(keyIVBase64, receiverPublicKeyXml);
+            //string encryptedAESKey = _rsaService.EncryptWithXml(Convert.ToBase64String(aesKey), receiverPublicKeyXml);
+
+            string encryptedIV = _rsaService.EncryptWithXml(Convert.ToBase64String(iv), receiverPublicKeyXml);
+            string encryptedTag = _rsaService.EncryptWithXml(Convert.ToBase64String(tag), receiverPublicKeyXml);
 
             // Upload file
             string fileId = Guid.NewGuid().ToString();
@@ -75,21 +89,42 @@ namespace Pingme.Services
             byte[] encryptedBytes = System.IO.File.ReadAllBytes(tempEncryptedPath);
             string hash = ComputeSHA256(encryptedBytes); // ✅ Tính hash của file mã hóa
             // Lưu metadata vào Firebase
-            var metadata = new
+            //var metadata = new
+            //{
+            //    fileName = Path.GetFileName(filePath),
+            //    storagePath = storagePath,
+            //    encryptedAESKeyIV = encryptedKeyIV,
+            //    hash = hash,
+            //    timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            //    senderId = senderId,
+            //    receiverId = receiverId
+            //};
+
+            var sender = await _firebaseService.GetUserByIdAsync(senderId);
+            string encryptedIVForSender = _rsaService.EncryptWithXml(Convert.ToBase64String(iv), sender.PublicKey);
+            string encryptedTagForSender = _rsaService.EncryptWithXml(Convert.ToBase64String(tag), sender.PublicKey);
+
+            var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
+            string base64AesKey = Convert.ToBase64String(aesKey);
+            string encryptedKeyForSender = _rsaService.EncryptWithXml(base64AesKey, sender.PublicKey);
+            string encryptedKeyForReceiver = _rsaService.EncryptWithXml(base64AesKey, receiver.PublicKey);
+
+            var metadata = new FileMetadata
             {
                 fileName = Path.GetFileName(filePath),
                 storagePath = storagePath,
-                encryptedAESKeyIV = encryptedKeyIV,
+                //encryptedAESKey = encryptedAESKey.Trim(), // nguoi nhan dung nay
+                encryptedAESKey = encryptedKeyForReceiver.Trim(),           // dành cho người nhận
+                encryptedAESKeyForSender = encryptedKeyForSender.Trim(),   // thêm dòng này cho nguoi gui
+                encryptedIV = encryptedIV.Trim(),
+                encryptedTag = encryptedTag.Trim(),
+                encryptedIVForSender = encryptedIVForSender.Trim(),
+                encryptedTagForSender = encryptedTagForSender.Trim(),
                 hash = hash,
                 timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                 senderId = senderId,
                 receiverId = receiverId
             };
-            var sender = await _firebaseService.GetUserByIdAsync(senderId);
-            var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
-            string base64AesKey = Convert.ToBase64String(aesKey);
-            string encryptedKeyForSender = _rsaService.EncryptWithXml(base64AesKey, sender.PublicKey);
-            string encryptedKeyForReceiver = _rsaService.EncryptWithXml(base64AesKey, receiver.PublicKey);
 
 
             // ✅ Sau khi lưu metadata xong...
@@ -108,6 +143,7 @@ namespace Pingme.Services
             //        { receiverId, encryptedKeyForReceiver }
             //    }
             //};
+            
             string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
 
             var message = new Message
@@ -166,6 +202,8 @@ namespace Pingme.Services
                 .PutAsync(metadata);
 
             System.IO.File.Delete(tempEncryptedPath);
+
+            return fileId; // hoặc return tên file thực nếu Firebase tự sinh tên
         }
         private string ComputeSHA256(byte[] data)
         {
@@ -177,24 +215,65 @@ namespace Pingme.Services
         }
 
         public async Task DownloadAndDecryptFileAsync(
-        string fileId, string receiverPrivateKeyPath, string fullOutputPath)
+            string fileId, 
+            string receiverPrivateKeyPath, 
+            string fullOutputPath)
         {
             var metadata = await _firebaseClient
                 .Child("file_metadata")
                 .Child(fileId)
                 .OnceSingleAsync<FileMetadata>();
+            
+            string currentUserId = SessionManager.UID;
 
             string storagePath = metadata.storagePath;
-            string encryptedAESKeyIV = metadata.encryptedAESKeyIV;
+            //string encryptedAESKeyIV = metadata.encryptedAESKeyIV;
 
             string privateKeyXml = System.IO.File.ReadAllText(receiverPrivateKeyPath);
-            string decryptedKeyIV = _rsaService.DecryptWithXml(encryptedAESKeyIV, privateKeyXml);
+            //string decryptedKeyIV = _rsaService.DecryptWithXml(encryptedAESKeyIV, privateKeyXml);
 
-            var parts = decryptedKeyIV.Split(':');
-            if (parts.Length != 2)
-                throw new Exception("Sai định dạng key/IV");
+            //var parts = decryptedKeyIV.Split(':');
 
-            byte[] aesKey = Convert.FromBase64String(parts[0]);
+            //if (parts.Length != 2)
+            //if (parts.Length != 3)
+            //    throw new Exception("Sai định dạng key/IV");
+
+            //byte[] aesKey = Convert.FromBase64String(parts[0]);
+            //byte[] iv = Convert.FromBase64String(parts[1]);
+            //byte[] tag = Convert.FromBase64String(parts[2]);
+
+            string aesKeyBase64;
+
+            //string aesKeyBase64 = _rsaService.DecryptWithXml(metadata.encryptedAESKey, privateKeyXml);
+
+            if (currentUserId == metadata.senderId && !string.IsNullOrEmpty(metadata.encryptedAESKeyForSender))
+            {
+                aesKeyBase64 = _rsaService.DecryptWithXml(metadata.encryptedAESKeyForSender, privateKeyXml);
+            }
+            else
+            {
+                aesKeyBase64 = _rsaService.DecryptWithXml(metadata.encryptedAESKey, privateKeyXml);
+            }
+
+            //string ivBase64 = _rsaService.DecryptWithXml(metadata.encryptedIV, privateKeyXml);
+            //string tagBase64 = _rsaService.DecryptWithXml(metadata.encryptedTag, privateKeyXml);
+            string ivBase64, tagBase64;
+            if (currentUserId == metadata.senderId &&
+                !string.IsNullOrEmpty(metadata.encryptedIVForSender) &&
+                !string.IsNullOrEmpty(metadata.encryptedTagForSender))
+            {
+                ivBase64 = _rsaService.DecryptWithXml(metadata.encryptedIVForSender, privateKeyXml);
+                tagBase64 = _rsaService.DecryptWithXml(metadata.encryptedTagForSender, privateKeyXml);
+            }
+            else
+            {
+                ivBase64 = _rsaService.DecryptWithXml(metadata.encryptedIV, privateKeyXml);
+                tagBase64 = _rsaService.DecryptWithXml(metadata.encryptedTag, privateKeyXml);
+            }
+
+            byte[] aesKey = Convert.FromBase64String(aesKeyBase64);
+            byte[] iv = Convert.FromBase64String(ivBase64);
+            byte[] tag = Convert.FromBase64String(tagBase64);
 
             // ✅ Tải file tạm
             string tempPath = Path.GetTempFileName();
@@ -212,10 +291,12 @@ namespace Pingme.Services
             using (var input = new FileStream(tempPath, FileMode.Open, FileAccess.Read))
             using (var output = new FileStream(fullOutputPath, FileMode.Create, FileAccess.Write))
             {
-                _aesService.DecryptFileWithStreams(input, output, aesKey);
+                //_aesService.DecryptFileWithStreams(input, output, aesKey);
+                _aesService.DecryptFileWithStreams(input, output, aesKey, iv, tag);
             }
 
             System.IO.File.Delete(tempPath);
         }
+
     }
 }

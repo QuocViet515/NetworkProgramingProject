@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Pingme.Helpers;
 using Pingme.Models;
 using Pingme.Services;
+using Pingme.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,6 @@ namespace Pingme.Views.Pages
 
             if (string.IsNullOrEmpty(email))
             {
-                //MessageBox.Show("User does not exist");
                 UsernameTextBoxError.Text = "Account does not exist!";
                 UsernameTextBoxError.Visibility = Visibility.Visible;
                 return;
@@ -102,22 +102,17 @@ namespace Pingme.Views.Pages
 
             try
             {
-                UsernameTextBoxError.Visibility =Visibility.Collapsed;
+                UsernameTextBoxError.Visibility = Visibility.Collapsed;
                 PasswordTextBoxError.Visibility = Visibility.Collapsed;
 
                 var auth = await SignInWithEmailPassword(email, password);
 
-                // Lưu thông tin đăng nhập vào Session
                 SessionManager.UID = auth.localId;
                 SessionManager.IdToken = auth.idToken;
                 SessionManager.RefreshToken = auth.refreshToken;
-                //SessionManager.TokenExpiresAt = DateTime.Now.AddSeconds(int.Parse(auth.expiresIn));
-
-                // Tính thời gian hết hạn
                 int expiresInSeconds = int.Parse(auth.expiresIn);
                 SessionManager.TokenExpiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds);
 
-                // FirebaseClient sử dụng idToken này mới đọc được dữ liệu
                 var firebase = new FirebaseClient(
                     "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/",
                     new FirebaseOptions
@@ -125,7 +120,6 @@ namespace Pingme.Views.Pages
                         AuthTokenAsyncFactory = () => Task.FromResult(SessionManager.IdToken)
                     });
 
-                // Lấy thông tin user
                 var user = await firebase.Child("users").Child(SessionManager.UID).OnceSingleAsync<User>();
                 if (user == null)
                 {
@@ -133,7 +127,6 @@ namespace Pingme.Views.Pages
                     return;
                 }
 
-                // 🔐 Tạo khóa RSA nếu chưa có
                 var rsa = new RSAService();
                 try
                 {
@@ -145,10 +138,9 @@ namespace Pingme.Views.Pages
                     return;
                 }
 
-                // 🔐 Upload publicKey nếu chưa có
+                // Upload public key nếu chưa có
                 if (string.IsNullOrWhiteSpace(user.PublicKey))
                 {
-                    //string pubKeyXml = System.IO.File.ReadAllText(KeyManager.GetPublicKeyPath(SessionManager.UID));
                     string pubKeyPath = KeyManager.GetPublicKeyPath(SessionManager.UID);
                     if (!System.IO.File.Exists(pubKeyPath))
                     {
@@ -156,25 +148,75 @@ namespace Pingme.Views.Pages
                         return;
                     }
                     string pubKeyXml = System.IO.File.ReadAllText(pubKeyPath);
-
                     user.PublicKey = pubKeyXml;
-
-                    await firebase.Child("users").Child(SessionManager.UID).PutAsync(user);
-                    Console.WriteLine("✅ Uploaded missing public key to Firebase");
                 }
 
-                if (user == null || string.IsNullOrWhiteSpace(user.Email))
+
+                // Ensure user is in employees node
+                //var employeeRef = await firebase.Child("employees").Child(SessionManager.UID).OnceSingleAsync<Employee>();
+                //if (employeeRef == null)
+                //{
+                //    await firebase.Child("employees").Child(SessionManager.UID).PutAsync(new Employee
+                //    {
+                //        Position = "Engineer", // bạn có thể tùy chỉnh vai trò
+                //        AddedAt = DateTime.UtcNow.ToString("o")
+                //    });
+                //    Console.WriteLine("✅ Added current user to employees node");
+                //}
+
+                // Thêm user hiện tại vào node employees nếu chưa có
+                await firebase.Child("employees").Child(SessionManager.UID).PutAsync(new Pingme.ViewModels.EmployeeModel
                 {
-                    MessageBox.Show("❌ Không lấy được thông tin người dùng.");
-                    return;
+                    UserId = SessionManager.UID,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Role = "Engineer",
+                    Department = "IT",
+                    JoinDate = DateTime.UtcNow,
+                    IsActive = true
+                });
+
+                // Lấy danh sách nhân viên từ Firebase (node employees)
+                //var employees = await firebase.Child("employees").OnceAsync<EmployeeModel>();
+                var employees = await firebase.Child("employees").OnceAsync<Pingme.ViewModels.EmployeeModel>();
+
+                var employeeList = employees.Select(emp => emp.Key).ToList(); // Giả sử Key = userId
+
+                // Nếu chưa có chữ ký public key → ký và lưu
+                if (string.IsNullOrWhiteSpace(user.PublicKeySignature))
+                {
+                    try
+                    {
+                        var signer = new IdentifyPublicKeyService("C:\\Apache24\\conf\\ssl\\ec-private-key.pem", employeeList);
+                        var signResult = signer.SignPublicKey(SessionManager.UID, user.PublicKey);
+
+                        if (signResult.Success)
+                        {
+                            user.PublicKeySignature = signResult.SignatureBase64;
+                            Console.WriteLine("✅ Public key signed successfully.");
+                        }
+                        else
+                        {
+                            MessageBox.Show("❌ Lỗi khi ký public key: " + signResult.Error);
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("❌ Lỗi khi xử lý domain signature: " + ex.Message);
+                        return;
+                    }
                 }
+
+                // Lưu user (có public key + signature) vào Firebase
+                await firebase.Child("users").Child(SessionManager.UID).PutAsync(user);
+                Console.WriteLine("✅ Uploaded public key + signature to Firebase");
 
                 SessionManager.CurrentUser = user;
 
                 MessageBox.Show($"Hi {user.FullName}!");
                 this.NavigationService.Navigate(new ProfilePage());
 
-                // Ghi nhớ đăng nhập
                 if (RememberMeCheckBox.IsChecked == true)
                 {
                     Properties.Settings.Default.RememberMe = true;
@@ -191,11 +233,11 @@ namespace Pingme.Views.Pages
             }
             catch (Exception)
             {
-                //MessageBox.Show("Login failed: \nPlease enter correct password \nOr Press forgot password if you forgot");
                 PasswordTextBoxError.Text = "Please enter correct password";
                 PasswordTextBoxError.Visibility = Visibility.Visible;
             }
         }
+
 
         private bool isPasswordVisible = false;
 

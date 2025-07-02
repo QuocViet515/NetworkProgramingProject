@@ -76,59 +76,63 @@ namespace Pingme.ViewModels
         }
 
         public async Task LoadChatAsync()
+{
+    try
+    {
+        Messages.Clear();
+
+        var messages = await _chatService.LoadChatHistory(AuthService.CurrentUser.Id, SelectedUser.Id);
+        foreach (var msg in messages)
         {
-            try
-            {
-                Messages.Clear();
+            msg.FromSelf = msg.SenderId == AuthService.CurrentUser.Id;
 
-                var messages = await _chatService.LoadChatHistory(AuthService.CurrentUser.Id, SelectedUser.Id);
-                foreach (var msg in messages)
+            if (msg.Type == "text")
+            {
+                try
                 {
-                    msg.FromSelf = msg.SenderId == AuthService.CurrentUser.Id;
-
-                    if (msg.Type == "text")
+                    if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.Id, out string encryptedKey))
                     {
-                        try
-                        {
-                            if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.Id, out string encryptedKey))
-                            {
-                                string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.Id);
+                        string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.Id);
 
-                                // ✅ Giải mã có kiểm tra hash
-                                //var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Content, aesKey, msg.Hash);
-                                var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Hash);
+                        // 🔑 Giải mã với AES-GCM BouncyCastle
+                        var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                            msg.Ciphertext, // cipherBase64
+                            aesKey,
+                            msg.IV,         // ivBase64
+                            msg.Tag,        // tagBase64
+                            msg.Hash        // expectedHash
+                        );
 
-
-                                msg.Content = isValid
-                                    ? plainText
-                                    : $"[Không thể giải mã] (Hash không khớp)";
-                            }
-                            else
-                            {
-                                msg.Content = "[Không tìm thấy khóa giải mã]";
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            msg.Content = $"[Không thể giải mã] ({ex.Message})";
-                        }
+                        msg.Content = isValid
+                            ? plainText
+                            : $"[Không thể giải mã] (Hash không khớp)";
                     }
-                    else if (msg.Type == "file")
+                    else
                     {
-                        // Không cần giải mã nếu là file
-                        msg.Content = msg.Content;
+                        msg.Content = "[Không tìm thấy khóa giải mã]";
                     }
-
-                    Messages.Add(msg);
                 }
-
-                _chatService.ListenForMessages(AuthService.CurrentUser.Id, SelectedUser.Id);
+                catch (Exception ex)
+                {
+                    msg.Content = $"[Không thể giải mã] ({ex.Message})";
+                }
             }
-            catch (Exception ex)
+            else if (msg.Type == "file")
             {
-                MessageBox.Show("Lỗi tải lịch sử chat: " + ex.Message);
+                msg.Content = msg.Content;
             }
+
+            Messages.Add(msg);
         }
+
+        _chatService.ListenForMessages(AuthService.CurrentUser.Id, SelectedUser.Id);
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Lỗi tải lịch sử chat: " + ex.Message);
+    }
+}
+
 
 
         public async Task SendMessage(string content)
