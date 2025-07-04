@@ -7,6 +7,7 @@ using Pingme.Services;
 using Pingme.Models;
 using Pingme.ViewModels;
 using Pingme.Views.Pages;
+using Pingme.Views.Windows;
 
 namespace Pingme.Views.Controls
 {
@@ -46,8 +47,8 @@ namespace Pingme.Views.Controls
                 string fileName = Path.GetFileName(filePath);
                 MessageBox.Show($"📁 Đang gửi file: {fileName}");
 
-                string senderId = AuthService.CurrentUser.id;
-                string receiverId = viewModel.SelectedUser.id;
+                string senderId = AuthService.CurrentUser.Id;
+                string receiverId = viewModel.SelectedUser.Id;
 
                 if (string.IsNullOrEmpty(receiverId))
                 {
@@ -107,11 +108,11 @@ namespace Pingme.Views.Controls
                 return;
             }
 
-            MessageBox.Show($"📞 Gọi tới: {viewModel.SelectedUser.fullName}");
+            MessageBox.Show($"📞 Gọi tới: {viewModel.SelectedUser.FullName}");
 
             string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
-            string currentUserId = AuthService.CurrentUser.id;
-            string peerUserId = viewModel.SelectedUser.id;
+            string currentUserId = AuthService.CurrentUser.Id;
+            string peerUserId = viewModel.SelectedUser.Id;
             string channel = $"call_{currentUserId}_{peerUserId}";
 
             if (callWindow == null || !callWindow.IsLoaded)

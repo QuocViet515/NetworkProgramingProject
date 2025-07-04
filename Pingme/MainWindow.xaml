@@ -1,7 +1,6 @@
 ﻿<Window x:Class="Pingme.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:pages="clr-namespace:Pingme.Views.Pages"
-        Title="ChatApp" Height="720" Width="1080" Background="#1E1E1E">
-    <pages:LoginPage />
+        Title="Pingme" Height="720" Width="1280" WindowStartupLocation="CenterScreen">
+    <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" />
 </Window>

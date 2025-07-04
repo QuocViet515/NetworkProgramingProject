@@ -7,25 +7,19 @@ namespace Pingme.Helpers
     {
         private const string KeyDir = "keys";
 
-        // Loại bỏ ký tự bất hợp lệ và đường dẫn sai
         private static string SanitizeUserId(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new ArgumentException("❌ userId không được null hoặc rỗng.");
 
-            if (userId.StartsWith("<RSAKeyValue"))
-                throw new ArgumentException("🚫 Đã truyền nhầm publicKey XML thay vì userId!");
-
             string original = userId;
 
-            // Nếu là đường dẫn → lấy tên file
-            if (userId.Contains("\\") || userId.EndsWith(".xml"))
+            if (userId.Contains("\\") || userId.EndsWith(".pem"))
             {
                 userId = Path.GetFileNameWithoutExtension(userId);
                 Console.WriteLine($"⚠️ Đã phát hiện sai: truyền đường dẫn thay vì userId. Đã sửa thành: {userId}");
             }
 
-            // Nếu userId đang là kiểu "userA_private" hoặc "userB_public"
             if (userId.EndsWith("_private"))
                 userId = userId.Substring(0, userId.Length - "_private".Length);
             if (userId.EndsWith("_public"))
@@ -39,15 +33,15 @@ namespace Pingme.Helpers
 
         public static string GetPrivateKeyPath(string userId)
         {
-            string path = Path.Combine(KeyDir, $"{SanitizeUserId(userId)}_private.xml");
-            Console.WriteLine("📂 Private Key Path: " + path);
+            string path = Path.Combine(KeyDir, $"{SanitizeUserId(userId)}_private.pem");
+            Console.WriteLine("📂 Private Key PEM Path: " + path);
             return path;
         }
 
         public static string GetPublicKeyPath(string userId)
         {
-            string path = Path.Combine(KeyDir, $"{SanitizeUserId(userId)}_public.xml");
-            Console.WriteLine("📂 Public Key Path: " + path);
+            string path = Path.Combine(KeyDir, $"{SanitizeUserId(userId)}_public.pem");
+            Console.WriteLine("📂 Public Key PEM Path: " + path);
             return path;
         }
 

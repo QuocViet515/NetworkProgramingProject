@@ -1,0 +1,74 @@
+﻿<Window x:Class="Pingme.Views.Windows.CallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cuộc gọi video" Height="500" Width="800" WindowStartupLocation="CenterScreen"
+        Background="Black">
+    <Grid Background="Black">
+        <!-- Remote video -->
+        <StackPanel x:Name="RemoteVideoContainer"
+                    Background="Black"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" />
+
+        <!-- Local video overlay -->
+        <Grid Width="200" Height="150"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Margin="10">
+            <!-- Video shown when camera is on -->
+            <ContentControl x:Name="LocalVideoContainer"
+                            Background="Black"
+                            Visibility="Visible" />
+
+            <!-- Avatar shown when camera is off -->
+            <Image x:Name="LocalAvatar"
+                   Source="/Assets/Images/02.png"
+                   Stretch="UniformToFill"
+                   Visibility="Collapsed" />
+        </Grid>
+
+        <!-- Controls panel -->
+        <Border Background="#66000000"
+                Padding="10"
+                CornerRadius="30"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ToggleButton x:Name="BtnToggleCamera"
+                              Width="50" Height="50"
+                              Margin="0,0,15,0"
+                              ToolTip="Bật/tắt camera"
+                              Background="#FF333333"
+                              BorderBrush="Transparent"
+                              Foreground="White"
+                              Click="BtnToggleCamera_Click"
+                              IsChecked="True"
+                              FontSize="24"
+                              Content="📷" />
+
+                <ToggleButton x:Name="BtnToggleMic"
+                              Width="50" Height="50"
+                              Margin="0,0,15,0"
+                              ToolTip="Bật/tắt micro"
+                              Background="#FF333333"
+                              BorderBrush="Transparent"
+                              Foreground="White"
+                              Click="BtnToggleMic_Click"
+                              IsChecked="True"
+                              FontSize="24"
+                              Content="🎤" />
+
+                <Button x:Name="BtnEndCall"
+                        Width="60" Height="60"
+                        ToolTip="Kết thúc cuộc gọi"
+                        Background="#E81123"
+                        BorderBrush="Transparent"
+                        Foreground="White"
+                        Click="BtnEndCall_Click"
+                        FontSize="28"
+                        Content="✕" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

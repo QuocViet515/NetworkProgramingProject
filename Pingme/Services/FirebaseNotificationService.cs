@@ -2,8 +2,10 @@
 using Firebase.Database.Query;
 using Firebase.Database.Streaming;
 using Newtonsoft.Json;
+using Pingme.Helpers;
 using Pingme.Models;
 using Pingme.Views.Pages;
+using Pingme.Views.Windows;
 using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -19,7 +21,7 @@ namespace Pingme.Services
 
         public FirebaseNotificationService()
         {
-            client = new FirebaseClient("https://fir-36ac0-default-rtdb.firebaseio.com/");
+            client = new FirebaseClient("https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/");
         }
 
         // Lắng nghe tin nhắn đến (có thể dùng nếu muốn hiện thông báo)
@@ -73,7 +75,7 @@ namespace Pingme.Services
         // Hàm xử lý khi có cuộc gọi đến
         private void OnCallRequestReceived(CallRequest request)
         {
-            if (request.ToUserId != AuthService.CurrentUser.id) return;
+            if (request.ToUserId != SessionManager.CurrentUser.Id) return;
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -88,10 +90,10 @@ namespace Pingme.Services
         {
             StopListening();
             Console.WriteLine($"📡 Listening for calls on: {userId}");
-            Console.WriteLine("Bạn là: " + AuthService.CurrentUser.id);
+            MessageBox.Show("Bạn là: " + SessionManager.CurrentUser.Id);
             string firebasePath = $"calls/{userId}";
             Console.WriteLine("Đang lắng nghe path: " + firebasePath);
-            Console.WriteLine("AuthService.CurrentUser.id: " + AuthService.CurrentUser.id);
+            //Console.WriteLine("AuthService.CurrentUser.id: " + AuthService.CurrentUser.Id);
 
 
             _callSubscription = client

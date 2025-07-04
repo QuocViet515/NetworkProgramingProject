@@ -39,7 +39,7 @@ namespace Pingme.Views.Controls
 
                 if (dialog.ShowDialog() == true)
                 {
-                    string receiverId = AuthService.CurrentUser.id;
+                    string receiverId = AuthService.CurrentUser.Id;
                     string privateKeyPath = Pingme.Helpers.KeyManager.GetPrivateKeyPath(receiverId);
                     string savePath = System.IO.Path.GetDirectoryName(dialog.FileName);
 

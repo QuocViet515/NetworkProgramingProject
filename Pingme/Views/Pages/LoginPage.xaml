@@ -1,11 +1,150 @@
-﻿<UserControl x:Class="Pingme.Views.Pages.LoginPage"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Pingme.Views.Pages">
-    <StackPanel Margin="50">
-        <TextBox x:Name="UsernameBox" Margin="0,0,0,10"/>
-        <PasswordBox x:Name="PasswordBox"  Margin="0,0,0,10"/>
-        <Button Content="Đăng nhập" Click="Login_Click"/>
-        <TextBlock x:Name="ErrorText" Foreground="Red" Margin="0,10,0,0"/>
-    </StackPanel>
-</UserControl>
+﻿<Page x:Class="Pingme.Views.Pages.LoginPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="WhiteSmoke"
+      Title="LoginPage">
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- NỘI DUNG CHÍNH -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- KHỐI TRÁI -->
+            <Grid Grid.Column="0" Margin="40" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Logo app trên góc trái -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,0,10">
+                    <Ellipse Width="60" Height="60">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="/Assets/Icons/logo-app.jpg"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <TextBlock Text="Ping me." FontSize="26" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Nội dung giữa bên trái -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="300">
+                    <Image Source="/Assets/Icons/Ping-me.png"
+                           Width="230" Height="150" Margin="0,0,0,10" />
+                    <TextBlock Text="Chat with Ping me"
+                               FontSize="34" FontWeight="Bold"
+                               TextAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Simple. Fast. Real-time." FontSize="18"
+                               Foreground="Gray" HorizontalAlignment="Center"
+                               Margin="0,10,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- KHỐI PHẢI -->
+            <Border Grid.Column="1" Background="White" CornerRadius="15" Padding="40" Margin="40" MaxWidth="500">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" BlurRadius="8" ShadowDepth="4"/>
+                </Border.Effect>
+
+                <Viewbox Stretch="Uniform">
+                    <StackPanel Width="300" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Login title -->
+                        <TextBlock Text="Login" FontSize="28" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                        <!-- Username -->
+                        <TextBlock x:Name="UsernameTextBoxError"
+                                   Visibility="Collapsed" Foreground="Red" HorizontalAlignment="Center"/>
+
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <TextBox x:Name="UsernameTextBox"
+                                     Style="{StaticResource PlaceholderTextBox}"
+                                     Tag="Username or Email" BorderThickness="0" Padding="10"/>
+                        </Border>
+
+                        <!-- Password -->
+                        <TextBlock x:Name="PasswordTextBoxError"
+                                 Visibility="Collapsed" Foreground="Red" HorizontalAlignment="Center"/>
+                        <Border BorderThickness="1" BorderBrush="Black" CornerRadius="15" Margin="0,0,0,10">
+                            <Grid>
+                                <PasswordBox x:Name="PasswordBox"
+                                             Padding="10,10,40,10"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             PasswordChanged="PasswordBox_PasswordChanged"
+                                             Visibility="Visible"/>
+                                <TextBox x:Name="PasswordVisibleBox"
+                                         Padding="10,10,40,10"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Visibility="Collapsed"
+                                         TextChanged="PasswordVisibleBox_TextChanged"/>
+                                <TextBlock x:Name="PasswordPlaceholder"
+                                           Text="Password"
+                                           Foreground="Gray"
+                                           Margin="12,0,40,0"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Visibility="Visible"/>
+                                <Button x:Name="TogglePasswordButton"
+                                        Content="👁"
+                                        FontSize="14"
+                                        Width="30" Height="30"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,5,0"
+                                        Click="TogglePasswordButton_Click"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Cursor="Hand"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Remember me -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,15">
+                            <CheckBox x:Name="RememberMeCheckBox" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Remember me" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Login Button -->
+                        <Button Content="Login"
+                                Height="40" FontSize="16"
+                                Style="{StaticResource RoundedButtonStyle}"
+                                Background="#29A8FF" Foreground="White"
+                                BorderBrush="Transparent" Cursor="Hand"
+                                Click="Login_Click"/>
+
+                        <!-- Forgot / Sign up -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Forgot password?" FontSize="14"
+                                       Foreground="Blue" HorizontalAlignment="Left" Cursor="Hand"
+                                       MouseDown="ForgotPassword_Click"/>
+                            <TextBlock Grid.Column="1" Text="Sign up?" FontSize="14"
+                                       Foreground="Black" HorizontalAlignment="Right" Cursor="Hand"
+                                       MouseDown="SignUp_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Viewbox>
+            </Border>
+        </Grid>
+
+        <!-- DÒNG SLOGAN CUỐI -->
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                   Text="A simple app for messaging, video calling, and staying connected with the people you care about."
+                   FontStyle="Italic" FontFamily="Segoe UI"
+                   FontSize="18" Foreground="Gray"
+                   TextAlignment="Center" HorizontalAlignment="Center" Margin="0,20"/>
+    </Grid>
+</Page>

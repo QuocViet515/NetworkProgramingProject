@@ -1,0 +1,37 @@
+link firebase realtime:
+	"firebaseDbUrl":
+		https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/
+	
+Firebase Secret (token để xác thực):
+	firebaseSecret:
+		name:
+			pingmeapp-1691-1703-1784
+		secret:
+			haBViPv4zOuLMSuBt2mnaD2SYokqsRpbLIt5PcFL
+	
+PingmeWPFApp:
+	// Import the functions you need from the SDKs you need
+	import { initializeApp } from "firebase/app";
+	// TODO: Add SDKs for Firebase products that you want to use
+	// https://firebase.google.com/docs/web/setup#available-libraries
+
+	// Your web app's Firebase configuration
+	const firebaseConfig = {
+	  apiKey: "AIzaSyDC_fCjmDw4IkAqhLjqWCzG02LRXmvKgB0",
+	  authDomain: "pingmeapp-1691-1703-1784.firebaseapp.com",
+	  databaseURL: "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app",
+	  projectId: "pingmeapp-1691-1703-1784",
+	  storageBucket: "pingmeapp-1691-1703-1784.firebasestorage.app",
+	  messagingSenderId: "803360596630",
+	  appId: "1:803360596630:web:2a2cc1a8322416c6fa18b7"
+	};
+
+	// Initialize Firebase
+	const app = initializeApp(firebaseConfig);
+	
+	
+	
+	
+
+	
+	

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls; // WPF UI
+using System.Windows.Forms;
 using System.Windows.Forms.Integration; // WindowsFormsHost
 using System.Drawing; // For Color
 using Agora.Rtc;
@@ -194,7 +195,5 @@ namespace Pingme.Services
             else
                 _engine.EnableLocalAudio(false);
         }
-
-
     }
 }

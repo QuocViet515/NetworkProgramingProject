@@ -1,166 +1,26 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Runtime.InteropServices;
-//using System.Text;
-//using System.Threading.Tasks;
-
-//namespace Pingme.Services
-//{
-//    class AESService
-//    {
-//        private const string DLLpath = "aes_key.dll";
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void GenerateAESKeyIV(byte[] key, byte[] iv);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void SaveKeyToFile(string filename, byte[] key, byte[] iv);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void LoadKeyFromFile(string filename, byte[] key, byte[] iv);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void AESEncrypt(byte[] key, byte[] iv, string plainFilePath, string cipherFilePath, int outSize);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void AESDecrypt(byte[] key, byte[] iv, string cipherFilePath, string plainFilePath, int outSize);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void AESEncryptString(string plaintext, byte[] key, byte[] iv, [Out] byte[] outBuffer, int bufferSize);
-
-//        [DllImport(DLLpath, CallingConvention = CallingConvention.Cdecl)]
-//        private static extern void AESDecryptString(string ciphertext, byte[] key, byte[] iv, [Out] byte[] outBuffer, int bufferSize);
-
-//        private byte[] _key;
-//        private byte[] _iv;
-
-//        public AESService()
-//        {
-//            _key = new byte[16];
-//            _iv = new byte[16];
-//        }
-
-//        public (byte[] key, byte[] iv) GenerateKeyAndIV()
-//        {
-//            GenerateAESKeyIV(_key, _iv);
-//            return (_key, _iv);
-//        }
-
-//        public string GenerateAesKey()
-//        {
-//            byte[] key = new byte[16];
-//            GenerateAESKeyIV(key, new byte[16]); // chỉ lấy key
-//            return Convert.ToBase64String(key);
-//        }
-
-//        public void SaveKeyToFile(string filePath)
-//        {
-//            if (_key == null || _iv == null)
-//                throw new InvalidOperationException("Key/IV chưa được khởi tạo.");
-//            SaveKeyToFile(filePath, _key, _iv);
-//        }
-
-//        public void LoadKeyFromFile(string filePath)
-//        {
-//            _key = new byte[16];
-//            _iv = new byte[16];
-//            LoadKeyFromFile(filePath, _key, _iv);
-//        }
-
-//        public void EncryptFile(string inputFilePath, string encryptedFilePath)
-//        {
-//            if (_key == null || _iv == null)
-//                throw new InvalidOperationException("Key/IV chưa được khởi tạo.");
-//            AESEncrypt(_key, _iv, inputFilePath, encryptedFilePath, 0);
-//        }
-
-//        public void DecryptFile(string encryptedFilePath, string outputFilePath)
-//        {
-//            if (_key == null || _iv == null)
-//                throw new InvalidOperationException("Key/IV chưa được khởi tạo.");
-//            AESDecrypt(_key, _iv, encryptedFilePath, outputFilePath, 0);
-//        }
-
-//        public string EncryptMessage(string plainText, string base64Key)
-//        {
-//            byte[] key = Convert.FromBase64String(base64Key);
-//            byte[] iv = new byte[16];
-//            GenerateAESKeyIV(new byte[16], iv); // sinh iv
-
-//            byte[] outBuffer = new byte[4096];
-//            AESEncryptString(plainText, key, iv, outBuffer, outBuffer.Length);
-
-//            int actualLength = Array.FindLastIndex(outBuffer, b => b != 0) + 1;
-//            if (actualLength <= 0)
-//                throw new Exception("Encryption buffer is empty. Kiểm tra lại DLL hoặc key/iv.");
-
-//            string cipherBase64 = Convert.ToBase64String(outBuffer, 0, actualLength);
-//            string ivBase64 = Convert.ToBase64String(iv);
-//            return $"{ivBase64}:{cipherBase64}";
-//        }
-
-//        public string DecryptMessage(string encryptedText, string base64Key)
-//        {
-//            try
-//            {
-//                var parts = encryptedText.Split(':');
-//                if (parts.Length != 2)
-//                    return "[Không thể giải mã] (Sai định dạng)";
-
-//                byte[] iv = Convert.FromBase64String(parts[0]);
-//                string cipherTextBase64 = parts[1]; // ⚠️ Giữ nguyên chuỗi base64
-
-//                byte[] key = Convert.FromBase64String(base64Key);
-//                byte[] outBuffer = new byte[4096];
-
-//                AESDecryptString(cipherTextBase64, key, iv, outBuffer, outBuffer.Length);
-
-//                int actualLength = Array.FindLastIndex(outBuffer, b => b != 0) + 1;
-//                if (actualLength <= 0)
-//                    return "[Không thể giải mã]";
-
-//                return Encoding.UTF8.GetString(outBuffer, 0, actualLength);
-//            }
-//            catch (Exception ex)
-//            {
-//                return $"[Không thể giải mã] ({ex.Message})";
-//            }
-//        }
-
-//        public void LoadKeyFromBytes(byte[] key, byte[] iv)
-//        {
-//            if (key.Length != 16 || iv.Length != 16)
-//                throw new ArgumentException("Key hoặc IV không hợp lệ.");
-//            _key = key;
-//            _iv = iv;
-//        }
-
-//        public byte[] GetKey() => _key;
-//        public byte[] GetIV() => _iv;
-//    }
-//}
-using System;
+﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace Pingme.Services
 {
-    public class AESService 
+    public class AESService
     {
         public string GenerateAesKey()
         {
-            using (var aes = Aes.Create())
-            {
-                aes.KeySize = 256;
-                aes.GenerateKey();
-                return Convert.ToBase64String(aes.Key);
-            }
+            byte[] key = new byte[32]; // 256 bit
+            new SecureRandom().NextBytes(key);
+            return Convert.ToBase64String(key);
         }
+
         public string ComputeSHA256(string text)
         {
-            using (var sha = SHA256.Create())
+            using (var sha = System.Security.Cryptography.SHA256.Create())
             {
                 byte[] data = Encoding.UTF8.GetBytes(text);
                 byte[] hash = sha.ComputeHash(data);
@@ -168,68 +28,70 @@ namespace Pingme.Services
             }
         }
 
-        // ==== MÃ HÓA / GIẢI MÃ CHUỖI ====
-        public (string EncryptedText, string Hash) EncryptMessageWithHash(string plainText, string base64Key)
+        public (string EncryptedText, string IV, string Tag, string Hash) EncryptMessageWithHash(string plainText, string base64Key)
         {
             byte[] key = Convert.FromBase64String(base64Key);
-            using (var aes = Aes.Create())
-            {
-                aes.KeySize = 256;
-                aes.Key = key;
-                aes.GenerateIV();
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+            byte[] iv = new byte[12]; // 96-bit IV
+            new SecureRandom().NextBytes(iv);
 
-                using (var encryptor = aes.CreateEncryptor())
-                {
-                    byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-                    byte[] cipherBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
 
-                    string ivBase64 = Convert.ToBase64String(aes.IV);
-                    string cipherBase64 = Convert.ToBase64String(cipherBytes);
-                    string encryptedText = $"{ivBase64}:{cipherBase64}";
-                    string hash = ComputeSHA256(plainText);
+            var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+            var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+            gcm.Init(true, parameters);
 
-                    return (encryptedText, hash);
-                }
-            }
+            byte[] output = new byte[gcm.GetOutputSize(plainBytes.Length)];
+            int len = gcm.ProcessBytes(plainBytes, 0, plainBytes.Length, output, 0);
+            gcm.DoFinal(output, len);
+
+            // Tách cipher + tag
+            byte[] tag = new byte[16];
+            byte[] cipherBytes = new byte[output.Length - 16];
+
+            Array.Copy(output, output.Length - 16, tag, 0, 16);
+            Array.Copy(output, 0, cipherBytes, 0, cipherBytes.Length);
+
+            string hash = ComputeSHA256(plainText);
+
+            return (
+                Convert.ToBase64String(cipherBytes),
+                Convert.ToBase64String(iv),
+                Convert.ToBase64String(tag),
+                hash
+            );
         }
 
-
-        public (string PlainText, bool IsValid) DecryptMessageWithHashCheck(string encryptedText, string base64Key, string expectedHash)
+        public (string PlainText, bool IsValid) DecryptMessageWithHashCheck(
+            string cipherBase64, 
+            string base64Key, 
+            string ivBase64, 
+            string tagBase64, 
+            string expectedHash)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(encryptedText))
-                    return ("[Không thể giải mã] (Nội dung rỗng hoặc null)", false);
-
-                string[] parts = encryptedText.Split(':');
-                if (parts.Length != 2)
-                    return ("[Không thể giải mã] (Sai định dạng)", false);
-
-                byte[] iv = Convert.FromBase64String(parts[0]);
-                byte[] cipherBytes = Convert.FromBase64String(parts[1]);
+                byte[] cipherBytes = Convert.FromBase64String(cipherBase64);
                 byte[] key = Convert.FromBase64String(base64Key);
+                byte[] iv = Convert.FromBase64String(ivBase64);
+                byte[] tag = Convert.FromBase64String(tagBase64);
 
-                using (var aes = Aes.Create())
-                {
-                    aes.KeySize = 256;
-                    aes.Key = key;
-                    aes.IV = iv;
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
+                byte[] combined = new byte[cipherBytes.Length + tag.Length];
+                Array.Copy(cipherBytes, 0, combined, 0, cipherBytes.Length);
+                Array.Copy(tag, 0, combined, cipherBytes.Length, tag.Length);
 
-                    using (var decryptor = aes.CreateDecryptor())
-                    {
-                        byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-                        string plainText = Encoding.UTF8.GetString(plainBytes);
+                var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+                var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+                gcm.Init(false, parameters);
 
-                        string recomputedHash = ComputeSHA256(plainText);
-                        bool isValid = expectedHash == recomputedHash;
+                byte[] plainBytes = new byte[gcm.GetOutputSize(combined.Length)];
+                int len = gcm.ProcessBytes(combined, 0, combined.Length, plainBytes, 0);
+                gcm.DoFinal(plainBytes, len);
 
-                        return (plainText, isValid);
-                    }
-                }
+                string plainText = Encoding.UTF8.GetString(plainBytes).TrimEnd('\0');
+                string recomputedHash = ComputeSHA256(plainText);
+                bool isValid = expectedHash == recomputedHash;
+
+                return (plainText, isValid);
             }
             catch (Exception ex)
             {
@@ -237,100 +99,175 @@ namespace Pingme.Services
             }
         }
 
+        //public void EncryptFile(string inputPath, string outputPath, string base64Key)
+        //{
+        //    byte[] key = Convert.FromBase64String(base64Key);
+        //    byte[] iv = new byte[12];
+        //    new SecureRandom().NextBytes(iv);
 
+        //    byte[] plainBytes = File.ReadAllBytes(inputPath);
 
-        // ==== MÃ HÓA / GIẢI MÃ FILE ====
-        public void EncryptFile(string inputPath, string outputPath, string base64Key)
+        //    var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+        //    var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+        //    gcm.Init(true, parameters);
+
+        //    byte[] output = new byte[gcm.GetOutputSize(plainBytes.Length)];
+        //    int len = gcm.ProcessBytes(plainBytes, 0, plainBytes.Length, output, 0);
+        //    gcm.DoFinal(output, len);
+
+        //    using (var fs = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
+        //    {
+        //        fs.Write(iv, 0, iv.Length);
+        //        fs.Write(output, 0, output.Length);
+        //    }
+        //}
+        public (byte[] cipherBytes, byte[] iv, byte[] tag) EncryptFile(byte[] plainBytes, byte[] key)
         {
-            byte[] key = Convert.FromBase64String(base64Key);
-            using (var aes = Aes.Create())
-            {
-                aes.KeySize = 256;
-                aes.Key = key;
-                aes.GenerateIV();
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+            byte[] iv = new byte[12];
+            new SecureRandom().NextBytes(iv);
 
-                 var fsOutput = new FileStream(outputPath, FileMode.Create);
-                // Ghi IV trước
-                fsOutput.Write(aes.IV, 0, aes.IV.Length);
+            var gcm = new GcmBlockCipher(new AesEngine());
+            var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+            gcm.Init(true, parameters);
 
-                var cryptoStream = new CryptoStream(fsOutput, aes.CreateEncryptor(), CryptoStreamMode.Write);
-                var fsInput = new FileStream(inputPath, FileMode.Open);
+            byte[] output = new byte[gcm.GetOutputSize(plainBytes.Length)];
+            int len = gcm.ProcessBytes(plainBytes, 0, plainBytes.Length, output, 0);
+            gcm.DoFinal(output, len);
 
-                fsInput.CopyTo(cryptoStream);
-            }
+            byte[] tag = new byte[16];
+            byte[] cipherBytes = new byte[output.Length - 16];
+            Array.Copy(output, 0, cipherBytes, 0, cipherBytes.Length);
+            Array.Copy(output, cipherBytes.Length, tag, 0, tag.Length);
+
+            return (cipherBytes, iv, tag);
         }
 
-        public void DecryptFile(string inputPath, string outputPath, string base64Key)
+        //public void DecryptFile(string inputPath, string outputPath, string base64Key)
+        //{
+        //    byte[] key = Convert.FromBase64String(base64Key);
+        //    byte[] fileData = File.ReadAllBytes(inputPath);
+
+        //    byte[] iv = new byte[12];
+        //    Array.Copy(fileData, 0, iv, 0, iv.Length);
+
+        //    byte[] cipherAndTag = new byte[fileData.Length - iv.Length];
+        //    Array.Copy(fileData, iv.Length, cipherAndTag, 0, cipherAndTag.Length);
+
+        //    var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+        //    var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+        //    gcm.Init(false, parameters);
+
+        //    byte[] plainBytes = new byte[gcm.GetOutputSize(cipherAndTag.Length)];
+        //    int len = gcm.ProcessBytes(cipherAndTag, 0, cipherAndTag.Length, plainBytes, 0);
+        //    gcm.DoFinal(plainBytes, len);
+
+        //    File.WriteAllBytes(outputPath, plainBytes);
+        //}
+        public byte[] DecryptFile(byte[] cipherBytes, byte[] key, byte[] iv, byte[] tag)
         {
-            byte[] key = Convert.FromBase64String(base64Key);
+            byte[] combined = new byte[cipherBytes.Length + tag.Length];
+            Array.Copy(cipherBytes, 0, combined, 0, cipherBytes.Length);
+            Array.Copy(tag, 0, combined, cipherBytes.Length, tag.Length);
 
-            using (var fsInput = new FileStream(inputPath, FileMode.Open))
-            {
-                byte[] iv = new byte[16];
-                fsInput.Read(iv, 0, iv.Length); // đọc IV đầu file
+            var gcm = new GcmBlockCipher(new AesEngine());
+            var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+            gcm.Init(false, parameters);
 
-                var aes = Aes.Create();
-                aes.KeySize = 256;
-                aes.Key = key;
-                aes.IV = iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+            byte[] plainBytes = new byte[gcm.GetOutputSize(combined.Length)];
+            int len = gcm.ProcessBytes(combined, 0, combined.Length, plainBytes, 0);
+            gcm.DoFinal(plainBytes, len);
 
-                var cryptoStream = new CryptoStream(fsInput, aes.CreateDecryptor(), CryptoStreamMode.Read);
-                var fsOutput = new FileStream(outputPath, FileMode.Create);
-
-                cryptoStream.CopyTo(fsOutput);
-            }
-        }
-        public void EncryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv)
-        {
-            using (var aes = Aes.Create())
-            {
-                aes.KeySize = 256;
-                aes.Key = key;
-                aes.IV = iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
-
-                // Ghi IV vào đầu file
-                output.Write(iv, 0, iv.Length);
-
-                using (var cryptoStream = new CryptoStream(output, aes.CreateEncryptor(), CryptoStreamMode.Write, leaveOpen: true))
-                {
-                    input.CopyTo(cryptoStream);
-                }
-
-                // Đảm bảo stream ngoài không bị đóng nếu dùng MemoryStream
-                output.Flush();
-            }
+            return plainBytes;
         }
 
+        //public void EncryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv)
+        //{
+        //    byte[] plainBytes = ReadStreamFully(input);
 
-        public void DecryptFileWithStreams(Stream input, Stream output, byte[] key)
+        //    var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+        //    var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+        //    gcm.Init(true, parameters);
+
+        //    byte[] outputBytes = new byte[gcm.GetOutputSize(plainBytes.Length)];
+        //    int len = gcm.ProcessBytes(plainBytes, 0, plainBytes.Length, outputBytes, 0);
+        //    gcm.DoFinal(outputBytes, len);
+
+        //    output.Write(iv, 0, iv.Length);
+        //    output.Write(outputBytes, 0, outputBytes.Length);
+        //    output.Flush();
+        //}
+        public void EncryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv, out byte[] tag)
         {
-            byte[] iv = new byte[16];
-            int read = input.Read(iv, 0, iv.Length);
-            if (read != 16)
-                throw new Exception("Không đọc đủ IV từ đầu file");
+            byte[] plaintext = ReadStreamFully(input);
 
-            using (var aes = Aes.Create())
-            {
-                aes.KeySize = 256;
-                aes.Key = key;
-                aes.IV = iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+            var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+            var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+            gcm.Init(true, parameters);
 
-                using (var cryptoStream = new CryptoStream(input, aes.CreateDecryptor(), CryptoStreamMode.Read, leaveOpen: true))
-                {
-                    cryptoStream.CopyTo(output);
-                }
+            byte[] outputBytes = new byte[gcm.GetOutputSize(plaintext.Length)];
+            int len = gcm.ProcessBytes(plaintext, 0, plaintext.Length, outputBytes, 0);
+            gcm.DoFinal(outputBytes, len);
 
-                output.Flush();
-            }
+            tag = new byte[16];
+            Array.Copy(outputBytes, outputBytes.Length - 16, tag, 0, 16);
+
+            byte[] ciphertext = new byte[outputBytes.Length - 16];
+            Array.Copy(outputBytes, 0, ciphertext, 0, ciphertext.Length);
+
+            output.Write(iv, 0, iv.Length);           // 12 bytes
+            output.Write(tag, 0, tag.Length);         // 16 bytes
+            output.Write(ciphertext, 0, ciphertext.Length);
         }
 
+        //public void DecryptFileWithStreams(Stream input, Stream output, byte[] key)
+        //{
+        //    byte[] iv = new byte[12];
+        //    input.Read(iv, 0, iv.Length);
+
+        //    byte[] cipherAndTag = ReadStreamFully(input);
+
+        //    var gcm = new GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+        //    var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+        //    gcm.Init(false, parameters);
+
+        //    byte[] plainBytes = new byte[gcm.GetOutputSize(cipherAndTag.Length)];
+        //    int len = gcm.ProcessBytes(cipherAndTag, 0, cipherAndTag.Length, plainBytes, 0);
+        //    gcm.DoFinal(plainBytes, len);
+
+        //    output.Write(plainBytes, 0, plainBytes.Length);
+        //    output.Flush();
+        //}
+        public void DecryptFileWithStreams(Stream input, Stream output, byte[] key, byte[] iv, byte[] tag)
+        {
+            byte[] header = new byte[iv.Length + tag.Length];
+            input.Seek(0, SeekOrigin.Begin); // Đảm bảo stream bắt đầu từ đầu
+            input.Read(header, 0, header.Length);
+
+            byte[] ciphertext = new byte[input.Length - header.Length];
+            input.Read(ciphertext, 0, ciphertext.Length);
+
+            byte[] combined = new byte[ciphertext.Length + tag.Length];
+            Array.Copy(ciphertext, 0, combined, 0, ciphertext.Length);
+            Array.Copy(tag, 0, combined, ciphertext.Length, tag.Length);
+
+            var gcm = new GcmBlockCipher(new AesEngine());
+            var parameters = new AeadParameters(new KeyParameter(key), 128, iv);
+            gcm.Init(false, parameters);
+
+            byte[] plainBytes = new byte[gcm.GetOutputSize(combined.Length)];
+            int len = gcm.ProcessBytes(combined, 0, combined.Length, plainBytes, 0);
+            gcm.DoFinal(plainBytes, len);
+
+            output.Write(plainBytes, 0, plainBytes.Length);
+        }
+
+        private byte[] ReadStreamFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
     }
 }

@@ -47,10 +47,10 @@ namespace Pingme.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                msg.FromSelf = msg.SenderId == AuthService.CurrentUser.id;
+                msg.FromSelf = msg.SenderId == AuthService.CurrentUser.Id;
 
                 // 🔐 Kiểm tra tin nhắn đã tồn tại chưa
-                if (!Messages.Any(m => m.Timestamp == msg.Timestamp && m.SenderId == msg.SenderId))
+                if (!Messages.Any(m => m.SentAt == msg.SentAt && m.SenderId == msg.SenderId))
                 {
                     Messages.Add(msg);
                 }
@@ -61,7 +61,7 @@ namespace Pingme.ViewModels
         {
             try
             {
-                var users = await _firebaseService.GetAllUsersExceptCurrentAsync(AuthService.CurrentUser.id);
+                var users = await _firebaseService.GetAllUsersExceptCurrentAsync(AuthService.CurrentUser.Id);
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     UserList.Clear();
@@ -76,57 +76,63 @@ namespace Pingme.ViewModels
         }
 
         public async Task LoadChatAsync()
+{
+    try
+    {
+        Messages.Clear();
+
+        var messages = await _chatService.LoadChatHistory(AuthService.CurrentUser.Id, SelectedUser.Id);
+        foreach (var msg in messages)
         {
-            try
-            {
-                Messages.Clear();
+            msg.FromSelf = msg.SenderId == AuthService.CurrentUser.Id;
 
-                var messages = await _chatService.LoadChatHistory(AuthService.CurrentUser.id, SelectedUser.id);
-                foreach (var msg in messages)
+            if (msg.Type == "text")
+            {
+                try
                 {
-                    msg.FromSelf = msg.SenderId == AuthService.CurrentUser.id;
-
-                    if (msg.Type == "text")
+                    if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.Id, out string encryptedKey))
                     {
-                        try
-                        {
-                            if (msg.SessionKeyEncrypted.TryGetValue(AuthService.CurrentUser.id, out string encryptedKey))
-                            {
-                                string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.id);
+                        string aesKey = _rsaService.Decrypt(encryptedKey, AuthService.CurrentUser.Id);
 
-                                // ✅ Giải mã có kiểm tra hash
-                                var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Content, aesKey, msg.Hash);
+                        // 🔑 Giải mã với AES-GCM BouncyCastle
+                        var (plainText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                            msg.Ciphertext, // cipherBase64
+                            aesKey,
+                            msg.IV,         // ivBase64
+                            msg.Tag,        // tagBase64
+                            msg.Hash        // expectedHash
+                        );
 
-                                msg.Content = isValid
-                                    ? plainText
-                                    : $"[Không thể giải mã] (Hash không khớp)";
-                            }
-                            else
-                            {
-                                msg.Content = "[Không tìm thấy khóa giải mã]";
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            msg.Content = $"[Không thể giải mã] ({ex.Message})";
-                        }
+                        msg.Content = isValid
+                            ? plainText
+                            : $"[Không thể giải mã] (Hash không khớp)";
                     }
-                    else if (msg.Type == "file")
+                    else
                     {
-                        // Không cần giải mã nếu là file
-                        msg.Content = msg.Content;
+                        msg.Content = "[Không tìm thấy khóa giải mã]";
                     }
-
-                    Messages.Add(msg);
                 }
-
-                _chatService.ListenForMessages(AuthService.CurrentUser.id, SelectedUser.id);
+                catch (Exception ex)
+                {
+                    msg.Content = $"[Không thể giải mã] ({ex.Message})";
+                }
             }
-            catch (Exception ex)
+            else if (msg.Type == "file")
             {
-                MessageBox.Show("Lỗi tải lịch sử chat: " + ex.Message);
+                msg.Content = msg.Content;
             }
+
+            Messages.Add(msg);
         }
+
+        _chatService.ListenForMessages(AuthService.CurrentUser.Id, SelectedUser.Id);
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Lỗi tải lịch sử chat: " + ex.Message);
+    }
+}
+
 
 
         public async Task SendMessage(string content)
@@ -134,14 +140,14 @@ namespace Pingme.ViewModels
             if (SelectedUser == null || string.IsNullOrWhiteSpace(content))
                 return;
 
-            await _chatService.SendMessageAsync(AuthService.CurrentUser.id, SelectedUser.id, content);
+            await _chatService.SendMessageAsync(AuthService.CurrentUser.Id, SelectedUser.Id, content);
 
             Messages.Add(new Message
             {
-                SenderId = AuthService.CurrentUser.id,
-                ReceiverId = SelectedUser.id,
+                SenderId = AuthService.CurrentUser.Id,
+                ReceiverId = SelectedUser.Id,
                 Content = content,
-                Timestamp = DateTime.UtcNow,
+                SentAt = DateTime.UtcNow,
                 FromSelf = true
             });
         }

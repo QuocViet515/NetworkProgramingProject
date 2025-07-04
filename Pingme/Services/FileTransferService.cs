@@ -118,37 +118,45 @@ namespace Pingme.Services
 
         private void EncryptFileWithIv(string inputFile, string outputFile, byte[] key, byte[] iv)
         {
-            Aes aes = Aes.Create();
-            aes.KeySize = 256;
-            aes.Key = key;
-            aes.IV = iv;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
+            byte[] plainBytes = File.ReadAllBytes(inputFile);
 
-            FileStream inFs = new FileStream(inputFile, FileMode.Open, FileAccess.Read);
-                FileStream outFs = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
-            outFs.Write(iv, 0, iv.Length);
+            var gcm = new Org.BouncyCastle.Crypto.Modes.GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+            var parameters = new Org.BouncyCastle.Crypto.Parameters.AeadParameters(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key), 128, iv);
 
-                CryptoStream cryptoStream = new CryptoStream(outFs, aes.CreateEncryptor(), CryptoStreamMode.Write);
-            inFs.CopyTo(cryptoStream);
+            gcm.Init(true, parameters);
+
+            byte[] cipherOutput = new byte[gcm.GetOutputSize(plainBytes.Length)];
+            int len = gcm.ProcessBytes(plainBytes, 0, plainBytes.Length, cipherOutput, 0);
+            gcm.DoFinal(cipherOutput, len);
+
+            using (var outFs = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
+            {
+                outFs.Write(iv, 0, iv.Length);            // Ghi IV đầu file
+                outFs.Write(cipherOutput, 0, cipherOutput.Length);  // Ghi Cipher + Tag
+            }
         }
 
         private void DecryptFileWithIv(string inputFile, string outputFile, byte[] key)
         {
-            FileStream inFs = new FileStream(inputFile, FileMode.Open, FileAccess.Read);
-            byte[] iv = new byte[16];
-            inFs.Read(iv, 0, iv.Length);
+            byte[] fileData = File.ReadAllBytes(inputFile);
 
-            Aes aes = Aes.Create();
-            aes.KeySize = 256;
-            aes.Key = key;
-            aes.IV = iv;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
+            byte[] iv = new byte[12];  // 96-bit IV GCM
+            Array.Copy(fileData, 0, iv, 0, iv.Length);
 
-            CryptoStream cryptoStream = new CryptoStream(inFs, aes.CreateDecryptor(), CryptoStreamMode.Read);
-            FileStream outFs = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
-            cryptoStream.CopyTo(outFs);
+            byte[] cipherAndTag = new byte[fileData.Length - iv.Length];
+            Array.Copy(fileData, iv.Length, cipherAndTag, 0, cipherAndTag.Length);
+
+            var gcm = new Org.BouncyCastle.Crypto.Modes.GcmBlockCipher(new Org.BouncyCastle.Crypto.Engines.AesEngine());
+            var parameters = new Org.BouncyCastle.Crypto.Parameters.AeadParameters(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key), 128, iv);
+
+            gcm.Init(false, parameters);
+
+            byte[] plainBytes = new byte[gcm.GetOutputSize(cipherAndTag.Length)];
+            int len = gcm.ProcessBytes(cipherAndTag, 0, cipherAndTag.Length, plainBytes, 0);
+            gcm.DoFinal(plainBytes, len);
+
+            File.WriteAllBytes(outputFile, plainBytes);
         }
+
     }
 }

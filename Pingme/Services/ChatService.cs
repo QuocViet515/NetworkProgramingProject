@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 
 namespace Pingme.Services
 {
@@ -32,7 +33,16 @@ namespace Pingme.Services
                         string encryptedSessionKey = msg.SessionKeyEncrypted[userId];
                         string aesKey = _rsaService.Decrypt(encryptedSessionKey, userId);
 
-                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Content, aesKey, msg.Hash ?? "");
+                        //var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash ?? "");
+                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                            msg.Ciphertext,
+                            aesKey,
+                            msg.IV,
+                            msg.Tag,
+                            msg.Hash ?? ""
+                        );
+
+
                         msg.Content = decryptedText + (isValid ? "" : "\n⚠️ Tin nhắn có thể đã bị thay đổi!");
                     }
                     catch (Exception ex)
@@ -57,7 +67,8 @@ namespace Pingme.Services
                 string aesKey = _aesService.GenerateAesKey();
 
                 // Sử dụng hàm mới: EncryptMessageWithHash
-                var (encryptedContent, contentHash) = _aesService.EncryptMessageWithHash(plainContent, aesKey);
+                var (encryptedContent, iv, tag, contentHash) = _aesService.EncryptMessageWithHash(plainContent, aesKey);
+
 
                 var sender = await _firebaseService.GetUserByIdAsync(senderId);
                 var receiver = await _firebaseService.GetUserByIdAsync(receiverId);
@@ -76,16 +87,22 @@ namespace Pingme.Services
                 {
                     SenderId = senderId,
                     ReceiverId = receiverId,
-                    Content = encryptedContent,
-                    Timestamp = DateTime.UtcNow,
+                    Ciphertext = encryptedContent,
+                    IV = iv,
+                    Tag = tag,
+                    SentAt = DateTime.UtcNow,
                     IsRead = false,
-                    Hash = contentHash, // Hash từ nội dung gốc trước mã hóa
+                    Hash = contentHash,
                     SessionKeyEncrypted = new Dictionary<string, string>
-            {
-                { senderId, encryptedKeyForSender },
-                { receiverId, encryptedKeyForReceiver }
-            }
+                    {
+                        { senderId, encryptedKeyForSender },
+                        { receiverId, encryptedKeyForReceiver }
+                    },
+                    IsGroup = false,
+                    IsDeleted = false,
+                    IsEdited = false
                 };
+
 
                 await _firebaseService.SendEncryptedMessageAsync(roomId, message);
             }
@@ -109,7 +126,7 @@ namespace Pingme.Services
                 {
                     // Bỏ qua file
                 }
-                else if (!File.Exists(privPath))
+                else if (!System.IO.File.Exists(privPath))
                 {
                     message.Content = "[Không tìm thấy khóa giải mã]";
                 }
@@ -124,7 +141,15 @@ namespace Pingme.Services
                         string encryptedKey = message.SessionKeyEncrypted[userId];
                         string aesKey = _rsaService.Decrypt(encryptedKey, userId);
 
-                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(message.Content, aesKey, message.Hash ?? "");
+                        //var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(message.Ciphertext, aesKey, message.Hash ?? "");
+                        var (decryptedText, isValid) = _aesService.DecryptMessageWithHashCheck(
+                             message.Ciphertext,
+                             aesKey,
+                             message.IV,
+                             message.Tag,
+                             message.Hash ?? ""
+                         );
+
                         message.Content = decryptedText + (isValid ? "" : "\n⚠️ Tin nhắn có thể đã bị thay đổi!");
                     }
                     catch (Exception ex)

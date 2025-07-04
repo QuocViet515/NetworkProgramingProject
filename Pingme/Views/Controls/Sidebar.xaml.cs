@@ -31,9 +31,7 @@ namespace Pingme.Views.Controls
         private void UserList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var vm = this.DataContext as ChatViewModel;
-            MessageBox.Show($"Sidebar.SelectedUser = {vm?.SelectedUser?.fullName ?? "null"}");
+            MessageBox.Show($"Sidebar.SelectedUser = {vm?.SelectedUser?.FullName ?? "null"}");
         }
-
     }
-
 }
