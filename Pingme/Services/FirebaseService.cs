@@ -44,6 +44,23 @@ namespace Pingme.Services
             snapshot.Id = id;
             return snapshot;
         }
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            var allUsers = await _client.Child("users").OnceAsync<User>();
+
+            var matched = allUsers
+                .FirstOrDefault(u => string.Equals(u.Object.UserName, username, StringComparison.OrdinalIgnoreCase));
+
+            if (matched != null)
+            {
+                matched.Object.Id = matched.Key; // Gán Id từ Firebase key
+                return matched.Object;
+            }
+
+            return null;
+        }
+
+
         public async Task<List<User>> GetAllUsersExceptCurrentAsync(string currentUserId)
         {
             var allUsers = await _client.Child("users").OnceAsync<User>();
@@ -282,6 +299,7 @@ namespace Pingme.Services
                     }
                 });
         }
+
 
     }
 

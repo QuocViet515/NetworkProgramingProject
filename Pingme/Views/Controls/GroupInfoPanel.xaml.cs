@@ -50,17 +50,25 @@ namespace Pingme.Views.Controls
 
             MessageBox.Show($"📞 Gọi tới: {PeerUser.FullName}");
 
-            string peerUserId = PeerUser.Id;
+            // 🔎 Truy xuất ID từ Firebase theo UserName
+            var firebaseService = new FirebaseService();
+            var peerUserFromDb = await firebaseService.GetUserByUsernameAsync(PeerUser.UserName);
+
+            if (peerUserFromDb == null)
+            {
+                MessageBox.Show("❌ Không tìm thấy người dùng với username đó!");
+                return;
+            }
+
+            string peerUserId = peerUserFromDb.Id;
+            MessageBox.Show($"📞 ID người được gọi: {peerUserId}");
+
             string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
             User currentUser = SessionManager.CurrentUser;
+            var currentUserdb =await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
+            string currentUserId = currentUserdb.Id;
             MessageBox.Show($"📞 Gọi từ: {currentUser.FullName}");
-            string currentUserId = currentUser.Id;
             MessageBox.Show($"📞 ID người gọi: {currentUserId}");
-            //if (string.IsNullOrWhiteSpace(currentUserId))
-            //{
-            //    MessageBox.Show("❌ Không xác định được người dùng hiện tại. Hãy đăng nhập lại.");
-            //    return;
-            //}
 
             string channel = $"call_{currentUserId}_{peerUserId}";
 
