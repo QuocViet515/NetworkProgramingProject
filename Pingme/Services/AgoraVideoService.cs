@@ -24,10 +24,18 @@ namespace Pingme.Services
 
         private readonly Dictionary<uint, WindowsFormsHost> _remoteHosts = new Dictionary<uint, WindowsFormsHost>();
 
-        private readonly Grid _localVideoContainer;
-        private readonly Grid _remoteVideoContainer;
+        private readonly IntPtr _localVideoContainer;
+        private readonly IntPtr _remoteVideoContainer;
+        private IntPtr _localVideoHandle;
+        private StackPanel _remoteContainer;
 
-        public AgoraVideoService(Grid localVideoContainer, Grid remoteVideoContainer)
+        public AgoraVideoService(IntPtr localVideoHandle, StackPanel remoteContainer)
+        {
+            _localVideoHandle = localVideoHandle;
+            _remoteContainer = remoteContainer;
+        }
+
+        public AgoraVideoService(IntPtr localVideoContainer, IntPtr remoteVideoContainer)
         {
             _localVideoContainer = localVideoContainer;
             _remoteVideoContainer = remoteVideoContainer;
@@ -118,7 +126,7 @@ namespace Pingme.Services
 
             var canvas = new VideoCanvas
             {
-                view = (long)_videoPanel.Handle,
+                view = (long)_localVideoHandle,
                 renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT,
                 uid = 0
             };
@@ -177,13 +185,12 @@ namespace Pingme.Services
                 };
 
                 _remoteHosts[uid] = host;
-
-                //RemoteVideoContainer.Children.Clear();  // hoặc .Add nếu support nhiều người
-                RemoteVideoContainer.Children.Add(host);
+                _remoteContainer.Children.Add(host);
             });
 
             return panel;
         }
+
 
 
         public void RemoveRemoteVideo(uint uid)
@@ -192,11 +199,12 @@ namespace Pingme.Services
             {
                 WpfApp.Current.Dispatcher.Invoke(() =>
                 {
-                    RemoteVideoContainer.Children.Remove(host);
+                    _remoteContainer.Children.Remove(host);
                 });
                 _remoteHosts.Remove(uid);
             }
         }
+
         public void SetLocalVideoEnabled(bool enabled)
         {
             if (enabled)
