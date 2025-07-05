@@ -21,56 +21,88 @@ namespace Pingme.Views.Controls
 
         public bool IsGroupChat { get; set; } = true;
         public string SelectedChatId { get; set; } // cần set từ ChatPage
+        public User PeerUser { get; set; }  // chính là "other"
 
         public GroupInfoPanel()
         {
             InitializeComponent();
         }
 
-        private void CallButton_Click(object sender, RoutedEventArgs e)
+        private async void CallButton_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as ChatViewModel;
-            string peerUserId = viewModel.SelectedUser.Id;
-
-            string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
-            string currentUserId = AuthService.CurrentUser.Id;
-
-            string channel = $"call_{currentUserId}_{peerUserId}";
-            new CallWindow(appId, channel).Show();
-        }
-
-        private async void VideoCallButton_Click(object sender, RoutedEventArgs e)
-        {
-            var viewModel = DataContext as ChatViewModel;
-            if (viewModel == null || viewModel.SelectedUser == null)
+            if (PeerUser == null)
             {
-                MessageBox.Show("❗ Chưa chọn người để gọi.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("❗ Chưa chọn người để gọi.", "Thông báo");
                 return;
             }
 
-            MessageBox.Show($"📞 Gọi tới: {viewModel.SelectedUser.FullName}");
-            string peerUserId = viewModel.SelectedUser.Id;
-
-            string appId = "c94888a36cee4d71a2d36eb0e2cc6f9b";
-            string currentUserId = AuthService.CurrentUser.Id;
-
-            string channel = $"call_{currentUserId}_{peerUserId}";
-
-            if (callWindow == null || !callWindow.IsLoaded)
+            var firebaseService = new FirebaseService();
+            var peerUserFromDb = await firebaseService.GetUserByUsernameAsync(PeerUser.UserName);
+            if (peerUserFromDb == null)
             {
-                callWindow = new CallWindow(appId, channel);
-                callWindow.Show();
-            }
-            else
-            {
-                callWindow.Activate();
+                MessageBox.Show("❌ Không tìm thấy người dùng.");
+                return;
             }
 
-            // ✅ Gửi tín hiệu gọi qua Firebase
+            var currentUser = SessionManager.CurrentUser;
+            var currentUserDb = await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
+            string channel = $"call_{currentUserDb.Id}_{peerUserFromDb.Id}";
+
+            var request = new CallRequest
+            {
+                FromUserId = currentUserDb.Id,
+                ToUserId = peerUserFromDb.Id,
+                ChannelName = channel,
+                //AppId = "c94888a36cee4d71a2d36eb0e2cc6f9b",
+                Type = "audio",
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+
+            var incomingCallWindow = new IncomingCallWindow(request);
+            incomingCallWindow.Show();
+
             var firebase = new FirebaseNotificationService();
-            await firebase.SendCallRequest(currentUserId, peerUserId);
-            MessageBox.Show("✅ Đã gửi tín hiệu gọi qua Firebase!");
+            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id);
         }
+
+
+        private async void VideoCallButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PeerUser == null)
+            {
+                MessageBox.Show("❗ Chưa chọn người để gọi.", "Thông báo");
+                return;
+            }
+
+            var firebaseService = new FirebaseService();
+            var peerUserFromDb = await firebaseService.GetUserByUsernameAsync(PeerUser.UserName);
+            if (peerUserFromDb == null)
+            {
+                MessageBox.Show("❌ Không tìm thấy người dùng.");
+                return;
+            }
+
+            var currentUser = SessionManager.CurrentUser;
+            var currentUserDb = await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
+            string channel = $"call_{currentUserDb.Id}_{peerUserFromDb.Id}";
+
+            var request = new CallRequest
+            {
+                FromUserId = currentUserDb.Id,
+                ToUserId = peerUserFromDb.Id,
+                ChannelName = channel,
+                //AppId = "c94888a36cee4d71a2d36eb0e2cc6f9b",
+                Type = "video",
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+
+            var incomingCallWindow = new IncomingCallWindow(request);
+            incomingCallWindow.Show();
+
+            var firebase = new FirebaseNotificationService();
+            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id);
+        }
+
 
         private void UserInfoButton_Click(object sender, RoutedEventArgs e)
         {

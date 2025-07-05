@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Pingme.Views.Controls;
+using Pingme.Services;
 
 namespace Pingme.Views.Pages
 {
@@ -29,23 +30,28 @@ namespace Pingme.Views.Pages
 
             GroupInforPanel.IsGroupChat = false;  // neu la nhom la true con ca nhan la false
         }
-        private void OnChatSelected(object sender, object chatItem)
+        private async void OnChatSelected(object sender, object chatItem)
         {
             if (chatItem is Chat chat)
             {
-                ChatDetail.LoadChat(chat.Id, false);
                 GroupInforPanel.IsGroupChat = false;
                 GroupInforPanel.SelectedChatId = chat.Id;
-                GroupInforPanel.UpdateUIForChatType(); // Gán đúng icon + click
+                GroupInforPanel.UpdateUIForChatType();
+                //FirebaseService.curentChatId = ChatDetailControl.current
+                await ChatDetail.LoadChat(chat.Id, false);
+
+                GroupInforPanel.PeerUser = ChatDetail.other;
             }
             else if (chatItem is ChatGroup group)
             {
-                ChatDetail.LoadChat(group.Id, true);
                 GroupInforPanel.IsGroupChat = true;
                 GroupInforPanel.SelectedChatId = group.Id;
                 GroupInforPanel.UpdateUIForChatType();
+
+                await ChatDetail.LoadChat(group.Id, true);
             }
         }
+
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {

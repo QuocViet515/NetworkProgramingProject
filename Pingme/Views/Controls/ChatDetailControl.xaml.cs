@@ -23,12 +23,15 @@ namespace Pingme.Views.Controls
         private readonly AESService _aesService = new AESService();
         private readonly RSAService _rsaService = new RSAService();
 
+        public User other { get; private set; }
+        public string otherId => other?.Id;
+
         public ChatDetailControl()
         {
             InitializeComponent();
         }
 
-        public async void LoadChat(string chatId, bool isGroup)
+        public async Task LoadChat(string chatId, bool isGroup)
         {
             ChatPanel.Children.Clear();
             this.isGroup = isGroup;
@@ -47,9 +50,11 @@ namespace Pingme.Views.Controls
             else
             {
                 var chat = await firebase.Child("chats").Child(chatId).OnceSingleAsync<Chat>();
-                string otherId = chat.User1 == SessionManager.UID ? chat.User2 : chat.User1;
+                string resolvedId = chat.User1 == SessionManager.UID ? chat.User2 : chat.User1;
 
-                var other = await firebase.Child("users").Child(otherId).OnceSingleAsync<User>();
+                // ✅ Gán peer user vào property `other`
+                other = await firebase.Child("users").Child(resolvedId).OnceSingleAsync<User>();
+
                 ChatHeader.ContactName = other.FullName ?? other.UserName ?? "Người dùng";
                 ChatHeader.AvatarPath = other.AvatarUrl ?? "/Assets/Icons/avatar-default.png";
             }

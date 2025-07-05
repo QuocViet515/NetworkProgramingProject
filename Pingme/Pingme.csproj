@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props" Condition="Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,7 +19,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,6 +27,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="agorartc, Version=4.2.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\agora_rtc_sdk.4.2.1\lib\net40\agorartc.dll</HintPath>
+    </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
@@ -371,9 +376,6 @@
     <Compile Include="Views\Controls\MessageChat.xaml.cs">
       <DependentUpon>MessageChat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\MessageInputBar.xaml.cs">
-      <DependentUpon>MessageInputBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\MessageList.xaml.cs">
       <DependentUpon>MessageList.xaml</DependentUpon>
     </Compile>
@@ -443,6 +445,9 @@
     <Compile Include="Views\Windows\CropImageWindow.xaml.cs">
       <DependentUpon>CropImageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\IncomingCallWindow.xaml.cs">
+      <DependentUpon>IncomingCallWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -508,10 +513,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\MessageChat.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Controls\MessageInputBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -604,6 +605,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\CropImageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\IncomingCallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -769,9 +774,15 @@
     <Resource Include="Assets\Icons\profileicon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AgoraBin\agorartc.dll" />
-    <Content Include="AgoraBin\AgoraRtcWrapper.dll" />
-    <Content Include="AgoraBin\agora_rtc_sdk.dll" />
+    <Content Include="AgoraBin\agorartc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AgoraBin\AgoraRtcWrapper.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AgoraBin\agora_rtc_sdk.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="AgoraBin\C_Sharp-API_Example.dll" />
     <Content Include="AgoraBin\glfw3.dll" />
     <Content Include="AgoraBin\libagora-core.dll" />
@@ -812,10 +823,6 @@
       <HintPath>AgoraBin\AgoraRtcWrapper.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="agorartc">
-      <HintPath>AgoraBin\agorartc.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="agora_rtc_sdk">
       <HintPath>AgoraBin\agora_rtc_sdk.dll</HintPath>
       <Private>true</Private>
@@ -854,5 +861,8 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props'))" />
+    <Error Condition="!Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets'))" />
   </Target>
+  <Import Project="packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets" Condition="Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets')" />
 </Project>
