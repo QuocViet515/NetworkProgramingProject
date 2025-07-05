@@ -1,12 +1,49 @@
-﻿<Window x:Class="Pingme.Views.Controls.ContactItem"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Pingme.Views.Controls"
-        mc:Ignorable="d"
-        Title="ContactItem" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
-</Window>
+﻿<UserControl x:Class="Pingme.Views.Controls.ContactItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="80" Width="Auto">
+
+    <UserControl.Resources>
+        <Style x:Key="SelectableBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Background" Value="#C7FADF"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Border x:Name="RootBorder"
+            Padding="5"
+            CornerRadius="10"
+            Style="{StaticResource SelectableBorderStyle}">
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Avatar -->
+            <Ellipse Width="50" Height="50" Grid.Column="0" Margin="5,0,10,0" VerticalAlignment="Center">
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="{Binding AvatarPath, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- Tên + subtitle -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding ContactName, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           FontWeight="Bold"
+                           Foreground="Black"
+                           Margin="0,0,0,2"/>
+                <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           FontSize="12"
+                           Foreground="Gray"
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

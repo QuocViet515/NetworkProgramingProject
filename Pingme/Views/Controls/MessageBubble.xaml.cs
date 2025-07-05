@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Pingme.Views.Controls
@@ -17,7 +18,7 @@ namespace Pingme.Views.Controls
     /// <summary>
     /// Interaction logic for MessageBubble.xaml
     /// </summary>
-    public partial class MessageBubble : Window
+    public partial class MessageBubble : UserControl
     {
         public MessageBubble()
         {

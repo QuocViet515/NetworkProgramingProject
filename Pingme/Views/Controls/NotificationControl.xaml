@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.NotificationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <TextBlock x:Name="NotificationHeader"
+                   Grid.Row="0"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,15"
+                   Text="Notification (0)">
+            <!-- Nội dung động sẽ cập nhật bằng code-behind -->
+        </TextBlock>
+
+        <!-- Khung nền xám chứa danh sách -->
+        <Border Grid.Row="1" Background="#F4F4F4" CornerRadius="10" Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="NotificationsPanel" Margin="5"/>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>
