@@ -15,7 +15,7 @@ namespace Pingme.Services
 
         public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
         {
-            Console.WriteLine($"✅ Đã tham gia kênh: {connection.channelId}, UID: {connection.localUid}");
+            MessageBox.Show($"✅ Đã tham gia kênh: {connection.channelId}, UID: {connection.localUid}");
         }
 
         public override void OnUserJoined(RtcConnection connection, uint remoteUid, int elapsed)
@@ -45,20 +45,64 @@ namespace Pingme.Services
             _videoService.RemoveRemoteVideo(remoteUid);
         }
         public override void OnRemoteVideoStateChanged(
-       RtcConnection connection,
-       uint remoteUid,
-       REMOTE_VIDEO_STATE state,
-       REMOTE_VIDEO_STATE_REASON reason,
-       int elapsed)
+    RtcConnection connection,
+    uint remoteUid,
+    REMOTE_VIDEO_STATE state,
+    REMOTE_VIDEO_STATE_REASON reason,
+    int elapsed)
         {
-            Console.WriteLine($"📡 Remote video state: UID={remoteUid}, STATE={state}, REASON={reason}");
+            string message = $"📡 Remote video state changed:\n" +
+                             $"- UID: {remoteUid}\n" +
+                             $"- STATE: {state}\n" +
+                             $"- REASON: {reason}\n" +
+                             $"- Elapsed: {elapsed}ms";
 
-            // Có thể mở rộng hiển thị trạng thái:
-            WpfApp.Current.Dispatcher.Invoke(() =>
+            System.Windows.MessageBox.Show(message);
+
+            // Phân tích trạng thái
+            switch (state)
             {
-                Console.WriteLine($"📡 UID: {remoteUid}\nSTATE: {state}\nREASON: {reason}");
-            });
+                case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STARTING:
+                    System.Windows.MessageBox.Show($"⏳ Đang bắt đầu nhận video từ {remoteUid}...");
+                    break;
+
+                case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING:
+                    System.Windows.MessageBox.Show($"✅ Đang hiển thị video từ {remoteUid}");
+                    // Đổi nền thành đen (hoặc trong suốt) nếu đang hiển thị bình thường
+                    WpfApp.Current.Dispatcher.Invoke(() =>
+                    {
+                        _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.Black);
+                    });
+                    break;
+
+                case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED:
+                    System.Windows.MessageBox.Show($"⛔ Video từ {remoteUid} đã bị dừng (do user tắt cam?)");
+                    WpfApp.Current.Dispatcher.Invoke(() =>
+                    {
+                        _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.Red);
+                    });
+                    break;
+
+                case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_FAILED:
+                    System.Windows.MessageBox.Show($"❌ Lỗi hiển thị video từ {remoteUid} (lý do: {reason})");
+                    WpfApp.Current.Dispatcher.Invoke(() =>
+                    {
+                        _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.Red);
+                    });
+                    break;
+
+                case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_FROZEN:
+                    System.Windows.MessageBox.Show($"🥶 Video từ {remoteUid} bị đứng hình (mạng yếu?)");
+                    WpfApp.Current.Dispatcher.Invoke(() =>
+                    {
+                        _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.OrangeRed);
+                    });
+                    break;
+            }
         }
+
+
+
     }
 
 }

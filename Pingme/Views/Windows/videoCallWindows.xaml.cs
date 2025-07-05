@@ -69,7 +69,7 @@ namespace Pingme.Views.Windows
                 // 5. Hiện video local nếu camera đang bật
                 _localVideoHost.Visibility = Visibility.Visible;
                 LocalAvatar.Visibility = Visibility.Collapsed;
-                RemoteVideoContainer.Visibility = Visibility.Collapsed;
+                RemoteVideoContainer.Visibility = Visibility.Visible;
 
 
             }

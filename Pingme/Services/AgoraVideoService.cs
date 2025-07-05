@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Agora.Rtc;
+using System;
+using System.Collections.Generic;
+using System.Drawing; // For Color
 using System.Windows;
 using System.Windows.Controls; // WPF UI
 using System.Windows.Forms;
 using System.Windows.Forms.Integration; // WindowsFormsHost
-using System.Drawing; // For Color
-using Agora.Rtc;
 using AREA_CODE = Agora.Rtc.AREA_CODE;
 using WF = System.Windows.Forms; // Alias cho WinForms
-using System.Collections.Generic;
 using WpfApp = System.Windows.Application; // Alias cho WPF Application
+using System.Threading.Tasks;
 
 namespace Pingme.Services
 {
@@ -118,9 +119,12 @@ namespace Pingme.Services
             {
                 _videoPanel = new WF.Panel
                 {
-                    BackColor = Color.Black,
-                    Dock = WF.DockStyle.Fill // ✅ Thêm WF.
+                    Width = 640,
+                    Height = 360,
+                    Dock = DockStyle.None,
+                    BackColor = Color.DarkGray
                 };
+
 
             }
 
@@ -168,28 +172,42 @@ namespace Pingme.Services
 
         public WF.Panel CreateRemotePanel(uint uid)
         {
-            WF.Panel panel = null;
-            WindowsFormsHost host = null;
+            WF.Panel panel = new WF.Panel
+            {
+                BackColor = Color.DarkGray,
+                Dock = DockStyle.Fill
+            };
 
+            WindowsFormsHost host = new WindowsFormsHost
+            {
+                Child = panel
+            };
+
+            _remoteHosts[uid] = host;
+
+            // Thêm vào UI
             WpfApp.Current.Dispatcher.Invoke(() =>
             {
-                panel = new WF.Panel
-                {
-                    Dock = WF.DockStyle.Fill,
-                    BackColor = Color.Gray
-                };
-
-                host = new WindowsFormsHost
-                {
-                    Child = panel
-                };
-
-                _remoteHosts[uid] = host;
                 _remoteContainer.Children.Add(host);
+            });
+
+            // Delay 100ms rồi gán handle → tránh lỗi "view = 0"
+            WpfApp.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                await Task.Delay(100);
+
+                this.Engine.SetupRemoteVideo(new VideoCanvas
+                {
+                    uid = uid,
+                    view = (long)panel.Handle,
+                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT
+                });
             });
 
             return panel;
         }
+
+
 
 
 
@@ -220,5 +238,16 @@ namespace Pingme.Services
             else
                 _engine.EnableLocalAudio(false);
         }
+        public void SetRemotePanelColor(uint uid, System.Drawing.Color color)
+        {
+            if (_remoteHosts.TryGetValue(uid, out var host))
+            {
+                if (host.Child is System.Windows.Forms.Panel panel)
+                {
+                    panel.BackColor = color;
+                }
+            }
+        }
+
     }
 }
