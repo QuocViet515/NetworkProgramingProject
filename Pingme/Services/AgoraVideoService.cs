@@ -42,6 +42,16 @@ namespace Pingme.Services
         {
             if (_isJoined) return;
 
+            if (_localContainer == null)
+            {
+                _localContainer = new ContentControl(); // Initialize or assign a valid instance.
+            }
+
+            if (RemoteVideoContainer == null)
+            {
+                RemoteVideoContainer = new StackPanel();
+            }
+
             _engine = RtcEngine.CreateAgoraRtcEngine();
 
             var context = new RtcEngineContext(

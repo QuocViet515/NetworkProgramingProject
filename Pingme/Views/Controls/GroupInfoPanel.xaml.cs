@@ -96,8 +96,8 @@ namespace Pingme.Views.Controls
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
-            var incomingCallWindow = new incomingvideocall(request);
-            incomingCallWindow.Show();
+            var videocall = new videoCallWindows(request, DateTime.Now);
+            videocall.Show();
 
             var firebase = new FirebaseNotificationService();
             await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id, "video");

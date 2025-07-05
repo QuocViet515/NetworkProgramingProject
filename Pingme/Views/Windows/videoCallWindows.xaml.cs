@@ -17,14 +17,17 @@ namespace Pingme.Views.Windows
 
         public videoCallWindows(CallRequest request, DateTime callStartTime)
         {
-            InitializeComponent();
+            InitializeComponent(); // 🟢 Đặt ở đây TRƯỚC khi dùng _localContainer
+
             _request = request;
             _callStartTime = callStartTime;
-            _videoService = new AgoraVideoService(LocalVideoContainer, RemoteVideoContainer);
+
+            _videoService = new AgoraVideoService(_localContainer, RemoteVideoContainer);
 
             Loaded += CallWindow_Loaded;
             Closed += CallWindow_Closed;
         }
+
 
         private void CallWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -34,7 +37,7 @@ namespace Pingme.Views.Windows
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
                 // 2. Bắt đầu tắt camera + audio mặc định
-                _videoService.SetLocalVideoEnabled(false);
+                _videoService.SetLocalVideoEnabled(true);
                 _videoService.SetLocalAudioEnabled(true);
 
                 // 3. Avatar của người gọi (hiển thị local)
@@ -52,7 +55,7 @@ namespace Pingme.Views.Windows
                 }
 
                 // 5. Ẩn video ban đầu
-                LocalVideoContainer.Visibility = Visibility.Collapsed;
+                _localContainer.Visibility = Visibility.Collapsed;
                 RemoteVideoContainer.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
@@ -77,12 +80,12 @@ namespace Pingme.Views.Windows
 
             if (_cameraOn)
             {
-                LocalVideoContainer.Visibility = Visibility.Visible;
+                _localContainer.Visibility = Visibility.Visible;
                 LocalAvatar.Visibility = Visibility.Collapsed;
             }
             else
             {
-                LocalVideoContainer.Visibility = Visibility.Collapsed;
+                _localContainer.Visibility = Visibility.Collapsed;
                 LocalAvatar.Visibility = Visibility.Visible;
             }
         }

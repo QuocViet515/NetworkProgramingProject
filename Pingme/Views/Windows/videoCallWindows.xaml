@@ -26,7 +26,7 @@
               HorizontalAlignment="Right"
               VerticalAlignment="Bottom"
               Margin="10">
-            <Grid x:Name="LocalVideoContainer"
+            <Grid x:Name="_localContainer"
                             Background="Black"
                             Visibility="Collapsed" />
             <Image x:Name="LocalAvatar"
