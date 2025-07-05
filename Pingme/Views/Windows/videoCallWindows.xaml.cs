@@ -7,13 +7,15 @@ using System.Windows.Media.Imaging;
 
 namespace Pingme.Views.Windows
 {
-    public partial class CallWindow : Window
+    public partial class videoCallWindows : Window
     {
         private readonly CallRequest _request;
         private readonly AgoraVideoService _videoService;
         private DateTime _callStartTime;
+        private bool _cameraOn = false;
+        private bool _micOn = true;
 
-        public CallWindow(CallRequest request, DateTime callStartTime)
+        public videoCallWindows(CallRequest request, DateTime callStartTime)
         {
             InitializeComponent();
             _request = request;
@@ -28,29 +30,30 @@ namespace Pingme.Views.Windows
         {
             try
             {
-                // Khởi tạo Agora
+                // 1. Khởi tạo Agora
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
-                // Mặc định tắt camera
+                // 2. Bắt đầu tắt camera + audio mặc định
                 _videoService.SetLocalVideoEnabled(false);
-                LocalVideoContainer.Visibility = Visibility.Collapsed;
-                LocalAvatar.Visibility = Visibility.Visible;
+                _videoService.SetLocalAudioEnabled(true);
 
-                // Load avatar người gọi
+                // 3. Avatar của người gọi (hiển thị local)
                 if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
                 {
                     LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));
+                    LocalAvatar.Visibility = Visibility.Visible;
                 }
 
-                // Load avatar người nhận
+                // 4. Avatar của người nhận (hiển thị remote)
                 if (!string.IsNullOrEmpty(_request.ReceiverAvatarUrl))
                 {
                     RemoteAvatar.Source = new BitmapImage(new Uri(_request.ReceiverAvatarUrl));
+                    RemoteAvatar.Visibility = Visibility.Visible;
                 }
 
-                // Hiện avatar người nhận nếu video chưa có
+                // 5. Ẩn video ban đầu
+                LocalVideoContainer.Visibility = Visibility.Collapsed;
                 RemoteVideoContainer.Visibility = Visibility.Collapsed;
-                RemoteAvatar.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -65,27 +68,38 @@ namespace Pingme.Views.Windows
 
         private void BtnToggleCamera_Click(object sender, RoutedEventArgs e)
         {
-            var btn = sender as ToggleButton;
-            bool cameraOn = btn.IsChecked == true;
-            btn.Content = cameraOn ? "📷" : "🚫";
+            _cameraOn = !_cameraOn;
 
-            _videoService.SetLocalVideoEnabled(cameraOn);
-            LocalVideoContainer.Visibility = cameraOn ? Visibility.Visible : Visibility.Collapsed;
-            LocalAvatar.Visibility = cameraOn ? Visibility.Collapsed : Visibility.Visible;
+            var btn = sender as ToggleButton;
+            btn.Content = _cameraOn ? "📷" : "🚫";
+
+            _videoService.SetLocalVideoEnabled(_cameraOn);
+
+            if (_cameraOn)
+            {
+                LocalVideoContainer.Visibility = Visibility.Visible;
+                LocalAvatar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                LocalVideoContainer.Visibility = Visibility.Collapsed;
+                LocalAvatar.Visibility = Visibility.Visible;
+            }
         }
 
         private void BtnToggleMic_Click(object sender, RoutedEventArgs e)
         {
-            var btn = sender as ToggleButton;
-            bool micOn = btn.IsChecked == true;
-            btn.Content = micOn ? "🎤" : "🔇";
+            _micOn = !_micOn;
 
-            _videoService.SetLocalAudioEnabled(micOn);
+            var btn = sender as ToggleButton;
+            btn.Content = _micOn ? "🎤" : "🔇";
+
+            _videoService.SetLocalAudioEnabled(_micOn);
         }
 
         private async void BtnEndCall_Click(object sender, RoutedEventArgs e)
         {
-            string callType = "audio"; // hoặc "audio"
+            string callType = _cameraOn ? "video" : "audio";
             var callDuration = (DateTime.UtcNow - _callStartTime).TotalSeconds;
 
             var messageService = new FirebaseService();

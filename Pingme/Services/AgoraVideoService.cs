@@ -24,13 +24,20 @@ namespace Pingme.Services
 
         private readonly Dictionary<uint, WindowsFormsHost> _remoteHosts = new Dictionary<uint, WindowsFormsHost>();
 
+        private readonly Grid _localVideoContainer;
+        private readonly Grid _remoteVideoContainer;
 
+        public AgoraVideoService(Grid localVideoContainer, Grid remoteVideoContainer)
+        {
+            _localVideoContainer = localVideoContainer;
+            _remoteVideoContainer = remoteVideoContainer;
+        }
         public AgoraVideoService(ContentControl localContainer, StackPanel remoteContainer)
         {
             _localContainer = localContainer;
             RemoteVideoContainer = remoteContainer;
         }
-
+        
         public void InitializeAgora(string appId, string rawChannelName)
         {
             if (_isJoined) return;

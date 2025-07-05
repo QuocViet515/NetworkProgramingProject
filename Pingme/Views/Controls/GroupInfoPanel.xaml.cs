@@ -62,7 +62,7 @@ namespace Pingme.Views.Controls
             incomingCallWindow.Show();
 
             var firebase = new FirebaseNotificationService();
-            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id);
+            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id,"audio" );
         }
 
 
@@ -96,11 +96,11 @@ namespace Pingme.Views.Controls
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
-            var incomingCallWindow = new IncomingCallWindow(request);
+            var incomingCallWindow = new incomingvideocall(request);
             incomingCallWindow.Show();
 
             var firebase = new FirebaseNotificationService();
-            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id);
+            await firebase.SendCallRequest(currentUserDb.Id, peerUserFromDb.Id, "video");
         }
 
 

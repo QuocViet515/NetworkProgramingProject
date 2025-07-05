@@ -45,7 +45,7 @@ namespace Pingme.Services
         }
 
         // Gửi yêu cầu gọi đến Firebase
-        public async Task SendCallRequest(string fromUserId, string toUserId)
+        public async Task SendCallRequest(string fromUserId, string toUserId, string type)
         {
             string channel = $"call_{fromUserId}_{toUserId}";
 
@@ -54,6 +54,8 @@ namespace Pingme.Services
                 FromUserId = fromUserId,
                 ToUserId = toUserId,
                 ChannelName = channel,
+                //AppId = "c94888a36cee4d71a2d36eb0e2cc6f9b",
+                Type = type, // 👈 truyền type "audio" hoặc "video"
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
@@ -62,15 +64,17 @@ namespace Pingme.Services
                 await client
                     .Child("calls")
                     .Child(toUserId)
-                    .PostAsync(callRequest); // ✅ Ghi thêm, không ghi đè
+                    .PostAsync(callRequest);
 
-                Console.WriteLine("✅ Đã gửi tín hiệu gọi (ghi thêm) qua Firebase!");
+                Console.WriteLine("✅ Đã gửi tín hiệu gọi " + type);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("❌ Lỗi khi gửi cuộc gọi: " + ex.Message);
             }
         }
+
+        
 
         // Hàm xử lý khi có cuộc gọi đến
         private async void OnCallRequestReceived(CallRequest request)
@@ -101,59 +105,65 @@ namespace Pingme.Services
 
         // Lắng nghe cuộc gọi đến (từ Firebase realtime)
         public async void StartListeningForCalls(string userId)
-
         {
             StopListening();
-            var firebaseService = new FirebaseService();
-            var current = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
-            Console.WriteLine($"📡 Listening for calls on: {userId}");
-            MessageBox.Show("Bạn là: " + current.Id);
-            string firebasePath = $"calls/{userId}";
-            Console.WriteLine("Đang lắng nghe path: " + firebasePath);
-            //Console.WriteLine("AuthService.CurrentUser.id: " + AuthService.CurrentUser.Id);
 
+            var firebaseService = new FirebaseService();
+            var currentUser = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
+
+            Console.WriteLine($"📡 Listening for calls on: {userId}");
+            Console.WriteLine("🔒 Người đang đăng nhập: " + currentUser.Id);
 
             _callSubscription = client
-             .Child("calls")
-             .Child(userId)
-             .AsObservable<CallRequest>()
-             .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate)
-             .Subscribe(async call =>
-             {
-                 Application.Current.Dispatcher.Invoke(async () =>
-                 {
-                     if (call.Object == null) return;
+                .Child("calls")
+                .Child(userId)
+                .AsObservable<CallRequest>()
+                .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate)
+                .Subscribe(async call =>
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (call.Object == null) return;
 
-                     Console.WriteLine("📥 Nhận được cuộc gọi:");
-                     Console.WriteLine($"📞 Từ: {call.Object.FromUserId} - Channel: {call.Object.ChannelName}");
+                        Console.WriteLine("📥 Nhận được cuộc gọi:");
+                        Console.WriteLine($"📞 Từ: {call.Object.FromUserId} - Channel: {call.Object.ChannelName}");
 
-                     // ⚠️ Kiểm tra   người gửi khác người dùng hiện tại
-                     if (call.Object.FromUserId == SessionManager.CurrentUser?.Id)
-                     {
-                         Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
-                         return;
-                     }
+                        // ⚠️ Kiểm tra nếu người gửi là chính mình thì bỏ qua
+                        if (call.Object.FromUserId == currentUser.Id)
+                        {
+                            Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
+                            return;
+                        }
 
-                     // ✅ Gọi cửa sổ cuộc gọi đến
-                     var incomingWindow = new IncomingCallWindow(call.Object);
-                     incomingWindow.Show();
+                        // ✅ Gọi cửa sổ IncomingCall
+                        if (call.Object.Type == "video")
+                        {
+                            var incomingVideo = new incomingvideocall(call.Object);
+                            incomingVideo.Show();
+                        }
+                        else
+                        {
+                            var incomingAudio = new IncomingCallWindow(call.Object);
+                            incomingAudio.Show();
+                        }
 
-                     // ✅ Sau khi hiển thị, xóa cuộc gọi đó khỏi Firebase để tránh hiển thị lại
-                     await client
-                         .Child("calls")
-                         .Child(userId)
-                         .Child(call.Key) // chính là push key
-                         .DeleteAsync();
 
-                     Console.WriteLine("🗑️ Đã xóa CallRequest sau khi xử lý.");
-                 });
-     },
-     error =>
-     {
-         Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
-     });
+                        // ✅ Sau khi xử lý, xóa cuộc gọi khỏi Firebase
+                        await client
+                            .Child("calls")
+                            .Child(userId)
+                            .Child(call.Key)
+                            .DeleteAsync();
 
+                        Console.WriteLine("🗑️ Đã xóa CallRequest sau khi xử lý.");
+                    });
+                },
+                error =>
+                {
+                    Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
+                });
         }
+
 
         // Ngắt lắng nghe (ví dụ khi đăng xuất)
         public void StopListening()
