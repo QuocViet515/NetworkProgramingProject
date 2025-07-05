@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Pingme.Views.Controls;
+using Pingme.Services;
 
 namespace Pingme.Views.Pages
 {
@@ -36,7 +37,7 @@ namespace Pingme.Views.Pages
                 GroupInforPanel.IsGroupChat = false;
                 GroupInforPanel.SelectedChatId = chat.Id;
                 GroupInforPanel.UpdateUIForChatType();
-
+                //FirebaseService.curentChatId = ChatDetailControl.current
                 await ChatDetail.LoadChat(chat.Id, false);
 
                 GroupInforPanel.PeerUser = ChatDetail.other;

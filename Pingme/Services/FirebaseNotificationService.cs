@@ -54,7 +54,7 @@ namespace Pingme.Services
                 FromUserId = fromUserId,
                 ToUserId = toUserId,
                 ChannelName = channel,
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
             try
@@ -73,55 +73,86 @@ namespace Pingme.Services
         }
 
         // Hàm xử lý khi có cuộc gọi đến
-        private void OnCallRequestReceived(CallRequest request)
+        private async void OnCallRequestReceived(CallRequest request)
         {
-            if (request.ToUserId != SessionManager.CurrentUser.Id) return;
+            var firebaseService = new FirebaseService();
+            // ✅ Chỉ hiển thị nếu người nhận là chính mình (đã lắng nghe đúng path)
+            // ❌ Tránh hiển thị nếu người gọi lại bắt được chính event của mình (do logic sai)
+            var currentUser = SessionManager.CurrentUser;
+            var currentUserDb = await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
+            string currentUserId = currentUserDb.Id;
+            // Nếu currentUserId KHÁC FromUserId → đây là người nhận → hợp lệ
+            if (currentUserId == null || currentUserId == request.FromUserId)
+            {
+                Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
+                return;
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Console.WriteLine($"📞 Mở CallWindow: {request.ChannelName}");
-                new CallWindow(APP_ID, request.ChannelName).Show();
+                Console.WriteLine($"📞 Có cuộc gọi từ: {request.FromUserId} - Channel: {request.ChannelName}");
+
+                var incomingWindow = new IncomingCallWindow(request);
+                incomingWindow.Show();
             });
         }
 
+
+
         // Lắng nghe cuộc gọi đến (từ Firebase realtime)
-        public void StartListeningForCalls(string userId)
+        public async void StartListeningForCalls(string userId)
 
         {
             StopListening();
+            var firebaseService = new FirebaseService();
+            var current = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
             Console.WriteLine($"📡 Listening for calls on: {userId}");
-            MessageBox.Show("Bạn là: " + SessionManager.CurrentUser.Id);
+            MessageBox.Show("Bạn là: " + current.Id);
             string firebasePath = $"calls/{userId}";
             Console.WriteLine("Đang lắng nghe path: " + firebasePath);
             //Console.WriteLine("AuthService.CurrentUser.id: " + AuthService.CurrentUser.Id);
 
 
             _callSubscription = client
-                .Child("calls")
-                .Child(userId)
-                .AsObservable<CallRequest>()
-                .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate)
-                .Subscribe(call =>
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Console.WriteLine("📥 Firebase sự kiện nhận được");
+             .Child("calls")
+             .Child(userId)
+             .AsObservable<CallRequest>()
+             .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate)
+             .Subscribe(async call =>
+             {
+                 Application.Current.Dispatcher.Invoke(async () =>
+                 {
+                     if (call.Object == null) return;
 
-                        if (call.Object != null)
-                        {
-                            Console.WriteLine($"📞 Có cuộc gọi từ: {call.Object.FromUserId}");
-                            OnCallRequestReceived(call.Object);
-                        }
-                        else
-                        {
-                            Console.WriteLine("⚠️ call.Object là null");
-                        }
-                    });
-                },
-                error =>
-                {
-                    Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
-                });
+                     Console.WriteLine("📥 Nhận được cuộc gọi:");
+                     Console.WriteLine($"📞 Từ: {call.Object.FromUserId} - Channel: {call.Object.ChannelName}");
+
+                     // ⚠️ Kiểm tra   người gửi khác người dùng hiện tại
+                     if (call.Object.FromUserId == SessionManager.CurrentUser?.Id)
+                     {
+                         Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
+                         return;
+                     }
+
+                     // ✅ Gọi cửa sổ cuộc gọi đến
+                     var incomingWindow = new IncomingCallWindow(call.Object);
+                     incomingWindow.Show();
+
+                     // ✅ Sau khi hiển thị, xóa cuộc gọi đó khỏi Firebase để tránh hiển thị lại
+                     await client
+                         .Child("calls")
+                         .Child(userId)
+                         .Child(call.Key) // chính là push key
+                         .DeleteAsync();
+
+                     Console.WriteLine("🗑️ Đã xóa CallRequest sau khi xử lý.");
+                 });
+     },
+     error =>
+     {
+         Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
+     });
+
         }
 
         // Ngắt lắng nghe (ví dụ khi đăng xuất)

@@ -376,9 +376,6 @@
     <Compile Include="Views\Controls\MessageChat.xaml.cs">
       <DependentUpon>MessageChat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\MessageInputBar.xaml.cs">
-      <DependentUpon>MessageInputBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\MessageList.xaml.cs">
       <DependentUpon>MessageList.xaml</DependentUpon>
     </Compile>
@@ -448,6 +445,9 @@
     <Compile Include="Views\Windows\CropImageWindow.xaml.cs">
       <DependentUpon>CropImageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\IncomingCallWindow.xaml.cs">
+      <DependentUpon>IncomingCallWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -513,10 +513,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\MessageChat.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Controls\MessageInputBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -609,6 +605,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\CropImageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\IncomingCallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

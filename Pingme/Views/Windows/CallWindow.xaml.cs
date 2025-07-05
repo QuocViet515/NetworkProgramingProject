@@ -1,23 +1,23 @@
-﻿using System;
+﻿using Pingme.Models;
+using Pingme.Services;
+using System;
 using System.Windows;
 using System.Windows.Controls.Primitives;
-using Pingme.Services;
+using System.Windows.Media.Imaging;
 
 namespace Pingme.Views.Windows
 {
     public partial class CallWindow : Window
     {
-        private readonly string _appId;
-        private readonly string _channelName;
+        private readonly CallRequest _request;
         private readonly AgoraVideoService _videoService;
+        private DateTime _callStartTime;
 
-        public CallWindow(string appId, string channel)
+        public CallWindow(CallRequest request, DateTime callStartTime)
         {
             InitializeComponent();
-
-            _appId = appId;
-            _channelName = channel;
-
+            _request = request;
+            _callStartTime = callStartTime;
             _videoService = new AgoraVideoService(LocalVideoContainer, RemoteVideoContainer);
 
             Loaded += CallWindow_Loaded;
@@ -28,7 +28,29 @@ namespace Pingme.Views.Windows
         {
             try
             {
-                _videoService.InitializeAgora(_appId, _channelName);
+                // Khởi tạo Agora
+                _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
+
+                // Mặc định tắt camera
+                _videoService.SetLocalVideoEnabled(false);
+                LocalVideoContainer.Visibility = Visibility.Collapsed;
+                LocalAvatar.Visibility = Visibility.Visible;
+
+                // Load avatar người gọi
+                if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
+                {
+                    LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));
+                }
+
+                // Load avatar người nhận
+                if (!string.IsNullOrEmpty(_request.ReceiverAvatarUrl))
+                {
+                    RemoteAvatar.Source = new BitmapImage(new Uri(_request.ReceiverAvatarUrl));
+                }
+
+                // Hiện avatar người nhận nếu video chưa có
+                RemoteVideoContainer.Visibility = Visibility.Collapsed;
+                RemoteAvatar.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -48,11 +70,8 @@ namespace Pingme.Views.Windows
             btn.Content = cameraOn ? "📷" : "🚫";
 
             _videoService.SetLocalVideoEnabled(cameraOn);
-
-            // Chuyển đổi giữa video và avatar
             LocalVideoContainer.Visibility = cameraOn ? Visibility.Visible : Visibility.Collapsed;
             LocalAvatar.Visibility = cameraOn ? Visibility.Collapsed : Visibility.Visible;
-
         }
 
         private void BtnToggleMic_Click(object sender, RoutedEventArgs e)
@@ -64,8 +83,20 @@ namespace Pingme.Views.Windows
             _videoService.SetLocalAudioEnabled(micOn);
         }
 
-        private void BtnEndCall_Click(object sender, RoutedEventArgs e)
+        private async void BtnEndCall_Click(object sender, RoutedEventArgs e)
         {
+            string callType = "video"; // hoặc "audio"
+            var callDuration = (DateTime.UtcNow - _callStartTime).TotalSeconds;
+
+            var messageService = new FirebaseService();
+            await messageService.SendCallSummaryMessageAsync(
+                _request.FromUserId,
+                _request.ToUserId,
+                callType,
+                (int)callDuration,
+                DateTime.UtcNow
+            );
+
             _videoService.LeaveChannel();
             this.Close();
         }

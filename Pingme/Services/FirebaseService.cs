@@ -299,7 +299,44 @@ namespace Pingme.Services
                     }
                 });
         }
+        public async Task SendCallSummaryMessageAsync(string _senderId, string _receiverId, string _callType, int durationSeconds, DateTime endTime)
+        {
+            var message = new
+            {
+                senderId = _senderId,
+                receiverId = _receiverId,
+                type = "call_log",
+                callType = _callType, // "video" hoặc "audio"
+                duration = durationSeconds,
+                endedAt = endTime.ToString("o"), // ISO 8601
+                content = $"Cuộc gọi {_callType} kết thúc. Thời lượng: {durationSeconds / 60} phút {durationSeconds % 60} giây.",
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            };
 
+            string chatId = GetChatRoomId(_senderId, _receiverId);
+
+            await _client.Child("messages")
+                .Child(chatId)
+                .PostAsync(message);
+        }
+
+        public async Task SendCallStatusMessageAsync(string callerId, string receiverId, string status, DateTime time)
+        {
+            var message = new Message
+            {
+                ChatId = GetChatRoomId(callerId, receiverId),
+                SenderId = receiverId,
+                ReceiverId = callerId,
+                Type = "status",
+                Content = status == "missed"
+                    ? $"📵 Cuộc gọi nhỡ lúc {time:HH:mm:ss}"
+                    : $"❌ {receiverId} đã từ chối cuộc gọi lúc {time:HH:mm:ss}",
+                SentAt = time,
+                IsRead = false
+            };
+
+            await _client.Child("messages").PostAsync(message);
+        }
 
     }
 

@@ -1,33 +1,46 @@
 ﻿<Window x:Class="Pingme.Views.Windows.CallWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Cuộc gọi video" Height="500" Width="800" WindowStartupLocation="CenterScreen"
+        Title="Cuộc gọi video" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen"
         Background="Black">
+
     <Grid Background="Black">
         <!-- Remote video -->
         <StackPanel x:Name="RemoteVideoContainer"
                     Background="Black"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch" />
+                    VerticalAlignment="Stretch"
+                    Visibility="Collapsed" />
+
+        <!-- Avatar người nhận -->
+        <Image x:Name="RemoteAvatar"
+               Source="/Assets/Icons/avatar-default.png"
+               Width="200" Height="200"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Stretch="UniformToFill"
+               ClipToBounds="True"
+               Visibility="Visible"/>
 
         <!-- Local video overlay -->
         <Grid Width="200" Height="150"
               HorizontalAlignment="Right"
               VerticalAlignment="Bottom"
               Margin="10">
-            <!-- Video shown when camera is on -->
+            <!-- Video nếu bật camera -->
             <ContentControl x:Name="LocalVideoContainer"
                             Background="Black"
-                            Visibility="Visible" />
+                            Visibility="Collapsed" />
 
-            <!-- Avatar shown when camera is off -->
+            <!-- Avatar người gọi -->
             <Image x:Name="LocalAvatar"
-                   Source="/Assets/Images/02.png"
+                   Source="/Assets/Icons/avatar-default.png"
                    Stretch="UniformToFill"
-                   Visibility="Collapsed" />
+                   Visibility="Visible" />
         </Grid>
 
-        <!-- Controls panel -->
+        <!-- Thanh điều khiển -->
         <Border Background="#66000000"
                 Padding="10"
                 CornerRadius="30"
@@ -43,9 +56,9 @@
                               BorderBrush="Transparent"
                               Foreground="White"
                               Click="BtnToggleCamera_Click"
-                              IsChecked="True"
+                              IsChecked="False"
                               FontSize="24"
-                              Content="📷" />
+                              Content="🚫" />
 
                 <ToggleButton x:Name="BtnToggleMic"
                               Width="50" Height="50"
