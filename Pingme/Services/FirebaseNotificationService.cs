@@ -10,7 +10,6 @@ using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-
 namespace Pingme.Services
 {
     public class FirebaseNotificationService
@@ -49,13 +48,26 @@ namespace Pingme.Services
         {
             string channel = $"call_{fromUserId}_{toUserId}";
 
+            // 🔍 Lấy profile người gọi
+            var fromUser = await client
+                .Child("users")
+                .Child(fromUserId)
+                .OnceSingleAsync<User>();
+
+            // 🔍 Lấy profile người nhận
+            var toUser = await client
+                .Child("users")
+                .Child(toUserId)
+                .OnceSingleAsync<User>();
+
             var callRequest = new CallRequest
             {
                 FromUserId = fromUserId,
                 ToUserId = toUserId,
                 ChannelName = channel,
-                //AppId = "c94888a36cee4d71a2d36eb0e2cc6f9b",
-                Type = type, // 👈 truyền type "audio" hoặc "video"
+                CallerAvatarUrl = fromUser.AvatarUrl,
+                ReceiverAvatarUrl = toUser.AvatarUrl,
+                Type = type,
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
@@ -74,7 +86,8 @@ namespace Pingme.Services
             }
         }
 
-        
+
+
 
         // Hàm xử lý khi có cuộc gọi đến
         private async void OnCallRequestReceived(CallRequest request)

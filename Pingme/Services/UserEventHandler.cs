@@ -23,9 +23,20 @@ namespace Pingme.Services
             //MessageBox.Show($"👤 Người dùng mới: {remoteUid}");
 
             // Tạo panel và setup canvas trong UI thread
+            // Pseudocode plan:
+            // 1. Ensure that the Dispatcher.Invoke block is running on the correct thread (WPF UI thread).
+            // 2. Check if _videoService.CreateRemotePanel(remoteUid) returns a valid panel with a non-null Handle.
+            // 3. Ensure that the panel.Handle is valid and not IntPtr.Zero before using it in VideoCanvas.
+            // 4. Add null/handle checks and error handling to prevent runtime exceptions.
+
             WpfApp.Current.Dispatcher.Invoke(() =>
             {
                 var panel = _videoService.CreateRemotePanel(remoteUid);
+                if (panel == null || panel.Handle == IntPtr.Zero)
+                {
+                    MessageBox.Show($"Failed to create remote panel for UID: {remoteUid}");
+                    return;
+                }
 
                 var canvas = new VideoCanvas
                 {

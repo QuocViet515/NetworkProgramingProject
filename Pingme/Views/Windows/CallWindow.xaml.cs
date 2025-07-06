@@ -12,6 +12,8 @@ namespace Pingme.Views.Windows
         private readonly CallRequest _request;
         private readonly AgoraVideoService _videoService;
         private DateTime _callStartTime;
+        private bool _cameraOn = false;
+        private bool _micOn = true;
 
         public CallWindow(CallRequest request, DateTime callStartTime)
         {
@@ -32,23 +34,20 @@ namespace Pingme.Views.Windows
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
                 // Mặc định tắt camera
-                _videoService.SetLocalVideoEnabled(false);
+                _videoService.SetLocalVideoEnabled(_cameraOn);
+                _videoService.SetLocalAudioEnabled(_micOn);
                 LocalVideoContainer.Visibility = Visibility.Collapsed;
                 LocalAvatar.Visibility = Visibility.Visible;
 
-                // Load avatar người gọi
+                // Avatar người gọi
                 if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
-                {
                     LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));
-                }
 
-                // Load avatar người nhận
+                // Avatar người nhận
                 if (!string.IsNullOrEmpty(_request.ReceiverAvatarUrl))
-                {
                     RemoteAvatar.Source = new BitmapImage(new Uri(_request.ReceiverAvatarUrl));
-                }
 
-                // Hiện avatar người nhận nếu video chưa có
+                // Hiện avatar nếu video chưa có
                 RemoteVideoContainer.Visibility = Visibility.Collapsed;
                 RemoteAvatar.Visibility = Visibility.Visible;
             }
@@ -65,31 +64,31 @@ namespace Pingme.Views.Windows
 
         private void BtnToggleCamera_Click(object sender, RoutedEventArgs e)
         {
+            _cameraOn = !_cameraOn;
             var btn = sender as ToggleButton;
-            bool cameraOn = btn.IsChecked == true;
-            btn.Content = cameraOn ? "📷" : "🚫";
+            btn.Content = _cameraOn ? "📷" : "🚫";
 
-            _videoService.SetLocalVideoEnabled(cameraOn);
-            LocalVideoContainer.Visibility = cameraOn ? Visibility.Visible : Visibility.Collapsed;
-            LocalAvatar.Visibility = cameraOn ? Visibility.Collapsed : Visibility.Visible;
+            _videoService.SetLocalVideoEnabled(_cameraOn);
+            LocalVideoContainer.Visibility = _cameraOn ? Visibility.Visible : Visibility.Collapsed;
+            LocalAvatar.Visibility = _cameraOn ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void BtnToggleMic_Click(object sender, RoutedEventArgs e)
         {
+            _micOn = !_micOn;
             var btn = sender as ToggleButton;
-            bool micOn = btn.IsChecked == true;
-            btn.Content = micOn ? "🎤" : "🔇";
+            btn.Content = _micOn ? "🎤" : "🔇";
 
-            _videoService.SetLocalAudioEnabled(micOn);
+            _videoService.SetLocalAudioEnabled(_micOn);
         }
 
         private async void BtnEndCall_Click(object sender, RoutedEventArgs e)
         {
-            string callType = "audio"; // hoặc "audio"
+            string callType = _cameraOn ? "video" : "audio";
             var callDuration = (DateTime.UtcNow - _callStartTime).TotalSeconds;
 
-            var messageService = new FirebaseService();
-            await messageService.SendCallSummaryMessageAsync(
+            var firebaseService = new FirebaseService();
+            await firebaseService.SendCallSummaryMessageAsync(
                 _request.FromUserId,
                 _request.ToUserId,
                 callType,

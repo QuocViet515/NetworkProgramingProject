@@ -174,7 +174,7 @@ namespace Pingme.Services
         {
             WF.Panel panel = new WF.Panel
             {
-                BackColor = Color.DarkGray,
+                BackColor = Color.Red,
                 Dock = DockStyle.Fill
             };
 

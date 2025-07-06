@@ -25,13 +25,22 @@ namespace Pingme.Views.Windows
             CallerName.Text = $"Cuộc gọi từ {_request.FromUserId}";
 
             // Hiển thị avatar nếu có
-            if (!string.IsNullOrEmpty(_request.AvatarUrl))
+            if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
             {
-                AvatarEllipse.Fill = new ImageBrush
+                try
                 {
-                    ImageSource = new BitmapImage(new Uri(_request.AvatarUrl)),
-                    Stretch = Stretch.UniformToFill
-                };
+                    AvatarEllipse.Fill = new ImageBrush
+                    {
+                        ImageSource = new BitmapImage(new Uri(_request.CallerAvatarUrl, UriKind.Absolute)),
+                        Stretch = Stretch.UniformToFill
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("❌ Lỗi tải avatar: " + ex.Message);
+                    AvatarEllipse.Fill = new SolidColorBrush(Colors.Red); // dễ nhận biết nếu có lỗi
+                }
+
             }
             else
             {

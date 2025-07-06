@@ -49,8 +49,8 @@ namespace Pingme.Views.Windows
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
                 // 2. Bật camera + mic ban đầu
-                _videoService.SetLocalVideoEnabled(true);
-                _videoService.SetLocalAudioEnabled(true);
+                _videoService.SetLocalVideoEnabled(_cameraOn);
+                _videoService.SetLocalAudioEnabled(_micOn);
 
                 // 3. Avatar của người gọi (hiển thị local nếu tắt cam)
                 if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
@@ -67,7 +67,7 @@ namespace Pingme.Views.Windows
                 }
 
                 // 5. Hiện video local nếu camera đang bật
-                _localVideoHost.Visibility = Visibility.Visible;
+               _localVideoHost.Visibility = Visibility.Visible;
                 LocalAvatar.Visibility = Visibility.Collapsed;
                 RemoteVideoContainer.Visibility = Visibility.Visible;
 

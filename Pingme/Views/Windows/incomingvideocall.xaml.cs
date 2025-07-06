@@ -25,11 +25,11 @@ namespace Pingme.Views.Windows
             CallerName.Text = $"Cuộc gọi từ {_request.FromUserId}";
 
             // Hiển thị avatar nếu có
-            if (!string.IsNullOrEmpty(_request.AvatarUrl))
+            if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
             {
                 AvatarEllipse.Fill = new ImageBrush
                 {
-                    ImageSource = new BitmapImage(new Uri(_request.AvatarUrl)),
+                    ImageSource = new BitmapImage(new Uri(_request.CallerAvatarUrl)),
                     Stretch = Stretch.UniformToFill
                 };
             }
