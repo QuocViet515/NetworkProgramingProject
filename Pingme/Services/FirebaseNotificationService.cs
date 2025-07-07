@@ -7,10 +7,10 @@ using Pingme.Models;
 using Pingme.Views.Pages;
 using Pingme.Views.Windows;
 using System;
+using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-
 namespace Pingme.Services
 {
     public class FirebaseNotificationService
@@ -45,111 +45,152 @@ namespace Pingme.Services
         }
 
         // Gửi yêu cầu gọi đến Firebase
-        public async Task SendCallRequest(string fromUserId, string toUserId)
+        public async Task<(CallRequest callRequest, string pushId)> SendCallRequest(string fromUserId, string toUserId, string type)
         {
             string channel = $"call_{fromUserId}_{toUserId}";
+
+            // 🔍 Lấy profile người gọi
+            var fromUser = await client
+                .Child("users")
+                .Child(fromUserId)
+                .OnceSingleAsync<User>();
+
+            // 🔍 Lấy profile người nhận
+            var toUser = await client
+                .Child("users")
+                .Child(toUserId)
+                .OnceSingleAsync<User>();
 
             var callRequest = new CallRequest
             {
                 FromUserId = fromUserId,
                 ToUserId = toUserId,
                 ChannelName = channel,
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                CallerAvatarUrl = fromUser.AvatarUrl,
+                ReceiverAvatarUrl = toUser.AvatarUrl,
+                Type = type,
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                status = "waiting"
             };
 
             try
             {
+                // ✅ Đẩy lên Firebase, nhận lại pushId
+                var result = await client
+                    .Child("calls")
+                    //.Child(toUserId)
+                    .PostAsync(callRequest);
+
+                string pushId = result.Key;
+
+                // ✅ Cập nhật lại PushId trong Firebase và object
+                callRequest.PushId = pushId;
                 await client
                     .Child("calls")
-                    .Child(toUserId)
-                    .PostAsync(callRequest); // ✅ Ghi thêm, không ghi đè
+                    //.Child(toUserId)
+                    .Child(pushId)
+                    .PatchAsync(new { PushId = pushId });
 
-                Console.WriteLine("✅ Đã gửi tín hiệu gọi (ghi thêm) qua Firebase!");
+                Console.WriteLine("✅ Đã gửi tín hiệu gọi " + type + " với pushId: " + pushId);
+                return (callRequest, pushId);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("❌ Lỗi khi gửi cuộc gọi: " + ex.Message);
+                return (null, null);
             }
         }
+
+
+
+
+
 
         // Hàm xử lý khi có cuộc gọi đến
-        private async void OnCallRequestReceived(CallRequest request)
-        {
-            var firebaseService = new FirebaseService();
-            // ✅ Chỉ hiển thị nếu người nhận là chính mình (đã lắng nghe đúng path)
-            // ❌ Tránh hiển thị nếu người gọi lại bắt được chính event của mình (do logic sai)
-            var currentUser = SessionManager.CurrentUser;
-            var currentUserDb = await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
-            string currentUserId = currentUserDb.Id;
-            // Nếu currentUserId KHÁC FromUserId → đây là người nhận → hợp lệ
-            if (currentUserId == null || currentUserId == request.FromUserId)
-            {
-                Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
-                return;
-            }
+        //public async void OnCallRequestReceived(CallRequest request)
+        //{
+        //    var firebaseService = new FirebaseService();
+        //    // ✅ Chỉ hiển thị nếu người nhận là chính mình (đã lắng nghe đúng path)
+        //    // ❌ Tránh hiển thị nếu người gọi lại bắt được chính event của mình (do logic sai)
+        //    var currentUser = SessionManager.CurrentUser;
+        //    var currentUserDb = await firebaseService.GetUserByUsernameAsync(currentUser.UserName);
+        //    string currentUserId = currentUserDb.Id;
+        //    // Nếu currentUserId KHÁC FromUserId → đây là người nhận → hợp lệ
+        //    if (currentUserId == null || currentUserId == request.FromUserId)
+        //    {
+        //        Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
+        //        return;
+        //    }
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Console.WriteLine($"📞 Có cuộc gọi từ: {request.FromUserId} - Channel: {request.ChannelName}");
+        //    Application.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        Console.WriteLine($"📞 Có cuộc gọi từ: {request.FromUserId} - Channel: {request.ChannelName}");
 
-                var incomingWindow = new IncomingCallWindow(request);
-                incomingWindow.Show();
-            });
-        }
+        //        var incomingWindow = new IncomingCallWindow(request);
+        //        incomingWindow.Show();
+        //    });
+        //}
 
 
 
         // Lắng nghe cuộc gọi đến (từ Firebase realtime)
+        private static HashSet<string> _handledPushIds = new HashSet<string>();
+
         public async void StartListeningForCalls(string userId)
         {
-            StopListening();
+            StopListening(); // Dừng lắng nghe cũ nếu có
 
             var firebaseService = new FirebaseService();
             var currentUser = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
 
-            Console.WriteLine($"📡 Listening for calls on: {userId}");
-            Console.WriteLine("🔒 Người đang đăng nhập: " + currentUser.Id);
+            Console.WriteLine($"📡 Listening for incoming calls targeting user: {userId}");
 
             _callSubscription = client
                 .Child("calls")
-                .Child(userId)
                 .AsObservable<CallRequest>()
-                .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate)
+                .Where(f =>
+                    f.EventType == FirebaseEventType.InsertOrUpdate &&
+                    f.Object != null &&
+                    f.Object.ToUserId == userId && // ✅ Chỉ nhận cuộc gọi tới mình
+                    f.Object.status == "waiting" &&
+                    !_handledPushIds.Contains(f.Object.PushId)) // ✅ Tránh mở lại
                 .Subscribe(async call =>
                 {
-                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        if (call.Object == null) return;
+                        var request = call.Object;
 
-                        Console.WriteLine("📥 Nhận được cuộc gọi:");
-                        Console.WriteLine($"📞 Từ: {call.Object.FromUserId} - Channel: {call.Object.ChannelName}");
-
-                        // ⚠️ Kiểm tra nếu người gửi là chính mình thì bỏ qua
-                        if (call.Object.FromUserId == currentUser.Id)
+                        if (request.FromUserId == currentUser.Id)
                         {
-                            Console.WriteLine("⚠️ Bỏ qua vì là người gửi.");
+                            Console.WriteLine("⚠️ Bỏ qua vì là người gọi.");
                             return;
                         }
 
-                        // ✅ Gọi cửa sổ IncomingCall
-                        var incomingWindow = new IncomingCallWindow(call.Object);
+                        _handledPushIds.Add(request.PushId); // ✅ Đánh dấu đã xử lý
+
+                        // ✅ Tạo cửa sổ phù hợp
+                        Window incomingWindow;
+                        if (request.Type == "video")
+                        {
+                            incomingWindow = new incomingvideocall(request);
+                        }
+                        else
+                        {
+                            incomingWindow = new IncomingCallWindow(request);
+                        }
+
+                        incomingWindow.Tag = request.PushId;
                         incomingWindow.Show();
 
-                        // ✅ Sau khi xử lý, xóa cuộc gọi khỏi Firebase
-                        await client
-                            .Child("calls")
-                            .Child(userId)
-                            .Child(call.Key)
-                            .DeleteAsync();
-
-                        Console.WriteLine("🗑️ Đã xóa CallRequest sau khi xử lý.");
+                        incomingWindow.Closed += (s, e) =>
+                        {
+                            _handledPushIds.Remove(request.PushId); // 🧹 Cho phép xử lý lại nếu cần
+                        };
                     });
                 },
-                error =>
-                {
-                    Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
-                });
+                error => Console.WriteLine("❌ Lỗi khi lắng nghe Firebase: " + error.Message));
         }
+
 
 
         // Ngắt lắng nghe (ví dụ khi đăng xuất)

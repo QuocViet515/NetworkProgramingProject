@@ -7,10 +7,8 @@
 
     <Grid Background="Black">
         <!-- Remote Video or Avatar -->
-        <Grid x:Name="RemoteVideoContainer"
-              Background="Black"
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Stretch">
+        <StackPanel x:Name="RemoteVideoContainer"
+              Background="Black">
             <!-- Video sẽ được thêm vào đây bằng code -->
             <Image x:Name="RemoteAvatar"
                    Width="200" Height="200"
@@ -19,29 +17,33 @@
                    Stretch="UniformToFill"
                    Visibility="Collapsed"
                    ClipToBounds="True"/>
-        </Grid>
+        </StackPanel>
 
         <!-- Local video or avatar (nhỏ góc dưới) -->
         <Grid Width="200" Height="150"
-              HorizontalAlignment="Right"
-              VerticalAlignment="Bottom"
-              Margin="10">
-            <Grid x:Name="LocalVideoContainer"
-                            Background="Black"
-                            Visibility="Collapsed" />
+      HorizontalAlignment="Right"
+      VerticalAlignment="Bottom"
+      Margin="0,0,10,10">
+
+            <!-- Khung chứa video dùng Panel WinForms -->
+            <WindowsFormsHost x:Name="_localVideoHost"
+                      Visibility="Collapsed" />
+
+            <!-- Ảnh đại diện khi tắt cam -->
             <Image x:Name="LocalAvatar"
-                   Stretch="UniformToFill"
-                   Visibility="Collapsed"
-                   ClipToBounds="True"/>
+           Stretch="UniformToFill"
+           Visibility="Collapsed"
+           ClipToBounds="True"/>
         </Grid>
+
 
         <!-- Control Buttons -->
         <Border Background="#66000000"
                 Padding="10"
                 CornerRadius="30"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Bottom"
-                Margin="0,0,0,20">
+                VerticalAlignment="Top"
+                Margin="0,384,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <ToggleButton x:Name="BtnToggleCamera"
                               Width="50" Height="50"

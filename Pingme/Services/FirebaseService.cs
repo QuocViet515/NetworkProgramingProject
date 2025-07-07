@@ -2,18 +2,20 @@
 using Firebase.Database.Query;
 using Firebase.Database.Streaming;
 using Pingme.Models;
+using Pingme.Views.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows;
 namespace Pingme.Services
 {
     class FirebaseService
     {
-        private readonly FirebaseClient _client;
+        public readonly FirebaseClient _client;
 
         public FirebaseService()
         {
@@ -320,25 +322,97 @@ namespace Pingme.Services
                 .PostAsync(message);
         }
 
-        public async Task SendCallStatusMessageAsync(string callerId, string receiverId, string status, DateTime time)
+        //public async Task SendCallStatusMessageAsync(string channelName, string status, DateTime time)
+        //{
+        //    await _client
+        //        .Child("calls")
+        //        .Child(channelName)
+        //        .PutAsync(new
+        //        {
+        //            status = status,
+        //            timestamp = new DateTimeOffset(time).ToUnixTimeMilliseconds()
+        //        });
+        //}
+        public async Task SendCallStatusMessageAsync(string callerId, string receiverId, string pushId, string status, DateTime time)
         {
+            if (string.IsNullOrEmpty(pushId))
+            {
+                MessageBox.Show("PushId cannot be null or empty.");
+            }
+
+            string chatId = GetChatRoomId(callerId, receiverId);
+
+            string content;
+            if (status == "accepted")
+                content = $"✅ Cuộc gọi được chấp nhận lúc {time:HH:mm:ss}";
+            else if (status == "declined")
+                content = $"❌ Cuộc gọi bị từ chối lúc {time:HH:mm:ss}";
+            else if (status == "missed")
+                content = $"📵 Cuộc gọi nhỡ lúc {time:HH:mm:ss}";
+            else if (status == "canceled")
+                content = $"❌ Cuộc gọi đã bị hủy lúc {time:HH:mm:ss}";
+            else
+                content = $"Trạng thái cuộc gọi: {status} lúc {time:HH:mm:ss}";
+
             var message = new Message
             {
-                ChatId = GetChatRoomId(callerId, receiverId),
-                SenderId = receiverId,
-                ReceiverId = callerId,
+                ChatId = chatId,
+                SenderId = receiverId, // người gửi trạng thái
+                ReceiverId = callerId, // người gọi
                 Type = "status",
-                Content = status == "missed"
-                    ? $"📵 Cuộc gọi nhỡ lúc {time:HH:mm:ss}"
-                    : $"❌ {receiverId} đã từ chối cuộc gọi lúc {time:HH:mm:ss}",
+                Content = content,
                 SentAt = time,
                 IsRead = false
             };
 
             await _client.Child("messages").PostAsync(message);
+
+            // ✅ Cập nhật trạng thái trong "calls/{pushId}"
+            await _client
+                .Child("calls")
+                .Child(pushId)
+                .PatchAsync(new
+                {
+                    status,
+                    timestamp = new DateTimeOffset(time).ToUnixTimeMilliseconds()
+                });
         }
 
+
+        public void ListenForCallResponse(string pushId, Action<string, DateTime> onStatusReceived)
+        {
+            if (string.IsNullOrEmpty(pushId))
+            {
+                MessageBox.Show("❌ PushId bị thiếu khi lắng nghe trạng thái!");
+                return;
+            }
+
+            var refNode = _client.Child("calls").Child(pushId);
+
+            refNode.AsObservable<CallRequest>()
+                .Where(ev => ev.Object != null && ev.EventType == Firebase.Database.Streaming.FirebaseEventType.InsertOrUpdate)
+                .Subscribe(call =>
+                {
+                    var status = call.Object.status;
+                    if (string.IsNullOrEmpty(status)) return;
+
+                    var time = DateTimeOffset.FromUnixTimeMilliseconds(call.Object.Timestamp).DateTime;
+                    //MessageBox.Show($"📡 Call status: {status} at {time:HH:mm:ss}");
+                    onStatusReceived(status, time);
+                },
+                error =>
+                {
+                    Console.WriteLine("❌ Lỗi Firebase: " + error.Message);
+                });
+        }
+
+
+
+
+
     }
+
+}
 
     //public class FirebaseService
     //{
@@ -514,4 +588,4 @@ namespace Pingme.Services
     //        return user?.publicKey;
     //    }
     //}
-}
+
