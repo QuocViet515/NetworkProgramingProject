@@ -397,7 +397,7 @@ namespace Pingme.Services
                     if (string.IsNullOrEmpty(status)) return;
 
                     var time = DateTimeOffset.FromUnixTimeMilliseconds(call.Object.Timestamp).DateTime;
-                    MessageBox.Show($"📡 Call status: {status} at {time:HH:mm:ss}");
+                    //MessageBox.Show($"📡 Call status: {status} at {time:HH:mm:ss}");
                     onStatusReceived(status, time);
                 },
                 error =>

@@ -15,7 +15,7 @@ namespace Pingme.Services
 
         public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
         {
-            MessageBox.Show($"✅ Đã tham gia kênh: {connection.channelId}, UID: {connection.localUid}");
+            //MessageBox.Show($"✅ Đã tham gia kênh: {connection.channelId}, UID: {connection.localUid}");
         }
 
         public override void OnUserJoined(RtcConnection connection, uint remoteUid, int elapsed)
@@ -68,17 +68,17 @@ namespace Pingme.Services
                              $"- REASON: {reason}\n" +
                              $"- Elapsed: {elapsed}ms";
 
-            System.Windows.MessageBox.Show(message);
+            //System.Windows.MessageBox.Show(message);
 
             // Phân tích trạng thái
             switch (state)
             {
                 case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STARTING:
-                    System.Windows.MessageBox.Show($"⏳ Đang bắt đầu nhận video từ {remoteUid}...");
+                    Console.WriteLine($"⏳ Đang bắt đầu nhận video từ {remoteUid}...");
                     break;
 
                 case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING:
-                    System.Windows.MessageBox.Show($"✅ Đang hiển thị video từ {remoteUid}");
+                    Console.WriteLine($"✅ Đang hiển thị video từ {remoteUid}");
                     // Đổi nền thành đen (hoặc trong suốt) nếu đang hiển thị bình thường
                     WpfApp.Current.Dispatcher.Invoke(() =>
                     {
@@ -87,7 +87,7 @@ namespace Pingme.Services
                     break;
 
                 case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED:
-                    System.Windows.MessageBox.Show($"⛔ Video từ {remoteUid} đã bị dừng (do user tắt cam?)");
+                    Console.WriteLine($"⛔ Video từ {remoteUid} đã bị dừng (do user tắt cam?)");
                     WpfApp.Current.Dispatcher.Invoke(() =>
                     {
                         _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.Red);
@@ -95,7 +95,7 @@ namespace Pingme.Services
                     break;
 
                 case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_FAILED:
-                    System.Windows.MessageBox.Show($"❌ Lỗi hiển thị video từ {remoteUid} (lý do: {reason})");
+                    Console.WriteLine($"❌ Lỗi hiển thị video từ {remoteUid} (lý do: {reason})");
                     WpfApp.Current.Dispatcher.Invoke(() =>
                     {
                         _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.Red);
@@ -103,7 +103,7 @@ namespace Pingme.Services
                     break;
 
                 case REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_FROZEN:
-                    System.Windows.MessageBox.Show($"🥶 Video từ {remoteUid} bị đứng hình (mạng yếu?)");
+                    Console.WriteLine($"🥶 Video từ {remoteUid} bị đứng hình (mạng yếu?)");
                     WpfApp.Current.Dispatcher.Invoke(() =>
                     {
                         _videoService.SetRemotePanelColor(remoteUid, System.Drawing.Color.OrangeRed);

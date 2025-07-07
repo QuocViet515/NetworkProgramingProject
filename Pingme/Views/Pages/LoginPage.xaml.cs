@@ -214,7 +214,7 @@ namespace Pingme.Views.Pages
 
                 SessionManager.CurrentUser = user;
 
-                MessageBox.Show($"Hi {user.FullName}!");
+                //MessageBox.Show($"Hi {user.FullName}!");
                 var firebaseService = new FirebaseService();
                 var currentUserdb = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
                 var firebaseNotificationService = new FirebaseNotificationService();

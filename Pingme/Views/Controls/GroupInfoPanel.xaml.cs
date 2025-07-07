@@ -57,7 +57,7 @@ namespace Pingme.Views.Controls
             }
 
             request.PushId = pushId;
-            MessageBox.Show("pushId: " + request.PushId);
+            //MessageBox.Show("pushId: " + request.PushId);
             await firebaseService.SendCallStatusMessageAsync(
                 request.FromUserId,
                 request.ToUserId,
@@ -102,7 +102,7 @@ namespace Pingme.Views.Controls
             }
 
             request.PushId = pushId;
-            MessageBox.Show ("pushId: " + pushId);
+            //MessageBox.Show ("pushId: " + pushId);
             await firebaseService.SendCallStatusMessageAsync(
                 request.FromUserId,
                 request.ToUserId,

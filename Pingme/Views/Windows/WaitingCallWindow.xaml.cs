@@ -103,7 +103,7 @@ namespace Pingme.Views.Windows
             switch (updatedRequest.status)
             {
                 case "accepted":
-                    Console.WriteLine("✅ Trạng thái accepted → Mở videoCallWindows...");
+                    //Console.WriteLine("✅ Trạng thái accepted → Mở videoCallWindows...");
                     var callwindow = new Window();
                     if (updatedRequest.Type=="video")
                     {
