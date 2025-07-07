@@ -61,6 +61,8 @@ namespace Pingme.Services
                 RemoteVideoContainer = new StackPanel();
             }
 
+            _remoteContainer = new StackPanel();
+
             _engine = RtcEngine.CreateAgoraRtcEngine();
 
             var context = new RtcEngineContext(

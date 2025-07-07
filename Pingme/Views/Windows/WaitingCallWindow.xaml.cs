@@ -104,8 +104,8 @@ namespace Pingme.Views.Windows
             {
                 case "accepted":
                     //Console.WriteLine("✅ Trạng thái accepted → Mở videoCallWindows...");
-                    var callwindow = new Window();
-                    if (updatedRequest.Type=="video")
+                    Window callwindow;
+                    if (updatedRequest.Type == "video")
                     {
                         callwindow = new videoCallWindows(updatedRequest, DateTime.UtcNow);
                     }
@@ -113,6 +113,9 @@ namespace Pingme.Views.Windows
                     {
                         callwindow = new CallWindow(updatedRequest, DateTime.UtcNow);
                     }
+
+                    // ✅ Hiển thị cửa sổ trước khi đóng cái cũ
+                    callwindow.Show();
                     this.Close();
                     break;
 
