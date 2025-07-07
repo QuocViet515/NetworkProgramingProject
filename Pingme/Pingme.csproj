@@ -298,6 +298,7 @@
     <Compile Include="Helpers\TimeFormatHelper.cs" />
     <Compile Include="Models\CallLog.cs" />
     <Compile Include="Models\CallRequest.cs" />
+    <Compile Include="Models\CallStatus.cs" />
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\ChatDisplayExtensions.cs" />
     <Compile Include="Models\ChatTag.cs" />
@@ -453,6 +454,9 @@
     </Compile>
     <Compile Include="Views\Windows\videoCallWindows.xaml.cs">
       <DependentUpon>videoCallWindows.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\WaitingCallWindow.xaml.cs">
+      <DependentUpon>WaitingCallWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -623,6 +627,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\videoCallWindows.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\WaitingCallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

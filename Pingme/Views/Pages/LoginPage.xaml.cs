@@ -219,7 +219,7 @@ namespace Pingme.Views.Pages
                 var currentUserdb = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
                 var firebaseNotificationService = new FirebaseNotificationService();
                 firebaseNotificationService.StartListeningForCalls(currentUserdb.Id);
-
+                //firebaseService.ListenForIncomingCalls(currentUserdb.Id); 
                 this.NavigationService.Navigate(new ProfilePage());
 
                 if (RememberMeCheckBox.IsChecked == true)

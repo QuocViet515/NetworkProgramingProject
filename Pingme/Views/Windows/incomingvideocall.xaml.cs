@@ -80,6 +80,7 @@ namespace Pingme.Views.Windows
             await firebaseService.SendCallStatusMessageAsync(
                 _request.FromUserId,
                 _request.ToUserId,
+                _request.PushId,
                 status,
                 time
             );

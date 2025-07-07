@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1.Cms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +18,6 @@ namespace Pingme.Models
         public DateTime StartedAt { get; set; }
         public DateTime? EndedAt { get; set; } 
         public string Status { get; set; }
-    }
+        public DateTime TimeStamp { get; set; } // Thời gian bắt đầu cuộc gọi
+}
 }

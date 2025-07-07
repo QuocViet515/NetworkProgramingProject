@@ -1,4 +1,5 @@
-﻿using Pingme.Models;
+﻿using Org.BouncyCastle.Asn1.Ocsp;
+using Pingme.Models;
 using Pingme.Services;
 using System;
 using System.Windows;
@@ -57,10 +58,24 @@ namespace Pingme.Views.Windows
             }
         }
 
-        private void CallWindow_Closed(object sender, EventArgs e)
+        private async void CallWindow_Closed(object sender, EventArgs e)
         {
             _videoService.LeaveChannel();
+
+            // Nếu đóng cửa sổ mà chưa end call hợp lệ → gửi trạng thái canceled
+            //if (!_callEnded)
+            //{
+            //    var firebase = new FirebaseService();
+            //    await firebase.SendCallStatusMessageAsync(
+            //        _request.FromUserId,
+            //        _request.ToUserId,
+            //        _request.PushId,
+            //        "canceled",
+            //        DateTime.UtcNow
+            //    );
+            //}
         }
+
 
         private void BtnToggleCamera_Click(object sender, RoutedEventArgs e)
         {
@@ -84,11 +99,23 @@ namespace Pingme.Views.Windows
 
         private async void BtnEndCall_Click(object sender, RoutedEventArgs e)
         {
+            var firebase = new FirebaseService();
             string callType = _cameraOn ? "video" : "audio";
             var callDuration = (DateTime.UtcNow - _callStartTime).TotalSeconds;
 
-            var firebaseService = new FirebaseService();
-            await firebaseService.SendCallSummaryMessageAsync(
+            // Kiểm tra nếu PushId không null thì mới gửi status
+            if (!string.IsNullOrEmpty(_request.PushId))
+            {
+                await firebase.SendCallStatusMessageAsync(
+                    _request.FromUserId,
+                    _request.ToUserId,
+                    _request.PushId,
+                    "ended",
+                    DateTime.UtcNow
+                );
+            }
+
+            await firebase.SendCallSummaryMessageAsync(
                 _request.FromUserId,
                 _request.ToUserId,
                 callType,
@@ -99,5 +126,6 @@ namespace Pingme.Views.Windows
             _videoService.LeaveChannel();
             this.Close();
         }
+
     }
 }
