@@ -6,6 +6,7 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <QuadraticEase x:Key="EaseOut" EasingMode="EaseOut" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/AppStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>

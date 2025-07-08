@@ -7,6 +7,8 @@ using Pingme.Views.Windows;
 using System;
 using System.Reactive.Linq;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Pingme.Views.Windows
@@ -27,6 +29,7 @@ namespace Pingme.Views.Windows
             Console.WriteLine($"📥 Đang lắng nghe trạng thái tại: /calls/{_request.PushId}");
 
             ListenForCallStatus();
+            LoadAvatar();
         }
 
         public async void ListenForCallStatus()
@@ -133,6 +136,42 @@ namespace Pingme.Views.Windows
                     MessageBox.Show("🛑 Cuộc gọi đã bị hủy.");
                     this.Close();
                     break;
+            }
+        }
+        private void LoadAvatar()
+        {
+            string avatarUrl = _request.ReceiverAvatarUrl;
+
+            try
+            {
+                ImageBrush avatarBrush = new ImageBrush();
+
+                if (!string.IsNullOrWhiteSpace(avatarUrl))
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+                    avatarBrush.ImageSource = bitmap;
+                }
+                else
+                {
+                    avatarBrush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Assets/Icons/avatar-default.png"));
+                }
+
+                avatarBrush.Stretch = Stretch.UniformToFill;
+                ReceiverAvatarUrl.Fill = avatarBrush;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Lỗi tải ảnh đại diện: " + ex.Message);
+                ReceiverAvatarUrl.Fill = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Assets/Icons/avatar-default.png")),
+                    Stretch = Stretch.UniformToFill
+                };
             }
         }
 

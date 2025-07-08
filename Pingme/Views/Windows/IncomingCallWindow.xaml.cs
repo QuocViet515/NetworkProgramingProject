@@ -31,6 +31,8 @@ namespace Pingme.Views.Windows
             _timeoutTimer.Start();
             this.Tag = _request.PushId;
             ShowCallerInfo();
+            LoadAvatar(_request.CallerAvatarUrl);
+            StartCountdownRing();
         }
 
         private void ShowCallerInfo()
@@ -63,6 +65,32 @@ namespace Pingme.Views.Windows
             {
                 AvatarEllipse.Fill = new SolidColorBrush(Colors.Gray);
             }
+        }
+        private DispatcherTimer _timer;
+        private int _countdownSeconds = 40;
+
+        private void StartCountdownRing()
+        {
+            _timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+
+            _timer.Tick += (s, e) =>
+            {
+                _countdownSeconds--;
+
+                CountdownText.Text = $"{_countdownSeconds}s";
+                ProgressArc.Angle = (_countdownSeconds / 40.0) * 360;
+
+                if (_countdownSeconds <= 0)
+                {
+                    _timer.Stop();
+                    this.Close(); // hoặc đóng cửa sổ/miss call
+                }
+            };
+
+            _timer.Start();
         }
 
         private async void AcceptCall_Click(object sender, RoutedEventArgs e)
@@ -137,6 +165,34 @@ namespace Pingme.Views.Windows
             catch (Exception ex)
             {
                 MessageBox.Show("❌ Lỗi khi từ chối cuộc gọi: " + ex.Message);
+            }
+        }
+        private void LoadAvatar(string avatarUrl)
+        {
+            try
+            {
+                var brush = new ImageBrush();
+
+                if (!string.IsNullOrWhiteSpace(avatarUrl))
+                {
+                    var bitmap = new BitmapImage(new Uri(avatarUrl, UriKind.Absolute));
+                    brush.ImageSource = bitmap;
+                }
+                else
+                {
+                    brush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Assets/Icons/avatar-default.png"));
+                }
+
+                brush.Stretch = Stretch.UniformToFill;
+                AvatarEllipse.Fill = brush;
+            }
+            catch
+            {
+                AvatarEllipse.Fill = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Assets/Icons/avatar-default.png")),
+                    Stretch = Stretch.UniformToFill
+                };
             }
         }
 

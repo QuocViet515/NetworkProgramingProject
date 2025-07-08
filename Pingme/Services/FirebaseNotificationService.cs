@@ -151,9 +151,9 @@ namespace Pingme.Services
                 .Where(f =>
                     f.EventType == FirebaseEventType.InsertOrUpdate &&
                     f.Object != null &&
-                    f.Object.ToUserId == userId && // ✅ Chỉ nhận cuộc gọi tới mình
+                    f.Object.ToUserId == userId &&
                     f.Object.status == "waiting" &&
-                    !_handledPushIds.Contains(f.Object.PushId)) // ✅ Tránh mở lại
+                    !_handledPushIds.Contains(f.Object.PushId))
                 .Subscribe(async call =>
                 {
                     await Application.Current.Dispatcher.InvokeAsync(() =>
@@ -166,9 +166,8 @@ namespace Pingme.Services
                             return;
                         }
 
-                        _handledPushIds.Add(request.PushId); // ✅ Đánh dấu đã xử lý
+                        _handledPushIds.Add(request.PushId);
 
-                        // ✅ Tạo cửa sổ phù hợp
                         Window incomingWindow;
                         if (request.Type == "video")
                         {
@@ -178,13 +177,12 @@ namespace Pingme.Services
                         {
                             incomingWindow = new IncomingCallWindow(request);
                         }
-
                         incomingWindow.Tag = request.PushId;
                         incomingWindow.Show();
 
                         incomingWindow.Closed += (s, e) =>
                         {
-                            _handledPushIds.Remove(request.PushId); // 🧹 Cho phép xử lý lại nếu cần
+                            _handledPushIds.Remove(request.PushId);
                         };
                     });
                 },
@@ -197,6 +195,8 @@ namespace Pingme.Services
         public void StopListening()
         {
             _callSubscription?.Dispose();
+            _callSubscription = null;
+            _handledPushIds.Clear();
         }
     }
 }

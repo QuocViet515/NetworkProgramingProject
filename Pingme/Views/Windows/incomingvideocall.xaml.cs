@@ -4,8 +4,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Pingme.Views.Windows
@@ -13,6 +15,9 @@ namespace Pingme.Views.Windows
     public partial class incomingvideocall : Window
     {
         private readonly DispatcherTimer _timeoutTimer;
+        private readonly DispatcherTimer _countdownTimer;
+        private int _remainingSeconds = 40;
+
         private readonly CallRequest _request;
         private readonly DateTime _startTime;
         private readonly FirebaseService _firebaseService;
@@ -25,7 +30,7 @@ namespace Pingme.Views.Windows
             _firebaseService = new FirebaseService();
             this.Tag = _request.PushId;
 
-            ShowCallerInfo();
+            _ = ShowCallerInfoAsync();
 
             _timeoutTimer = new DispatcherTimer
             {
@@ -33,11 +38,36 @@ namespace Pingme.Views.Windows
             };
             _timeoutTimer.Tick += TimeoutTimer_Tick;
             _timeoutTimer.Start();
+
+            // ⏱️ Bắt đầu đếm ngược
+            _countdownTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _countdownTimer.Tick += CountdownTimer_Tick;
+            _countdownTimer.Start();
+
+            UpdateCountdownVisual(_remainingSeconds);
         }
 
-        private void ShowCallerInfo()
+        private async Task ShowCallerInfoAsync()
         {
-            CallerName.Text = $"Cuộc gọi từ {_request.FromUserId}";
+            string displayName = _request.FromUserId;
+
+            try
+            {
+                var user = await _firebaseService.GetUserByIdAsync(_request.FromUserId);
+                if (user != null && !string.IsNullOrEmpty(user.UserName))
+                {
+                    displayName = user.UserName;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("⚠️ Lỗi khi lấy tên người dùng: " + ex.Message);
+            }
+
+            CallerName.Text = $"Cuộc gọi từ {displayName}";
 
             if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
             {
@@ -67,9 +97,77 @@ namespace Pingme.Views.Windows
             }
         }
 
+        private void CountdownTimer_Tick(object sender, EventArgs e)
+        {
+            _remainingSeconds--;
+            CountdownText.Text = $"00:{_remainingSeconds:00}";
+            UpdateCountdownVisual(_remainingSeconds);
+
+            if (_remainingSeconds <= 0)
+            {
+                _countdownTimer.Stop();
+                TimeoutTimer_Tick(null, null);
+            }
+        }
+
+        private void UpdateCountdownVisual(int remainingSeconds)
+        {
+            // Path vòng tròn xanh là phần tử thứ 1 trong Grid (Ellipse là thứ 0)
+            var path = ((Grid)CountdownText.Parent).Children.OfType<Path>().FirstOrDefault();
+            if (path == null) return;
+
+            double percentage = remainingSeconds / 40.0;
+            double angle = 360 * percentage;
+
+            path.Data = CreateArcGeometry(angle, 60, 60, 50);
+        }
+
+        private Geometry CreateArcGeometry(double angle, double centerX, double centerY, double radius)
+        {
+            if (angle <= 0) angle = 0.01; // tránh lỗi Path khi 0 độ
+
+            double startAngle = -90; // bắt đầu từ đỉnh
+            double endAngle = startAngle + angle;
+
+            double startRadians = startAngle * Math.PI / 180;
+            double endRadians = endAngle * Math.PI / 180;
+
+            Point startPoint = new Point(
+                centerX + radius * Math.Cos(startRadians),
+                centerY + radius * Math.Sin(startRadians)
+            );
+
+            Point endPoint = new Point(
+                centerX + radius * Math.Cos(endRadians),
+                centerY + radius * Math.Sin(endRadians)
+            );
+
+            bool isLargeArc = angle > 180;
+
+            var segment = new ArcSegment
+            {
+                Point = endPoint,
+                Size = new Size(radius, radius),
+                IsLargeArc = isLargeArc,
+                SweepDirection = SweepDirection.Clockwise
+            };
+
+            var figure = new PathFigure
+            {
+                StartPoint = startPoint,
+                IsClosed = false
+            };
+            figure.Segments.Add(segment);
+
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+            return geometry;
+        }
+
         private async void AcceptCall_Click(object sender, RoutedEventArgs e)
         {
             _timeoutTimer.Stop();
+            _countdownTimer.Stop();
 
             if (string.IsNullOrEmpty(_request.PushId))
             {
@@ -115,6 +213,7 @@ namespace Pingme.Views.Windows
         private async void DeclineCall_Click(object sender, RoutedEventArgs e)
         {
             _timeoutTimer.Stop();
+            _countdownTimer.Stop();
 
             if (string.IsNullOrEmpty(_request.PushId))
             {
@@ -144,6 +243,7 @@ namespace Pingme.Views.Windows
         private async void TimeoutTimer_Tick(object sender, EventArgs e)
         {
             _timeoutTimer.Stop();
+            _countdownTimer.Stop();
 
             if (string.IsNullOrEmpty(_request.PushId))
             {
