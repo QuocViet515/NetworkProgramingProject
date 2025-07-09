@@ -69,7 +69,7 @@ namespace Pingme.Views.Windows
                             {
                                 CallStatusText.Text = "📞 Cuộc gọi đã kết thúc";
                                 CallStatusBanner.Visibility = Visibility.Visible;
-                                await Task.Delay(3000);
+                                await Task.Delay(1000);
                                 this.Close();
 
                                 _statusTimer.Stop();
