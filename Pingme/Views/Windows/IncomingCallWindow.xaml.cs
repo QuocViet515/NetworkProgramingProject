@@ -1,12 +1,29 @@
-﻿using Pingme.Models;
+﻿using Firebase.Database;
+using Firebase.Database.Streaming;
+using Pingme.Models;
 using Pingme.Services;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-
+using Firebase.Database;
+using Firebase.Database.Query;
+using Firebase.Database.Streaming;
+using Pingme.Models;
+using Pingme.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+using System.Reactive.Linq;
 namespace Pingme.Views.Windows
 {
     public partial class IncomingCallWindow : Window
@@ -15,13 +32,26 @@ namespace Pingme.Views.Windows
         private readonly CallRequest _request;
         private readonly DateTime _startTime;
         private readonly FirebaseService _firebaseService;
-
+        private readonly FirebaseClient _firebaseClient = new FirebaseClient("https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        private IDisposable _callStatusSubscription;
+        private DispatcherTimer _pollingTimer;
+        private bool _callHandled = false;
         public IncomingCallWindow(CallRequest request)
         {
+            // 🔒 Ngăn trùng cửa sổ cùng PushId
+            foreach (var win in Application.Current.Windows.OfType<IncomingCallWindow>().ToList())
+            {
+                if (win.Tag?.ToString() == request.PushId)
+                {
+                    win.Close(); // Đóng cửa sổ cũ
+                }
+            }
+
             InitializeComponent();
             _request = request;
             _startTime = DateTime.UtcNow;
             _firebaseService = new FirebaseService();
+            this.Tag = _request.PushId;
 
             _timeoutTimer = new DispatcherTimer
             {
@@ -29,16 +59,31 @@ namespace Pingme.Views.Windows
             };
             _timeoutTimer.Tick += TimeoutTimer_Tick;
             _timeoutTimer.Start();
-            this.Tag = _request.PushId;
+
             ShowCallerInfo();
             LoadAvatar(_request.CallerAvatarUrl);
             StartCountdownRing();
+            ListenForCallStatus();
         }
 
-        private void ShowCallerInfo()
+        private async void ShowCallerInfo()
         {
-            CallerName.Text = $"Cuộc gọi từ {_request.FromUserId}";
+            
+            string displayName = _request.FromUserId;
 
+            try
+            {
+                var user = await _firebaseService.GetUserByIdAsync(_request.FromUserId);
+                if (user != null && !string.IsNullOrEmpty(user.FullName))
+                {
+                    displayName = user.FullName;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("⚠️ Lỗi khi lấy tên người dùng: " + ex.Message);
+            }
+            CallerName.Text = $"Cuộc gọi từ {displayName}";
             if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
             {
                 try
@@ -226,6 +271,89 @@ namespace Pingme.Views.Windows
                 this.Close();
             }
         }
+        public void ListenForCallStatus()
+        {
+            string pushId = _request.PushId;
 
+            _callStatusSubscription = _firebaseClient
+                .Child("calls")
+                .Child(pushId)
+                .AsObservable<CallRequest>()
+                .Where(f => f.EventType == FirebaseEventType.InsertOrUpdate &&
+                            f.Object != null && f.Object.status != "waiting")
+                .Subscribe(async call =>
+                {
+                    Console.WriteLine($"📲 [Receiver] Trạng thái gọi: {call.Object.status}");
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        HandleStatus(call.Object);
+                    });
+                });
+
+            _pollingTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _pollingTimer.Tick += PollStatus;
+            _pollingTimer.Start();
+        }
+        private async void PollStatus(object sender, EventArgs e)
+        {
+            var current = await _firebaseClient
+                .Child("calls")
+                .Child(_request.PushId)
+                .OnceSingleAsync<CallRequest>();
+
+            if (current != null && current.status != "waiting")
+            {
+                _pollingTimer.Stop();
+                _callStatusSubscription?.Dispose();
+                HandleStatus(current);
+            }
+        }
+
+        private async Task HandleStatus(CallRequest updatedRequest)
+        {
+            if (_callHandled) return; // 🔒 không xử lý lại
+            _callHandled = true;
+
+            switch (updatedRequest.status)
+            {
+                case "accepted":
+                    Console.WriteLine("📲 Cuộc gọi đã được chấp nhận từ phía người kia.");
+                    bool alreadyOpen = Application.Current.Windows
+                        .OfType<CallWindow>()
+                        .Any(w => w.Tag?.ToString() == _request.PushId);
+
+                    if (!alreadyOpen)
+                    {
+                        var callWindow = new CallWindow(_request, DateTime.UtcNow)
+                        {
+                            Tag = _request.PushId
+                        };
+                        callWindow.Show();
+                    }
+                    this.Close();
+                    break;
+
+                case "declined":
+                    StatusText.Text = "Bạn đã từ chối cuộc gọi này.";
+                    await Task.Delay(1000); // Hiển thị trong 1 giây
+                    this.Close();
+                    break;
+
+                case "missed":
+                    StatusText.Text = "Cuộc gọi bị nhỡ.";
+                    await Task.Delay(1000); // Hiển thị trong 1 giây
+                    this.Close();
+                    break;
+
+                case "canceled":
+                    StatusText.Text = "Người gọi đã hủy cuộc gọi.";
+                    await Task.Delay(1000); // Hiển thị trong 1 giây
+                    this.Close();
+                    break;
+            }
+        }
     }
 }

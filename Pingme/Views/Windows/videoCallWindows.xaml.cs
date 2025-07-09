@@ -1,11 +1,13 @@
 ﻿using Pingme.Models;
 using Pingme.Services;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media.Imaging;
 using System.Windows.Forms; // ⚠️ cho Panel
 using System.Windows.Forms.Integration; // ⚠️ cho WindowsFormsHost
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Pingme.Views.Windows
 {
@@ -18,6 +20,8 @@ namespace Pingme.Views.Windows
         private DateTime _callStartTime;
         private bool _cameraOn = true;
         private bool _micOn = true;
+
+        private DispatcherTimer _statusTimer;
 
         public videoCallWindows(CallRequest request, DateTime callStartTime)
         {
@@ -67,11 +71,41 @@ namespace Pingme.Views.Windows
                 }
 
                 // 5. Hiện video local nếu camera đang bật
-               _localVideoHost.Visibility = Visibility.Visible;
+                _localVideoHost.Visibility = Visibility.Visible;
                 LocalAvatar.Visibility = Visibility.Collapsed;
                 RemoteVideoContainer.Visibility = Visibility.Visible;
 
+                // 6. Bắt đầu kiểm tra trạng thái cuộc gọi mỗi 1s
+                if (!string.IsNullOrEmpty(_request.PushId))
+                {
+                    _statusTimer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromSeconds(1)
+                    };
+                    _statusTimer.Tick += async (s, args) =>
+                    {
+                        try
+                        {
+                            var call = await new FirebaseService().GetCallRequestByIdAsync(_request.PushId);
+                            if (call != null && call.status == "ended")
+                            {
+                                CallStatusText.Text = "📞 Cuộc gọi đã kết thúc ";
+                                CallStatusBanner.Visibility = Visibility.Visible;
 
+                                // Tự ẩn sau 1 giây (nếu muốn)
+                                await Task.Delay(1000);
+
+                                _statusTimer.Stop();
+                                this.Close();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("⚠️ Lỗi kiểm tra trạng thái cuộc gọi: " + ex.Message);
+                        }
+                    };
+                    _statusTimer.Start();
+                }
             }
             catch (Exception ex)
             {
@@ -82,6 +116,7 @@ namespace Pingme.Views.Windows
         private void CallWindow_Closed(object sender, EventArgs e)
         {
             _videoService.LeaveChannel();
+            _statusTimer?.Stop();
         }
 
         private void BtnToggleCamera_Click(object sender, RoutedEventArgs e)
@@ -120,8 +155,22 @@ namespace Pingme.Views.Windows
             string callType = _cameraOn ? "video" : "audio";
             var callDuration = (DateTime.UtcNow - _callStartTime).TotalSeconds;
 
-            var messageService = new FirebaseService();
-            await messageService.SendCallSummaryMessageAsync(
+            var firebase = new FirebaseService();
+
+            // Gửi trạng thái kết thúc nếu có PushId
+            if (!string.IsNullOrEmpty(_request.PushId))
+            {
+                await firebase.SendCallStatusMessageAsync(
+                    _request.FromUserId,
+                    _request.ToUserId,
+                    _request.PushId,
+                    "ended",
+                    DateTime.UtcNow
+                );
+            }
+
+            // Gửi thống kê cuộc gọi
+            await firebase.SendCallSummaryMessageAsync(
                 _request.FromUserId,
                 _request.ToUserId,
                 callType,

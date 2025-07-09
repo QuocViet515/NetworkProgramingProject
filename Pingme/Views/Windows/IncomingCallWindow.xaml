@@ -2,8 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:local="clr-namespace:Pingme.Views.Controls"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Pingme.Views.Controls"
         Title="Cuộc gọi thoại đến"
-        Height="360" Width="420"
+        Height="500" Width="600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="Transparent"
@@ -46,40 +47,40 @@
 
                 <!-- Status & Timer -->
                 <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" Margin="0,0,0,20">
-                    <TextBlock Text="Đang đổ chuông..."
+                    <TextBlock x:Name="StatusText" Text="Đang đổ chuông..."
                                FontSize="16"
                                Foreground="#555"
                                HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                    <Border Background="#FFEFEFEF" Padding="8,4" CornerRadius="6">
+                    <Border Background="#FFEFEFEF" Padding="8,4" CornerRadius="6" Margin="0,0,0,20">
                         <!-- Ring Countdown -->
-                        <Grid Width="100" Height="100" Margin="0,0,0,20">
+                        <Grid Width="100" Height="100">
                             <!-- Viền nền xám -->
                             <Ellipse Stroke="#E0E0E0" StrokeThickness="6"/>
 
                             <!-- Vòng tua ngược -->
                             <Path Stroke="#2196F3" StrokeThickness="6"
-          StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-          x:Name="ProgressPath"
-          Data="{Binding Path=Data, ElementName=ProgressArc}"/>
+              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+              x:Name="ProgressPath"
+              Data="{Binding Path=Data, ElementName=ProgressArc}"/>
 
-                            <!-- Text ở giữa (tuỳ chọn) -->
+                            <!-- Text ở giữa -->
                             <TextBlock x:Name="CountdownText"
-               Text="40s"
-               FontSize="18"
-               FontWeight="Bold"
-               Foreground="#333"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"/>
+                   Text="00:40"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Foreground="#333"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
 
-                            <!-- Progress Arc invisible to expose Data -->
-                            <local:ArcSegmentControl x:Name="ProgressArc"
-                             Angle="360"
-                             Width="88"
-                             Height="88"
-                             Visibility="Collapsed"/>
+                            <!-- ArcSegmentControl hidden để cung cấp Geometry -->
+                            <controls:ArcSegmentControl x:Name="ProgressArc"
+                                    Angle="360"
+                                    Width="88"
+                                    Height="88"
+                                    Visibility="Collapsed"/>
                         </Grid>
-
                     </Border>
+
                 </StackPanel>
 
                 <!-- Nút Accept / Decline -->

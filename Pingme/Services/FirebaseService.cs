@@ -406,6 +406,17 @@ namespace Pingme.Services
                 });
         }
 
+        public async Task<CallRequest> GetCallRequestByIdAsync(string pushId)
+        {
+            try
+            {
+                return await _client.Child("calls").Child(pushId).OnceSingleAsync<CallRequest>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
 
 

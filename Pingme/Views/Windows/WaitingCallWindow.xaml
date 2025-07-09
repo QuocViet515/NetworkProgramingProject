@@ -45,7 +45,7 @@
                                FontWeight="Bold"
                                Foreground="#212121"
                                TextAlignment="Center"/>
-                    <TextBlock Text="Vui lòng chờ người nhận phản hồi..."
+                    <TextBlock x:Name="CallStatus" Text="Vui lòng chờ người nhận phản hồi..."
                                FontSize="14"
                                Foreground="#555"
                                TextAlignment="Center"

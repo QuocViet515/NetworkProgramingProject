@@ -6,6 +6,7 @@ using Pingme.Services;
 using Pingme.Views.Windows;
 using System;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -101,7 +102,7 @@ namespace Pingme.Views.Windows
             }
         }
 
-        private void HandleStatus(CallRequest updatedRequest)
+        private async Task HandleStatus(CallRequest updatedRequest)
         {
             switch (updatedRequest.status)
             {
@@ -123,17 +124,23 @@ namespace Pingme.Views.Windows
                     break;
 
                 case "declined":
-                    MessageBox.Show("❌ Cuộc gọi đã bị từ chối.");
+                    //MessageBox.Show("❌ Cuộc gọi đã bị từ chối.");
+                    CallStatus.Text = "Người dùng từ chối cuộc gọi";
+                    await Task.Delay(2000); // Hiển thị trong 2 giây
                     this.Close();
                     break;
 
                 case "missed":
-                    MessageBox.Show("⚠️ Cuộc gọi bị nhỡ.");
+                    //MessageBox.Show("⚠️ Cuộc gọi bị nhỡ.");
+                    CallStatus.Text = "Người nhận không nhấc máy";
+                    await Task.Delay(2000); // Hiển thị trong 2 giây
                     this.Close();
                     break;
 
                 case "canceled":
-                    MessageBox.Show("🛑 Cuộc gọi đã bị hủy.");
+                    //MessageBox.Show("🛑 Cuộc gọi đã bị hủy.");
+                    CallStatus.Text = "Cuộc gọi đã bị hủy";
+                    await Task.Delay(2000); // Hiển thị trong 2 giây
                     this.Close();
                     break;
             }

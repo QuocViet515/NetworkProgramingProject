@@ -3,9 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Cuộc gọi thoại" Height="500" Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="Black">
+        Background="Black"
+        ResizeMode="NoResize"
+        WindowStyle="None">
 
     <Grid Background="Black">
+
         <!-- Remote video -->
         <StackPanel x:Name="RemoteVideoContainer"
                     Background="Black"
@@ -21,10 +24,14 @@
                VerticalAlignment="Center"
                Stretch="UniformToFill"
                ClipToBounds="True"
-               Visibility="Visible"/>
+               Visibility="Visible">
+            <Image.Clip>
+                <EllipseGeometry Center="100,100" RadiusX="100" RadiusY="100"/>
+            </Image.Clip>
+        </Image>
 
         <!-- Local video -->
-        <Grid Width="200" Height="150"
+        <Grid Width="200" Height="200"
               HorizontalAlignment="Right"
               VerticalAlignment="Bottom"
               Margin="10">
@@ -35,8 +42,31 @@
             <Image x:Name="LocalAvatar"
                    Source="/Assets/Icons/avatar-default.png"
                    Stretch="UniformToFill"
-                   Visibility="Visible" Margin="-10,0,10,0" Height="196" VerticalAlignment="Center" />
+                   Visibility="Visible"
+                   Margin="2"
+                   ClipToBounds="True">
+                <Image.Clip>
+                    <EllipseGeometry Center="100,100" RadiusX="100" RadiusY="100"/>
+                </Image.Clip>
+            </Image>
         </Grid>
+
+        <!-- Thông báo cuộc gọi kết thúc -->
+        <Border x:Name="CallStatusBanner"
+                Background="#CC222222"
+                CornerRadius="8"
+                Padding="10"
+                Margin="20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Visibility="Collapsed">
+            <TextBlock x:Name="CallStatusText"
+                       Text="📞 Cuộc gọi đã kết thúc từ phía bên kia"
+                       Foreground="White"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       TextAlignment="Center" />
+        </Border>
 
         <!-- Controls -->
         <Border Background="#66000000"
@@ -47,17 +77,7 @@
                 Margin="0,0,0,20">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <!--<ToggleButton x:Name="BtnToggleCamera"
-                              Width="50" Height="50"
-                              Margin="0,0,15,0"
-                              ToolTip="Bật/tắt camera"
-                              Background="#FF333333"
-                              BorderBrush="Transparent"
-                              Foreground="White"
-                              Click="BtnToggleCamera_Click"
-                              FontSize="24"
-                              Content="🚫" />-->
-
+                <!-- Mic toggle -->
                 <ToggleButton x:Name="BtnToggleMic"
                               Width="50" Height="50"
                               Margin="0,0,15,0"
@@ -69,6 +89,7 @@
                               FontSize="24"
                               Content="🎤" />
 
+                <!-- End call -->
                 <Button x:Name="BtnEndCall"
                         Width="60" Height="60"
                         ToolTip="Kết thúc cuộc gọi"

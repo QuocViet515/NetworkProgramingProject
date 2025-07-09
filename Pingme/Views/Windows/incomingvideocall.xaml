@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pingme.Views.Windows"
-        xmlns:controls="clr-namespace:Pingme.Views.Controls"
         mc:Ignorable="d"
         Title="Cuộc gọi Video" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
@@ -16,7 +15,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10">
 
                 <!-- Avatar và tên người gọi -->
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,0,0,12">
                     <Ellipse x:Name="AvatarEllipse" Width="110" Height="110" Stroke="#2196F3" StrokeThickness="3">
                         <Ellipse.Fill>
                             <ImageBrush ImageSource="/Assets/Icons/avatar-default.png" Stretch="UniformToFill"/>
@@ -28,7 +27,17 @@
                                FontWeight="Bold"
                                Foreground="#212121"
                                HorizontalAlignment="Center"
-                               Margin="0,12,0,0"/>
+                               Margin="0,12,0,4"/>
+                    <!-- Trạng thái hiển thị -->
+                    <TextBlock x:Name="StatusText"
+                               Text="Trạng thái sẽ hiển thị ở đây"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="DarkOrange"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Visibility="Collapsed"
+                               Margin="0,0,0,8"/>
                 </StackPanel>
 
                 <!-- Vòng tròn đếm ngược -->
@@ -91,7 +100,7 @@
                             BorderBrush="#D32F2F"
                             BorderThickness="1">
                         <Button.Template>
-                            <ControlTemplate TargetType="{x:Type Button}">
+                            <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}"

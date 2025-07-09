@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
+using System.Linq;
+
 namespace Pingme.Services
 {
     public class FirebaseNotificationService
@@ -142,8 +145,9 @@ namespace Pingme.Services
 
             var firebaseService = new FirebaseService();
             var currentUser = await firebaseService.GetUserByUsernameAsync(SessionManager.CurrentUser.UserName);
-
             Console.WriteLine($"📡 Listening for incoming calls targeting user: {userId}");
+
+            var activeWindows = new Dictionary<string, Window>();
 
             _callSubscription = client
                 .Child("calls")
@@ -152,18 +156,36 @@ namespace Pingme.Services
                     f.EventType == FirebaseEventType.InsertOrUpdate &&
                     f.Object != null &&
                     f.Object.ToUserId == userId &&
-                    f.Object.status == "waiting" &&
                     !_handledPushIds.Contains(f.Object.PushId))
                 .Subscribe(async call =>
                 {
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         var request = call.Object;
+                        if (request == null || string.IsNullOrWhiteSpace(request.PushId))
+                            return;
 
                         if (request.FromUserId == currentUser.Id)
                         {
                             Console.WriteLine("⚠️ Bỏ qua vì là người gọi.");
                             return;
+                        }
+
+                        if (request.status != "waiting")
+                            return;
+
+                        if (activeWindows.ContainsKey(request.PushId))
+                        {
+                            var win = activeWindows[request.PushId];
+                            if (win.IsVisible)
+                            {
+                                Console.WriteLine("⚠️ Cửa sổ đã mở rồi.");
+                                return;
+                            }
+                            else
+                            {
+                                activeWindows.Remove(request.PushId);
+                            }
                         }
 
                         _handledPushIds.Add(request.PushId);
@@ -173,21 +195,83 @@ namespace Pingme.Services
                         {
                             incomingWindow = new incomingvideocall(request);
                         }
-                        else
+                        else if (request.Type == "audio")
                         {
                             incomingWindow = new IncomingCallWindow(request);
                         }
+                        else
+                        {
+                            Console.WriteLine("❌ Loại cuộc gọi không hợp lệ: " + request.Type);
+                            return;
+                        }
+
                         incomingWindow.Tag = request.PushId;
-                        incomingWindow.Show();
+                        activeWindows[request.PushId] = incomingWindow;
 
                         incomingWindow.Closed += (s, e) =>
                         {
                             _handledPushIds.Remove(request.PushId);
+                            activeWindows.Remove(request.PushId);
+                            Console.WriteLine($"❌ Cửa sổ cuộc gọi đã đóng: {request.PushId}");
                         };
+
+                        incomingWindow.Show();
                     });
                 },
                 error => Console.WriteLine("❌ Lỗi khi lắng nghe Firebase: " + error.Message));
+
+            // 🕒 Poll mỗi 1 giây để kiểm tra status từ xa
+            var pollTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+
+            pollTimer.Tick += async (s, e) =>
+            {
+                var toCheck = activeWindows.Keys.ToList();
+
+                foreach (var pushId in toCheck)
+                {
+                    try
+                    {
+                        var call = await client.Child("calls").Child(pushId).OnceSingleAsync<CallRequest>();
+                        if (call != null)
+                        {
+                            Console.WriteLine($"🕵️ Poll: PushId={pushId}, Status={call.status}");
+
+                            if (call.status == "ended")
+                            {
+                                Console.WriteLine($"⛔ Cuộc gọi {pushId} đã kết thúc từ xa.");
+
+                                if (activeWindows.TryGetValue(pushId, out var win))
+                                {
+                                    // Đảm bảo gọi trên UI thread
+                                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                                    {
+                                        if (win.IsVisible)
+                                        {
+                                            win.Close();
+                                            Console.WriteLine($"✅ Đã đóng cửa sổ gọi: {pushId}");
+                                        }
+                                    });
+
+                                    activeWindows.Remove(pushId);
+                                    _handledPushIds.Remove(pushId);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("⚠️ Poll lỗi: " + ex.Message);
+                    }
+                }
+            };
+
+            pollTimer.Start();
         }
+
+
 
 
 
