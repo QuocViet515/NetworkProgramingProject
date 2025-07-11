@@ -89,7 +89,7 @@
                         <Grid Grid.Column="3" Margin="5,0">
                             <Border BorderThickness="0.5" BorderBrush="Black" CornerRadius="15" Height="40">
                                 <TextBox x:Name="SearchTextBox" Style="{StaticResource PlaceholderTextBox}" Tag="Search ..." BorderThickness="0"
-                 VerticalContentAlignment="Center" TextChanged="SearchTextBox_TextChanged"/>
+                                        VerticalContentAlignment="Center" TextChanged="SearchTextBox_TextChanged"/>
                             </Border>
 
                             <!-- Popup kết quả tìm kiếm -->

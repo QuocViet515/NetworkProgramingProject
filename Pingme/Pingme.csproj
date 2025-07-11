@@ -291,6 +291,7 @@
     <Compile Include="Helpers\BoolToOpacityConverter.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
     <Compile Include="Helpers\FirebaseAuthResponse.cs" />
+    <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Helpers\KeyManager.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\SessionManager.cs" />
@@ -448,6 +449,12 @@
     </Compile>
     <Compile Include="Views\Windows\CropImageWindow.xaml.cs">
       <DependentUpon>CropImageWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\FindFriendDialog.xaml.cs">
+      <DependentUpon>FindFriendDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\FriendRequestDetailDialog.xaml.cs">
+      <DependentUpon>FriendRequestDetailDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\IncomingCallWindow.xaml.cs">
       <DependentUpon>IncomingCallWindow.xaml</DependentUpon>
@@ -622,6 +629,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\CropImageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\FindFriendDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\FriendRequestDetailDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

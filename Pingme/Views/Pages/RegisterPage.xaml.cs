@@ -158,8 +158,30 @@ namespace Pingme.Views.Pages
                 // Gửi lên Firebase
                 await _firebase.Child("users").Child(uid).PutAsync(newUser);
 
-                MessageBox.Show("Registered successfully!");
-                this.NavigationService.Navigate(new LoginPage());
+                //MessageBox.Show("Registered successfully!");
+                //this.NavigationService.Navigate(new LoginPage());
+                // Hiện panel thông báo
+
+                SuccessMessagePanel.Visibility = Visibility.Visible;
+                SuccessMessageText.Text = $"🎉 Đăng ký thành công! Bạn sẽ được chuyển về trang đăng nhập sau 10 giây...";
+
+                // Bắt đầu đếm ngược
+                int countdown = 10;
+                var timer = new System.Windows.Threading.DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(1);
+                timer.Tick += (s2, e2) =>
+                {
+                    countdown--;
+                    SuccessMessageText.Text = $"🎉 Đăng ký thành công! Bạn sẽ được chuyển về trang đăng nhập sau {countdown} giây...";
+
+                    if (countdown <= 0)
+                    {
+                        timer.Stop();
+                        this.NavigationService.Navigate(new LoginPage());
+                    }
+                };
+                timer.Start();
+
             }
             catch (Exception)
             {
@@ -251,6 +273,11 @@ namespace Pingme.Views.Pages
             ConfirmPasswordPlaceholder.Visibility = string.IsNullOrEmpty(ConfirmPasswordVisibleBox.Text)
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+        }
+
+        private void GoToLoginNow_Click(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new LoginPage());
         }
     }
 }

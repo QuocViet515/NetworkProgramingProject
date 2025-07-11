@@ -139,6 +139,16 @@ namespace Pingme.Services
         public Task AddChatAsync(Chat chat) =>
             _client.Child("chats").Child(chat.Id).PutAsync(chat);
 
+        public async Task<List<Chat>> GetAllChatsAsync()
+        {
+            var chats = await _client
+                .Child("chats")
+                .OnceAsync<Chat>();
+
+            return chats.Select(item => item.Object).ToList();
+        }
+
+
         // ---------- GROUP ----------
         public Task AddGroupAsync(ChatGroup group) =>
             _client.Child("chatGroups").Child(group.Id).PutAsync(group);

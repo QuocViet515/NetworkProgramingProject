@@ -20,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace Pingme.Views.Pages
@@ -29,6 +30,8 @@ namespace Pingme.Views.Pages
     /// </summary>
     public partial class LoginPage : Page
     {
+        private DispatcherTimer loginRedirectTimer;
+
         private readonly FirebaseClient _firebase = new FirebaseClient(
             "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/",
             new FirebaseOptions
@@ -220,7 +223,34 @@ namespace Pingme.Views.Pages
                 var firebaseNotificationService = new FirebaseNotificationService();
                 firebaseNotificationService.StartListeningForCalls(currentUserdb.Id);
                 //firebaseService.ListenForIncomingCalls(currentUserdb.Id); 
-                this.NavigationService.Navigate(new ProfilePage());
+
+                //this.NavigationService.Navigate(new ProfilePage());
+                LoginSuccessPanel.Visibility = Visibility.Visible;
+
+                //log kiem tra
+                Console.WriteLine(">>> LoginSuccessPanel is now visible!");
+
+                LoginSuccessText.Text = "🎉 Login successful! Go to profile page after 5 seconds....";
+                //LoginSuccessText.Text = "🎉 Login successful! Go to messaging page after 5 seconds...";
+
+                int countdown = 5;
+                loginRedirectTimer = new DispatcherTimer();
+                loginRedirectTimer.Interval = TimeSpan.FromSeconds(1);
+                loginRedirectTimer.Tick += (s, ev) =>
+                {   
+                    countdown--;
+                    
+                    LoginSuccessText.Text = $"🎉 Login successful! Go to profile page after {countdown} seconds...";
+                    //LoginSuccessText.Text = $"🎉  Login successful! Go to messaging page after {countdown} seconds...";
+
+                    if (countdown <= 0)
+                    {
+                        loginRedirectTimer.Stop();
+                        this.NavigationService.Navigate(new ProfilePage());
+                        //this.NavigationService.Navigate(new ChatPage());
+                    }
+                };
+                loginRedirectTimer.Start();
 
                 if (RememberMeCheckBox.IsChecked == true)
                 {
@@ -296,6 +326,13 @@ namespace Pingme.Views.Pages
         {
             // Điều hướng sang RegisterPage
             this.NavigationService.Navigate(new RegisterPage());
+        }
+
+        private void GoToProfileNow_Click(object sender, RoutedEventArgs e)
+        {
+            loginRedirectTimer.Stop();
+            this.NavigationService.Navigate(new ProfilePage());
+            //this.NavigationService.Navigate(new ChatPage());
         }
     }
 }

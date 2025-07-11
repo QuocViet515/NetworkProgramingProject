@@ -146,5 +146,36 @@
                    FontStyle="Italic" FontFamily="Segoe UI"
                    FontSize="18" Foreground="Gray"
                    TextAlignment="Center" HorizontalAlignment="Center" Margin="0,20"/>
+
+        <!-- POPUP THÔNG BÁO ĐĂNG NHẬP THÀNH CÔNG -->
+        <Grid x:Name="LoginSuccessPanel"
+              Visibility="Collapsed"
+              Grid.RowSpan="2"
+              Background="#80000000"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch">
+
+            <Border Background="White" Padding="30" Width="400" CornerRadius="10"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" BlurRadius="10" ShadowDepth="5" Opacity="0.5"/>
+                </Border.Effect>
+
+                <StackPanel>
+                    <TextBlock x:Name="LoginSuccessText"
+                       Text="🎉 Đăng nhập thành công!"
+                       FontSize="18" FontWeight="Bold" Foreground="Green"
+                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <Button Content="👉 Vào trang cá nhân ngay"
+                    Click="GoToProfileNow_Click"
+                    Width="220" Height="40"
+                    HorizontalAlignment="Center"
+                    Background="#29A8FF" Foreground="White"
+                    FontWeight="Bold" BorderBrush="Transparent"
+                    Cursor="Hand"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
     </Grid>
 </Page>

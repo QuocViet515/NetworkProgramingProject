@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Input;
 
 namespace Pingme.Views.Controls
 {
@@ -43,8 +44,10 @@ namespace Pingme.Views.Controls
             FriendPanel.Children.Clear();
             if (friendUsers.Any())
             {
+                //foreach (var friend in friendUsers)
+                //    FriendPanel.Children.Add(CreateUserItem(friend.FullName, friend.AvatarUrl));
                 foreach (var friend in friendUsers)
-                    FriendPanel.Children.Add(CreateUserItem(friend.FullName, friend.AvatarUrl));
+                    FriendPanel.Children.Add(CreateFriendItem(friend));
             }
             else
             {
@@ -68,8 +71,10 @@ namespace Pingme.Views.Controls
             GroupPanel.Children.Clear();
             if (myGroups.Any())
             {
+                //foreach (var group in myGroups)
+                //    GroupPanel.Children.Add(CreateUserItem(group.Name, group.AvatarUrl));
                 foreach (var group in myGroups)
-                    GroupPanel.Children.Add(CreateUserItem(group.Name, group.AvatarUrl));
+                    GroupPanel.Children.Add(CreateGroupItem(group));
             }
             else
             {
@@ -113,14 +118,19 @@ namespace Pingme.Views.Controls
 
             return panel;
         }
+        //private void AddFriend_Click(object sender, RoutedEventArgs e)
+        //{
+        //    // Điều hướng sang ProfilePage tab friendgroup
+        //    var mainWindow = Application.Current.MainWindow as MainWindow;
+        //    if (mainWindow != null)
+        //    {
+        //        mainWindow.MainFrame.Navigate(new ProfilePage("friendgroup"));
+        //    }
+        //}
         private void AddFriend_Click(object sender, RoutedEventArgs e)
         {
-            // Điều hướng sang ProfilePage tab friendgroup
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow != null)
-            {
-                mainWindow.MainFrame.Navigate(new ProfilePage("friendgroup"));
-            }
+            var dialog = new FindFriendDialog();
+            dialog.ShowDialog();
         }
 
         private async void AddGroup_Click(object sender, RoutedEventArgs e)
@@ -187,5 +197,101 @@ namespace Pingme.Views.Controls
                 LoadData();
             }
         }
+
+        private StackPanel CreateFriendItem(User user)
+        {
+            var panel = new StackPanel
+            {
+                Margin = new Thickness(10),
+                Width = 120,
+                Cursor = Cursors.Hand
+            };
+
+            var avatar = new Ellipse
+            {
+                Width = 50,
+                Height = 50,
+                Fill = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri(
+                        string.IsNullOrWhiteSpace(user.AvatarUrl)
+                            ? "pack://application:,,,/Assets/Icons/avatar-default.png"
+                            : user.AvatarUrl,
+                        UriKind.RelativeOrAbsolute))
+                }
+            };
+
+            var nameText = new TextBlock
+            {
+                Text = user.FullName,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center
+            };
+
+            panel.Children.Add(avatar);
+            panel.Children.Add(nameText);
+
+            panel.MouseLeftButtonUp += async (s, e) =>
+            {
+                var allChats = await _firebase.GetAllChatsAsync();
+                var chat = allChats.FirstOrDefault(c =>
+                    (c.User1 == SessionManager.UID && c.User2 == user.Id) ||
+                    (c.User2 == SessionManager.UID && c.User1 == user.Id));
+
+                if (chat != null)
+                {
+                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    mainWindow?.MainFrame.Navigate(new ChatPage(chat.Id, false));
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy đoạn chat với người này.");
+                }
+            };
+
+            return panel;
+        }
+        private StackPanel CreateGroupItem(ChatGroup group)
+        {
+            var panel = new StackPanel
+            {
+                Margin = new Thickness(10),
+                Width = 120,
+                Cursor = Cursors.Hand
+            };
+
+            var avatar = new Ellipse
+            {
+                Width = 50,
+                Height = 50,
+                Fill = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri(
+                        string.IsNullOrWhiteSpace(group.AvatarUrl)
+                            ? "pack://application:,,,/Assets/Icons/avatar-default.png"
+                            : group.AvatarUrl,
+                        UriKind.RelativeOrAbsolute))
+                }
+            };
+
+            var nameText = new TextBlock
+            {
+                Text = group.Name,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center
+            };
+
+            panel.Children.Add(avatar);
+            panel.Children.Add(nameText);
+
+            panel.MouseLeftButtonUp += (s, e) =>
+            {
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                mainWindow?.MainFrame.Navigate(new ChatPage(group.Id, true));
+            };
+
+            return panel;
+        }
+
     }
 }

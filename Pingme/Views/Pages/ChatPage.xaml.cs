@@ -30,6 +30,20 @@ namespace Pingme.Views.Pages
 
             GroupInforPanel.IsGroupChat = false;  // neu la nhom la true con ca nhan la false
         }
+
+        public ChatPage(string chatId, bool isGroup)
+        {
+            InitializeComponent();
+
+            GroupInforPanel.IsGroupChat = isGroup;
+            GroupInforPanel.SelectedChatId = chatId;
+            GroupInforPanel.UpdateUIForChatType();
+
+            ChatList.ChatSelected += OnChatSelected;
+
+            _ = ChatDetail.LoadChat(chatId, isGroup);
+        }
+
         private async void OnChatSelected(object sender, object chatItem)
         {
             if (chatItem is Chat chat)
