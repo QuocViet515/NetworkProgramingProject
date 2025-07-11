@@ -200,6 +200,67 @@
         </Setter>
     </Style>
 
+    <!--Style Scrollbar-->
+    <Style TargetType="ScrollBar">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Width" Value="12"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="Transparent">
+                        <Track Name="PART_Track" IsDirectionReversed="true">
+                            <!-- Nút cuộn lên -->
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.LineUpCommand"
+                                      Style="{x:Null}"
+                                      IsTabStop="False"
+                                      Height="0"/>
+                            </Track.DecreaseRepeatButton>
+
+                            <!-- Thumb kéo -->
+                            <Track.Thumb>
+                                <Thumb Margin="2">
+                                    <Thumb.Style>
+                                        <Style TargetType="Thumb">
+                                            <Setter Property="Height" Value="40"/>
+                                            <Setter Property="Background" Value="#F1F1F1"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Thumb">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4"/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#666"/>
+                                                </Trigger>
+                                                <Trigger Property="IsDragging" Value="True">
+                                                    <Setter Property="Background" Value="#444"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Thumb.Style>
+                                </Thumb>
+                            </Track.Thumb>
+
+                            <!-- Nút cuộn xuống -->
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.LineDownCommand"
+                                      Style="{x:Null}"
+                                      IsTabStop="False"
+                                      Height="0"/>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <conv:FileTypeToVisibilityConverter x:Key="FileTypeToVisibilityConverter"/>
     <conv:TextTypeToVisibilityConverter x:Key="TextTypeToVisibilityConverter"/>
     <conv:MessageAlignmentConverter x:Key="MessageAlignmentConverter"/>

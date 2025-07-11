@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Pingme.Views.Controls;
 using Pingme.Services;
+using System.Windows.Media.Animation;
+using System.Collections.ObjectModel;
 
 namespace Pingme.Views.Pages
 {
@@ -27,7 +29,7 @@ namespace Pingme.Views.Pages
             InitializeComponent();
 
             ChatList.ChatSelected += OnChatSelected;
-
+            GroupInforPanel.MessageClicked += OnMessageClicked;
             GroupInforPanel.IsGroupChat = false;  // neu la nhom la true con ca nhan la false
         }
 
@@ -53,6 +55,7 @@ namespace Pingme.Views.Pages
                 GroupInforPanel.UpdateUIForChatType();
                 //FirebaseService.curentChatId = ChatDetailControl.current
                 await ChatDetail.LoadChat(chat.Id, false);
+                GroupInforPanel.AllMessages = new ObservableCollection<Message>(ChatDetail.CurrentMessages);
 
                 GroupInforPanel.PeerUser = ChatDetail.other;
             }
@@ -63,10 +66,37 @@ namespace Pingme.Views.Pages
                 GroupInforPanel.UpdateUIForChatType();
 
                 await ChatDetail.LoadChat(group.Id, true);
+                GroupInforPanel.AllMessages = new ObservableCollection<Message>(ChatDetail.CurrentMessages);
             }
         }
 
+        private async void OnMessageClicked(Message msg)
+        {
+            var index = ChatDetail.CurrentMessages.FindIndex(m => m.Id == msg.Id);
 
+            if (index >= 0 && index < ChatDetail.ChatPanelRef.Children.Count)
+            {
+                var target = ChatDetail.ChatPanelRef.Children[index] as FrameworkElement;
+                target?.BringIntoView();
+
+                var bg = new SolidColorBrush(Colors.Transparent);
+                var anim = new ColorAnimation
+                {
+                    From = Colors.Yellow,
+                    To = Colors.Transparent,
+                    Duration = TimeSpan.FromSeconds(2)
+                };
+
+                if (target is Control ctrl)
+                    ctrl.Background = bg;
+
+                bg.BeginAnimation(SolidColorBrush.ColorProperty, anim);
+            }
+            else
+            {
+                MessageBox.Show("❌ Không tìm thấy tin nhắn trong khung chat!");
+            }
+        }
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new ProfilePage("friendgroup"));

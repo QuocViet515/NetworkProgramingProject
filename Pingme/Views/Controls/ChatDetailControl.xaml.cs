@@ -12,6 +12,8 @@ using Microsoft.Win32;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using Pingme.Views.Pages;
+using System.Windows.Media;
 
 namespace Pingme.Views.Controls
 {
@@ -31,6 +33,7 @@ namespace Pingme.Views.Controls
             InitializeComponent();
         }
 
+        public List<Message> CurrentMessages { get; private set; } = new List<Message>();
         public async Task LoadChat(string chatId, bool isGroup)
         {
             ChatPanel.Children.Clear();
@@ -75,7 +78,7 @@ namespace Pingme.Views.Controls
                 .Where(m => m.ChatId == currentChatId)
                 .OrderBy(m => m.SentAt)
                 .ToList();
-
+            CurrentMessages = sortedMessages;
             //foreach (var item in messages)
             foreach (var msg in sortedMessages)
             {
@@ -125,6 +128,10 @@ namespace Pingme.Views.Controls
                             //var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash);
                             var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
                             decryptedText = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
+                            msg.Content = decryptedText;
+                            msg.Plaintext = decryptedText;
+                            msg.FromSelf = msg.SenderId == SessionManager.UID;
+                            msg.SenderName = msg.FromSelf ? "Bạn" : await GetUserNameById(msg.SenderId);
                         }
                     }
 
@@ -335,5 +342,53 @@ namespace Pingme.Views.Controls
         {
             ChatScrollViewer?.ScrollToEnd();
         }
+
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            if (parentObject == null) return null;
+
+            if (parentObject is T parent)
+                return parent;
+            else
+                return FindParent<T>(parentObject);
+        }
+
+        private void ChatHeader_SearchClicked(object sender, EventArgs e)
+        {
+            var chatPage = FindParent<ChatPage>(this);
+            if (chatPage != null)
+            {
+                chatPage.GroupInforPanel.ShowSearchPanel(); // Hàm này ta sẽ thêm ở bước sau
+            }
+        }
+
+        private async Task<string> GetUserNameById(string userId)
+        {
+            try
+            {
+                var user = await firebase.Child("users").Child(userId).OnceSingleAsync<User>();
+                return user.FullName ?? user.UserName ?? "Không rõ";
+            }
+            catch
+            {
+                return "Không rõ";
+            }
+        }
+
+        private void EmojiButton_Click(object sender, RoutedEventArgs e)
+        {
+            EmojiPopup.IsOpen = !EmojiPopup.IsOpen;
+        }
+
+        private void EmojiPopup_EmojiSelected(object sender, string emoji)
+        {
+            MessageInput.Text += emoji;
+            EmojiPopup.IsOpen = false;
+        }
+
+
+        public StackPanel ChatPanelRef => this.ChatPanel;
     }
 }

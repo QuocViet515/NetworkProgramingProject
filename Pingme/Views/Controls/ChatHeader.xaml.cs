@@ -24,6 +24,14 @@ namespace Pingme.Views.Controls
         {
             InitializeComponent();
         }
+
+        public event EventHandler SearchClicked;
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchClicked?.Invoke(this, EventArgs.Empty);
+        }
+
         public static readonly DependencyProperty ContactNameProperty =
             DependencyProperty.Register("ContactName", typeof(string), typeof(ChatHeader), new PropertyMetadata(""));
 

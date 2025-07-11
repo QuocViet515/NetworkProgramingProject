@@ -45,6 +45,9 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Emoji.Wpf, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Emoji.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="Firebase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\FirebaseDatabase.net.5.0.0\lib\netstandard2.0\Firebase.dll</HintPath>
     </Reference>
@@ -97,6 +100,9 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Stfu, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Stfu.0.1.1\lib\net40\Stfu.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -272,6 +278,12 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Typography.GlyphLayout, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.GlyphLayout.dll</HintPath>
+    </Reference>
+    <Reference Include="Typography.OpenFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Emoji.Wpf.0.3.4\lib\net40\Typography.OpenFont.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -303,6 +315,7 @@
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\ChatDisplayExtensions.cs" />
     <Compile Include="Models\ChatTag.cs" />
+    <Compile Include="Models\EmojiData.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Models\FileMetadata.cs" />
@@ -363,6 +376,9 @@
     <Compile Include="Views\Controls\ContactItem.xaml.cs">
       <DependentUpon>ContactItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\EmojiStickerGif.xaml.cs">
+      <DependentUpon>EmojiStickerGif.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\FileAttachment.xaml.cs">
       <DependentUpon>FileAttachment.xaml</DependentUpon>
     </Compile>
@@ -398,6 +414,9 @@
     </Compile>
     <Compile Include="Views\Controls\ProfileInfoControl.xaml.cs">
       <DependentUpon>ProfileInfoControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\SearchMessagePanel.xaml.cs">
+      <DependentUpon>SearchMessagePanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\SettingControl.xaml.cs">
       <DependentUpon>SettingControl.xaml</DependentUpon>
@@ -516,6 +535,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\EmojiStickerGif.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Controls\FileAttachment.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -563,6 +586,10 @@
     <Page Include="Views\Controls\ProfileInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\SearchMessagePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\SettingControl.xaml">
       <SubType>Designer</SubType>
@@ -683,6 +710,9 @@
     <None Include="AgoraBin\C_Sharp-API_Example.deps.json" />
     <None Include="AgoraBin\C_Sharp-API_Example.runtimeconfig.dev.json" />
     <None Include="AgoraBin\C_Sharp-API_Example.runtimeconfig.json" />
+    <Content Include="Assets\emoji.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="fonts\fontawesome-webfont.eot" />
     <None Include="protos\google\api\annotations.proto" />
     <None Include="protos\google\api\auth.proto" />
@@ -854,6 +884,8 @@
     <Content Include="AgoraBin\SharpDX.Mathematics.dll" />
     <Content Include="AgoraBin\video_dec.dll" />
     <Content Include="AgoraBin\video_enc.dll" />
+    <Resource Include="Assets\Icons\igs.png" />
+    <Resource Include="Assets\Icons\search_tran.png" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -907,6 +939,8 @@
     <Error Condition="!Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
     <Error Condition="!Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.props'))" />
     <Error Condition="!Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets'))" />
+    <Error Condition="!Exists('packages\JeremyAnsel.HLSL.Targets.1.0.13\build\JeremyAnsel.HLSL.Targets.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JeremyAnsel.HLSL.Targets.1.0.13\build\JeremyAnsel.HLSL.Targets.targets'))" />
   </Target>
   <Import Project="packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets" Condition="Exists('packages\agora_rtc_sdk.4.2.1\build\net40\agora_rtc_sdk.targets')" />
+  <Import Project="packages\JeremyAnsel.HLSL.Targets.1.0.13\build\JeremyAnsel.HLSL.Targets.targets" Condition="Exists('packages\JeremyAnsel.HLSL.Targets.1.0.13\build\JeremyAnsel.HLSL.Targets.targets')" />
 </Project>

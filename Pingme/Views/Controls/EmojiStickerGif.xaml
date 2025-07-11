@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.EmojiStickerGif"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             xmlns:local="clr-namespace:Pingme.Views.Controls"
+             Height="Auto" Width="Auto">
+    <Border Background="White" CornerRadius="8" BorderBrush="#DDD" BorderThickness="1" Padding="5" Width="300" Height="380">
+        <TabControl>
+            <!-- Tab chính: EMOJI -->
+            <TabItem Header="EMOJI">
+                <DockPanel>
+
+                    <!-- TabControl con để phân loại emoji theo category -->
+                    <TabControl x:Name="CategoryTabControl"
+                                DockPanel.Dock="Top"
+                                SelectionChanged="CategoryTabControl_SelectionChanged"
+                                Height="40">
+                        <TabItem Header="🕘" Tag="recent" />
+                        <TabItem Header="😄" Tag="Smileys &amp; Emotion" />
+                        <TabItem Header="🧍" Tag="People &amp; Body" />
+                        <TabItem Header="🐶" Tag="Animals &amp; Nature" />
+                        <TabItem Header="🍔" Tag="Food &amp; Drink" />
+                        <TabItem Header="✈️" Tag="Travel &amp; Places" />
+                        <TabItem Header="⚽" Tag="Activities" />
+                        <TabItem Header="📦" Tag="Objects" />
+                        <TabItem Header="🔣" Tag="Symbols" />
+                        <TabItem Header="🏳️" Tag="Flags" />
+                        <TabItem Header="🔤" Tag="all" />
+                    </TabControl>
+
+                    <!-- Danh sách emoji -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="300">
+                        <WrapPanel x:Name="EmojiPanel" />
+                    </ScrollViewer>
+                </DockPanel>
+            </TabItem>
+
+
+        </TabControl>
+    </Border>
+</UserControl>

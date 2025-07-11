@@ -8,6 +8,7 @@ using Pingme.Views.Windows;
 using Pingme.Models;
 using Pingme.Services;
 using Pingme.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace Pingme.Views.Controls
 {
@@ -19,6 +20,8 @@ namespace Pingme.Views.Controls
         private bool isCamOn = true;
         private CallWindow callWindow;
 
+        public ObservableCollection<Message> AllMessages { get; set; } = new ObservableCollection<Message>();
+        public event Action<Message> MessageClicked;
         public bool IsGroupChat { get; set; } = true;
         public string SelectedChatId { get; set; } // cần set từ ChatPage
         public User PeerUser { get; set; }  // chính là "other"
@@ -221,6 +224,21 @@ namespace Pingme.Views.Controls
             }
 
             UserInfoButton.Background = new ImageBrush(new BitmapImage(new Uri((string)UserInfoButton.Tag, UriKind.RelativeOrAbsolute)));
+        }
+
+        public void ShowSearchPanel()
+        {
+            var searchPanel = new SearchMessagePanel
+            {
+                AllMessages = this.AllMessages
+            };
+
+            searchPanel.MessageClicked += (msg) =>
+            {
+                MessageClicked?.Invoke(msg); // Gửi tiếp ra ngoài
+            };
+
+            InfoContent.Content = searchPanel;
         }
 
     }

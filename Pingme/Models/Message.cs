@@ -51,6 +51,9 @@ namespace Pingme.Models
 
         [JsonIgnore] public string Content { get; set; }
         [JsonIgnore] public bool FromSelf {  get; set; }
+
+        [JsonIgnore] public string Plaintext { get; set; }
+        [JsonIgnore] public string SenderName { get; set; }
         // === Dành cho message loại cuộc gọi (call_log) ===
         public string CallType { get; set; } // "audio" hoặc "video"
         public int? CallDuration { get; set; } // Tổng số giây (nullable)

@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="Pingme.Views.Controls.SearchMessagePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+
+    <Border CornerRadius="8"
+        Background="#FFFFFF"
+        Padding="0"
+        Margin="0"
+        BorderBrush="Transparent"
+        BorderThickness="0">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+
+            <!-- Tiêu đề -->
+            <TextBlock Text="Tìm kiếm trong trò chuyện"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="#333"
+                   Margin="0 0 0 10"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center"/>
+
+            <!-- Thanh tìm kiếm -->
+            <!-- Viền ngoài cùng -->
+            <Border Background="#FFFFFF" CornerRadius="10" Padding="0" Margin="0,0,0,15">
+
+                <!-- Nền xám bo tròn phủ toàn bộ thanh tìm kiếm -->
+                <Border Background="#F2F2F2" CornerRadius="8" Height="32" VerticalAlignment="Center">
+
+                    <Grid VerticalAlignment="Center" Margin="8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <!-- Icon -->
+                            <ColumnDefinition Width="*"/>
+                            <!-- Input -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Icon kính lúp -->
+                        <Button Grid.Column="0" Width="36" Height="32"
+                    Background="Transparent" BorderThickness="0"
+                    VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <Image Source="/Assets/Icons/search_tran.png" Width="18" Height="18"/>
+                        </Button>
+
+                        <!-- TextBox nhập -->
+                        <TextBox x:Name="SearchBox"
+                     Grid.Column="1"
+                     Style="{StaticResource PlaceholderTextBox}"
+                     Tag="Tìm kiếm tin nhắn"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     FontSize="14"
+                     Padding="10,0"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Left"
+                     TextChanged="SearchBox_TextChanged"
+                     Text=""/>
+                    </Grid>
+                </Border>
+            </Border>
+
+
+            <!-- Kết quả -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Height="300">
+                <StackPanel x:Name="SearchResultPanel" />
+            </ScrollViewer>
+
+        </StackPanel>
+    </Border>
+
+
+</UserControl>
