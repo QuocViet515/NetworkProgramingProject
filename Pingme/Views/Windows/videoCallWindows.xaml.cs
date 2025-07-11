@@ -54,6 +54,11 @@ namespace Pingme.Views.Windows
                 // Hiển thị tên người nhận nếu có
                 var receiver =await firebase.GetUserByIdAsync(_request.ToUserId);
                 string receiverName = receiver?.UserName ?? "Người nhận";
+                // Hiển thị tên người nhận nếu có
+                if (!string.IsNullOrEmpty(receiverName))
+                {
+                    remoteUser.Text = receiverName;
+                }
 
                 Console.WriteLine(RemoteVideoContainer == null ? "[DEBUG] RemoteVideoContainer is null" : "[DEBUG] RemoteVideoContainer OK");
                 // 1. Khởi tạo Agora
