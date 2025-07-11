@@ -39,7 +39,8 @@
             </Image>
 
             <!-- Tên người nhận -->
-            <TextBlock Text="Người nhận"
+            <TextBlock x:Name="remoteUser"
+                Text="Người Nhận"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Black"

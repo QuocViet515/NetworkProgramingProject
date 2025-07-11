@@ -20,7 +20,6 @@ namespace Pingme.Views.Windows
         private DateTime _callStartTime;
         private bool _cameraOn = true;
         private bool _micOn = true;
-
         private DispatcherTimer _statusTimer;
 
         public videoCallWindows(CallRequest request, DateTime callStartTime)
@@ -47,10 +46,15 @@ namespace Pingme.Views.Windows
         }
 
 
-        private void CallWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void CallWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
+                var firebase = new FirebaseService();
+                // Hiển thị tên người nhận nếu có
+                var receiver =await firebase.GetUserByIdAsync(_request.ToUserId);
+                string receiverName = receiver?.UserName ?? "Người nhận";
+
                 Console.WriteLine(RemoteVideoContainer == null ? "[DEBUG] RemoteVideoContainer is null" : "[DEBUG] RemoteVideoContainer OK");
                 // 1. Khởi tạo Agora
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
