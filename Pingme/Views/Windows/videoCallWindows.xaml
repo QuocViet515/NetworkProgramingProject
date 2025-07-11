@@ -53,13 +53,15 @@
                     VerticalAlignment="Center"
                     Background="Transparent">
             <!-- Local video -->
-            <Grid Width="240" Height="180"
-                  Background="Black"
-                  Visibility="Collapsed">
+            <Grid x:Name="_localVideoGrid"
+      Width="240" Height="180"
+      Background="Black"
+      Visibility="Collapsed">
                 <winForms:WindowsFormsHost x:Name="_localVideoHost"
-                                           Background="Black"
-                                           Visibility="Collapsed" />
+                               Background="Black"
+                               Visibility="Collapsed" />
             </Grid>
+
 
             <!-- Avatar nếu không có video -->
             <Image x:Name="LocalAvatar"

@@ -181,11 +181,13 @@ namespace Pingme.Views.Windows
             // Xử lý local video/camera
             if (_cameraOn)
             {
+                _localVideoGrid.Visibility = Visibility.Visible;   // Sửa tại đây
                 _localVideoHost.Visibility = Visibility.Visible;
                 LocalAvatar.Visibility = Visibility.Collapsed;
             }
             else
             {
+                _localVideoGrid.Visibility = Visibility.Collapsed; // Sửa tại đây
                 _localVideoHost.Visibility = Visibility.Collapsed;
                 LocalAvatar.Visibility = Visibility.Visible;
 
@@ -194,6 +196,7 @@ namespace Pingme.Views.Windows
                     LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));
                 }
             }
+
 
             // Xử lý remote video (nếu chưa nhận video thì hiển thị avatar)
             if (RemoteVideoContainer.Visibility == Visibility.Visible)
