@@ -1,9 +1,14 @@
 ﻿<UserControl x:Class="Pingme.Views.Controls.IncomingMessageControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              Height="Auto" Width="Auto">
     <Border Background="LightGray" Padding="10" Margin="5"
             CornerRadius="10" HorizontalAlignment="Left">
-        <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" FontSize="14"/>
+        <Emoji:TextBlock x:Name="MessageTextBlock"
+                         TextWrapping="Wrap"
+                         FontSize="14"
+                         FontFamily="Segoe UI Emoji"
+                         Foreground="Black" />
     </Border>
 </UserControl>

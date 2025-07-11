@@ -26,7 +26,9 @@
             <!-- Thanh tiêu đề -->
             <controls:ChatHeader x:Name="ChatHeader"
                                  ContactName="Tên người/nhóm"
-                                 AvatarPath="/Assets/Icons/avatar-default.png" Margin="10,10,10,20"/>
+                                 AvatarPath="/Assets/Icons/avatar-default.png" Margin="10,10,10,20"
+                                 SearchClicked="ChatHeader_SearchClicked"/>
+
 
             <!-- Danh sách tin nhắn -->
             <ScrollViewer Grid.Row="1" x:Name="ChatScrollViewer" VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" CanContentScroll="True">
@@ -38,29 +40,72 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <!-- Folder -->
                         <ColumnDefinition Width="*"/>
+                        <!-- Message input + emoji -->
                         <ColumnDefinition Width="Auto"/>
+                        <!-- Send -->
                     </Grid.ColumnDefinitions>
 
+                    <!-- Nút đính kèm -->
                     <Button Grid.Column="0" Margin="4,0,0,0" Background="Transparent" BorderThickness="0" ToolTip="Đính kèm tệp"
-                            Click="AttachFile_Click">
+                Click="AttachFile_Click">
                         <Image Source="/Assets/Icons/foldericon.png" Width="50" Height="42"/>
                     </Button>
 
+                    <!-- Ô nhập + emoji bên trong -->
                     <Border Grid.Column="1" Background="#E1E1E1" CornerRadius="10" VerticalAlignment="Center" Margin="10,0">
-                        <TextBox Name="MessageInput" Height="40" Margin="10,0" Padding="5"
-                                 Background="Transparent" BorderThickness="0"
-                                 FontWeight="Bold" FontSize="16" Foreground="Black"
-                                 VerticalContentAlignment="Center" HorizontalContentAlignment="Left"
-                                 Text="" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Name="MessageInput"
+                                     Grid.Column="0"
+                                     Height="40"
+                                     Margin="10,0"
+                                     Padding="5"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     FontWeight="Bold"
+                                     FontSize="16"
+                                     Foreground="Black"
+                                     FontFamily="Segoe UI Emoji"
+                                     VerticalContentAlignment="Center"
+                                     HorizontalContentAlignment="Left"
+                                     Text="" />
+
+                            <!-- Nút emoji nằm trong thanh xám -->
+                            <Button x:Name="EmojiButton" Grid.Column="1" Margin="0,0,5,0"
+                                    Background="Transparent" BorderThickness="0"
+                                    ToolTip="Biểu tượng cảm xúc"
+                                    Click="EmojiButton_Click">
+                                <Image Source="/Assets/Icons/igs.png" Width="25" Height="26"/>
+                            </Button>
+                        </Grid>
                     </Border>
 
+                    <!-- Nút gửi -->
                     <Button Grid.Column="2" Margin="5,5,2,3" Background="Transparent" BorderThickness="0" 
-                            ToolTip="Gửi" Click="SendButton_Click">
+                ToolTip="Gửi" Click="SendButton_Click">
                         <Image Source="/Assets/Icons/sendicon.png" Width="51" Height="50"/>
                     </Button>
                 </Grid>
             </Border>
+            <!-- Popup Emoji/Sticker/Gif -->
+            <Popup x:Name="EmojiPopup"
+                   PlacementTarget="{Binding ElementName=EmojiButton}"
+                   Placement="Top"
+                   HorizontalOffset="-270"  
+                   VerticalOffset="2"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   PopupAnimation="Fade">
+
+                <controls:EmojiStickerGif EmojiSelected="EmojiPopup_EmojiSelected"/>
+            </Popup>
+
         </Grid>
     </Border>
 </UserControl>
