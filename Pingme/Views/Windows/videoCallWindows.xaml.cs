@@ -25,7 +25,7 @@ namespace Pingme.Views.Windows
 
         public videoCallWindows(CallRequest request, DateTime callStartTime)
         {
-            InitializeComponent();
+            InitializeComponent(); // ⬅️ PHẢI gọi dòng này đầu tiên để UI controls được khởi tạo
 
             _request = request;
             _callStartTime = callStartTime;
@@ -36,19 +36,22 @@ namespace Pingme.Views.Windows
                 BackColor = System.Drawing.Color.Black,
                 Dock = DockStyle.Fill
             };
-            _localVideoHost.Child = _localVideoPanel; // Gán vào WindowsFormsHost
+            _localVideoHost.Child = _localVideoPanel;
 
-            // Truyền handle của panel cho Agora
+            // ✅ LÚC NÀY RemoteVideoContainer đã KHÔNG còn null
             _videoService = new AgoraVideoService(_localVideoPanel.Handle, RemoteVideoContainer);
+            _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
             Loaded += CallWindow_Loaded;
             Closed += CallWindow_Closed;
         }
 
+
         private void CallWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
+                Console.WriteLine(RemoteVideoContainer == null ? "[DEBUG] RemoteVideoContainer is null" : "[DEBUG] RemoteVideoContainer OK");
                 // 1. Khởi tạo Agora
                 _videoService.InitializeAgora(_request.AppId, _request.ChannelName);
 
@@ -111,6 +114,7 @@ namespace Pingme.Views.Windows
             {
                 System.Windows.MessageBox.Show("❌ Lỗi khi khởi tạo cuộc gọi: " + ex.Message);
             }
+            UpdateAvatarVisibility();
         }
 
         private void CallWindow_Closed(object sender, EventArgs e)
@@ -127,17 +131,8 @@ namespace Pingme.Views.Windows
             btn.Content = _cameraOn ? "📷" : "🚫";
 
             _videoService.SetLocalVideoEnabled(_cameraOn);
+            UpdateAvatarVisibility();
 
-            if (_cameraOn)
-            {
-                _localVideoHost.Visibility = Visibility.Visible;
-                LocalAvatar.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                _localVideoHost.Visibility = Visibility.Collapsed;
-                LocalAvatar.Visibility = Visibility.Visible;
-            }
         }
 
         private void BtnToggleMic_Click(object sender, RoutedEventArgs e)
@@ -181,5 +176,40 @@ namespace Pingme.Views.Windows
             _videoService.LeaveChannel();
             this.Close();
         }
+        private void UpdateAvatarVisibility()
+        {
+            // Xử lý local video/camera
+            if (_cameraOn)
+            {
+                _localVideoHost.Visibility = Visibility.Visible;
+                LocalAvatar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                _localVideoHost.Visibility = Visibility.Collapsed;
+                LocalAvatar.Visibility = Visibility.Visible;
+
+                if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
+                {
+                    LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));
+                }
+            }
+
+            // Xử lý remote video (nếu chưa nhận video thì hiển thị avatar)
+            if (RemoteVideoContainer.Visibility == Visibility.Visible)
+            {
+                RemoteAvatar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                RemoteAvatar.Visibility = Visibility.Visible;
+
+                if (!string.IsNullOrEmpty(_request.ReceiverAvatarUrl))
+                {
+                    RemoteAvatar.Source = new BitmapImage(new Uri(_request.ReceiverAvatarUrl));
+                }
+            }
+        }
+
     }
 }

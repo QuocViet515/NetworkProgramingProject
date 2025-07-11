@@ -1,15 +1,14 @@
 ﻿using Agora.Rtc;
 using System;
 using System.Collections.Generic;
-using System.Drawing; // For Color
-using System.Windows;
-using System.Windows.Controls; // WPF UI
-using System.Windows.Forms;
-using System.Windows.Forms.Integration; // WindowsFormsHost
-using AREA_CODE = Agora.Rtc.AREA_CODE;
-using WF = System.Windows.Forms; // Alias cho WinForms
-using WpfApp = System.Windows.Application; // Alias cho WPF Application
+using System.Drawing;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Forms.Integration;
+using WF = System.Windows.Forms;
+using WpfApp = System.Windows.Application;
 
 namespace Pingme.Services
 {
@@ -20,51 +19,34 @@ namespace Pingme.Services
 
         private WF.Panel _videoPanel;
         private WindowsFormsHost _host;
-        private ContentControl _localContainer;
-        public static StackPanel RemoteVideoContainer;
+
+        private ContentControl _localContainer;         // cho kiểu 1
+        private StackPanel _remoteContainer;            // cho kiểu 1
+
+        private IntPtr _localVideoHandle;               // cho kiểu 2
+        private WindowsFormsHost _remoteHost;           // cho kiểu 2
 
         private readonly Dictionary<uint, WindowsFormsHost> _remoteHosts = new Dictionary<uint, WindowsFormsHost>();
 
-        private readonly IntPtr _localVideoContainer;
-        private readonly IntPtr _remoteVideoContainer;
-        private IntPtr _localVideoHandle;
-        private StackPanel _remoteContainer;
-
-        public AgoraVideoService(IntPtr localVideoHandle, StackPanel remoteContainer)
-        {
-            _localVideoHandle = localVideoHandle;
-            _remoteContainer = remoteContainer;
-        }
-
-        public AgoraVideoService(IntPtr localVideoContainer, IntPtr remoteVideoContainer)
-        {
-            _localVideoContainer = localVideoContainer;
-            _remoteVideoContainer = remoteVideoContainer;
-        }
+        // Constructor kiểu 1: dùng WPF Controls
         public AgoraVideoService(ContentControl localContainer, StackPanel remoteContainer)
         {
             _localContainer = localContainer;
-            RemoteVideoContainer = remoteContainer;
+            _remoteContainer = remoteContainer;
         }
-        
+
+        // Constructor kiểu 2: dùng handle và WindowsFormsHost
+        public AgoraVideoService(IntPtr localVideoHandle, WindowsFormsHost remoteHost)
+        {
+            _localVideoHandle = localVideoHandle;
+            _remoteHost = remoteHost;
+        }
+
         public void InitializeAgora(string appId, string rawChannelName)
         {
             if (_isJoined) return;
 
-            if (_localContainer == null)
-            {
-                _localContainer = new ContentControl(); // Initialize or assign a valid instance.
-            }
-
-            if (RemoteVideoContainer == null)
-            {
-                RemoteVideoContainer = new StackPanel();
-            }
-
-            _remoteContainer = new StackPanel();
-
             _engine = RtcEngine.CreateAgoraRtcEngine();
-
             var context = new RtcEngineContext(
                 appId,
                 0,
@@ -77,28 +59,124 @@ namespace Pingme.Services
             int initCode = _engine.Initialize(context);
             if (initCode != 0)
             {
-                Console.WriteLine($"❌ Init failed: {initCode}");
+                Console.WriteLine("❌ Init failed: " + initCode);
+                _engine = null;
                 return;
             }
 
             _engine.InitEventHandler(new UserEventHandler(this));
-            _engine.EnableVideo();       // ✅ Bắt buộc để bật camera
-            SetupLocalVideo();           // ✅ Khởi tạo UI và gán canvas
-            _engine.StartPreview();      // ✅ Hiển thị local video sau khi đã gán view
+            _engine.EnableVideo();
+            SetupLocalVideo();
+            _engine.StartPreview();
 
             string safeChannelName = ChannelNameHelper.EncodeChannelName(rawChannelName);
-
             int joinCode = _engine.JoinChannel("", safeChannelName, "", 0);
             if (joinCode != 0)
             {
-                Console.WriteLine($"❌ JoinChannel failed: {joinCode}");
+                Console.WriteLine("❌ JoinChannel failed: " + joinCode);
                 return;
             }
 
             _isJoined = true;
         }
 
+        private void SetupLocalVideo()
+        {
+            if (_videoPanel == null)
+            {
+                _videoPanel = new WF.Panel
+                {
+                    Width = 640,
+                    Height = 360,
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.DarkGray
+                };
+            }
 
+            var canvas = new VideoCanvas
+            {
+                view = (long)(_localContainer != null ? IntPtr.Zero : _localVideoHandle), // nếu dùng localContainer thì chưa gán view
+                renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT,
+                uid = 0
+            };
+            _engine.SetupLocalVideo(canvas);
+
+            _host = new WindowsFormsHost
+            {
+                Child = _videoPanel
+            };
+
+            if (_localContainer != null)
+            {
+                WpfApp.Current.Dispatcher.Invoke(() =>
+                {
+                    _localContainer.Content = _host;
+                });
+            }
+            else if (_remoteHost != null)
+            {
+                _remoteHost.Child = _videoPanel;
+            }
+        }
+
+        public WF.Panel CreateRemotePanel(uint uid)
+        {
+            var panel = new WF.Panel
+            {
+                BackColor = Color.Black,
+                Dock = DockStyle.Fill
+            };
+
+            var host = new WindowsFormsHost
+            {
+                Child = panel
+            };
+
+            _remoteHosts[uid] = host;
+
+            if (_remoteContainer != null)
+            {
+                WpfApp.Current.Dispatcher.Invoke(() =>
+                {
+                    _remoteContainer.Children.Add(host);
+                });
+            }
+            else if (_remoteHost != null)
+            {
+                WpfApp.Current.Dispatcher.Invoke(() =>
+                {
+                    _remoteHost.Child = panel;
+                });
+            }
+
+            WpfApp.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                await Task.Delay(100);
+                _engine.SetupRemoteVideo(new VideoCanvas
+                {
+                    uid = uid,
+                    view = (long)panel.Handle,
+                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT
+                });
+            });
+
+            return panel;
+        }
+
+        public void RemoveRemoteVideo(uint uid)
+        {
+            if (_remoteHosts.TryGetValue(uid, out var host))
+            {
+                WpfApp.Current.Dispatcher.Invoke(() =>
+                {
+                    if (_remoteContainer != null)
+                        _remoteContainer.Children.Remove(host);
+                    else if (_remoteHost != null && _remoteHost.Child == host.Child)
+                        _remoteHost.Child = null;
+                });
+                _remoteHosts.Remove(uid);
+            }
+        }
 
         public void LeaveChannel()
         {
@@ -113,41 +191,6 @@ namespace Pingme.Services
             _isJoined = false;
 
             Console.WriteLine("🚪 Đã rời khỏi kênh.");
-        }
-
-        private void SetupLocalVideo()
-        {
-            if (_videoPanel == null)
-            {
-                _videoPanel = new WF.Panel
-                {
-                    Width = 640,
-                    Height = 360,
-                    Dock = DockStyle.None,
-                    BackColor = Color.DarkGray
-                };
-
-
-            }
-
-            var canvas = new VideoCanvas
-            {
-                view = (long)_localVideoHandle,
-                renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT,
-                uid = 0
-            };
-
-            _engine.SetupLocalVideo(canvas);
-
-            _host = new WindowsFormsHost
-            {
-                Child = _videoPanel
-            };
-
-            WpfApp.Current.Dispatcher.Invoke(() =>
-            {
-                _localContainer.Content = _host;
-            });
         }
 
         public UIElement GetVideoControl()
@@ -170,86 +213,34 @@ namespace Pingme.Services
             Console.WriteLine(enable ? "📷 Camera bật" : "🚫 Camera tắt");
         }
 
-        public IRtcEngine Engine => _engine;
-
-        public WF.Panel CreateRemotePanel(uint uid)
-        {
-            WF.Panel panel = new WF.Panel
-            {
-                BackColor = Color.Red,
-                Dock = DockStyle.Fill
-            };
-
-            WindowsFormsHost host = new WindowsFormsHost
-            {
-                Child = panel
-            };
-
-            _remoteHosts[uid] = host;
-
-            // Thêm vào UI
-            WpfApp.Current.Dispatcher.Invoke(() =>
-            {
-                _remoteContainer.Children.Add(host);
-            });
-
-            // Delay 100ms rồi gán handle → tránh lỗi "view = 0"
-            WpfApp.Current.Dispatcher.InvokeAsync(async () =>
-            {
-                await Task.Delay(100);
-
-                this.Engine.SetupRemoteVideo(new VideoCanvas
-                {
-                    uid = uid,
-                    view = (long)panel.Handle,
-                    renderMode = RENDER_MODE_TYPE.RENDER_MODE_FIT
-                });
-            });
-
-            return panel;
-        }
-
-
-
-
-
-        public void RemoveRemoteVideo(uint uid)
-        {
-            if (_remoteHosts.TryGetValue(uid, out var host))
-            {
-                WpfApp.Current.Dispatcher.Invoke(() =>
-                {
-                    _remoteContainer.Children.Remove(host);
-                });
-                _remoteHosts.Remove(uid);
-            }
-        }
-
         public void SetLocalVideoEnabled(bool enabled)
         {
-            if (enabled)
-                _engine.EnableLocalVideo(true);
-            else
-                _engine.EnableLocalVideo(false);
+            if (_engine == null)
+            {
+                Console.WriteLine("⚠️ _engine is null in SetLocalVideoEnabled");
+                return;
+            }
+            _engine.EnableLocalVideo(enabled);
         }
 
         public void SetLocalAudioEnabled(bool enabled)
         {
-            if (enabled)
-                _engine.EnableLocalAudio(true);
-            else
-                _engine.EnableLocalAudio(false);
-        }
-        public void SetRemotePanelColor(uint uid, System.Drawing.Color color)
-        {
-            if (_remoteHosts.TryGetValue(uid, out var host))
+            if (_engine == null)
             {
-                if (host.Child is System.Windows.Forms.Panel panel)
-                {
-                    panel.BackColor = color;
-                }
+                Console.WriteLine("⚠️ _engine is null in SetLocalAudioEnabled");
+                return;
+            }
+            _engine.EnableLocalAudio(enabled);
+        }
+
+        public void SetRemotePanelColor(uint uid, Color color)
+        {
+            if (_remoteHosts.TryGetValue(uid, out var host) && host.Child is WF.Panel panel)
+            {
+                panel.BackColor = color;
             }
         }
 
+        public IRtcEngine Engine => _engine;
     }
 }

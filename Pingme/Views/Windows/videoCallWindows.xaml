@@ -5,52 +5,83 @@
         xmlns:winForms="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         Title="Cuộc gọi video" Height="500" Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="Black"
+        Background="#F2F2F2"
         ResizeMode="NoResize"
         WindowStyle="None">
 
-    <Grid Background="Black">
-        <!-- Remote Video or Avatar -->
-        <StackPanel x:Name="RemoteVideoContainer"
-                    Background="Black"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch">
+    <Grid Background="#F2F2F2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Remote Video + Avatar -->
+        <StackPanel Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="Transparent">
+            <!-- Video container -->
+            <winForms:WindowsFormsHost x:Name="RemoteVideoContainer"
+                           Width="240" Height="180"
+                           Background="Black"
+                           Visibility="Collapsed" />
+
+
+            <!-- Avatar nếu không có video -->
             <Image x:Name="RemoteAvatar"
-                   Width="200" Height="200"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
+                   Width="160" Height="160"
                    Stretch="UniformToFill"
-                   Visibility="Collapsed"
-                   Margin="10"
-                   ClipToBounds="True">
+                   Visibility="Visible"
+                   Margin="10">
                 <Image.Clip>
-                    <EllipseGeometry Center="100,100" RadiusX="100" RadiusY="100"/>
+                    <EllipseGeometry Center="80,80" RadiusX="80" RadiusY="80"/>
                 </Image.Clip>
             </Image>
+
+            <!-- Tên người nhận -->
+            <TextBlock Text="Người nhận"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="Black"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"/>
         </StackPanel>
 
-        <!-- Local video or avatar (bottom-right corner) -->
-        <Grid Width="160" Height="120"
-              HorizontalAlignment="Right"
-              VerticalAlignment="Bottom"
-              Margin="10">
-            <winForms:WindowsFormsHost x:Name="_localVideoHost"
-                                       Visibility="Collapsed"
-                                       Background="Black" />
+        <!-- Local Video + Avatar -->
+        <StackPanel Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="Transparent">
+            <!-- Local video -->
+            <Grid Width="240" Height="180"
+                  Background="Black"
+                  Visibility="Collapsed">
+                <winForms:WindowsFormsHost x:Name="_localVideoHost"
+                                           Background="Black"
+                                           Visibility="Collapsed" />
+            </Grid>
+
+            <!-- Avatar nếu không có video -->
             <Image x:Name="LocalAvatar"
+                   Width="160" Height="160"
                    Stretch="UniformToFill"
-                   Visibility="Collapsed"
-                   Margin="2"
-                   ClipToBounds="True"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch">
+                   Visibility="Visible"
+                   Margin="10">
                 <Image.Clip>
-                    <EllipseGeometry Center="80,60" RadiusX="80" RadiusY="60"/>
+                    <EllipseGeometry Center="80,80" RadiusX="80" RadiusY="80"/>
                 </Image.Clip>
             </Image>
-        </Grid>
 
-        <!-- Call status banner -->
+            <!-- Tên người gọi -->
+            <TextBlock Text="Bạn"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="Black"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"/>
+        </StackPanel>
+
+        <!-- Thông báo cuộc gọi -->
         <Border x:Name="CallStatusBanner"
                 Background="#CC222222"
                 CornerRadius="8"
@@ -58,6 +89,7 @@
                 Margin="20"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
+                Grid.ColumnSpan="2"
                 Visibility="Collapsed">
             <TextBlock x:Name="CallStatusText"
                        Text="📞 Cuộc gọi đã kết thúc từ phía bên kia"
@@ -68,55 +100,53 @@
         </Border>
 
         <!-- Control Buttons -->
-        <!-- Control Buttons -->
-        <Border Background="#66000000"
-        Padding="10"
-        CornerRadius="30"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Bottom"
-        Margin="0,0,0,20">
-            <StackPanel Orientation="Horizontal"
-                HorizontalAlignment="Center">
+        <Border Background="#33000000"
+                Padding="10"
+                CornerRadius="30"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,20"
+                Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <ToggleButton x:Name="BtnToggleCamera"
-                      Width="56" Height="56"
-                      Margin="5"
-                      ToolTip="Bật/tắt camera"
-                      Background="#333"
-                      Foreground="White"
-                      BorderThickness="0"
-                      FontSize="22"
-                      Content="📷"
-                      Click="BtnToggleCamera_Click"
-                      Cursor="Hand"
-                      Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}"/>
+                              Width="56" Height="56"
+                              Margin="5"
+                              ToolTip="Bật/tắt camera"
+                              Background="#333"
+                              Foreground="White"
+                              BorderThickness="0"
+                              FontSize="22"
+                              Content="📷"
+                              Click="BtnToggleCamera_Click"
+                              Cursor="Hand"
+                              Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" />
 
                 <ToggleButton x:Name="BtnToggleMic"
-                      Width="56" Height="56"
-                      Margin="5"
-                      ToolTip="Bật/tắt micro"
-                      Background="#333"
-                      Foreground="White"
-                      BorderThickness="0"
-                      FontSize="22"
-                      Content="🎤"
-                      Click="BtnToggleMic_Click"
-                      Cursor="Hand"
-                      Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}"/>
+                              Width="56" Height="56"
+                              Margin="5"
+                              ToolTip="Bật/tắt micro"
+                              Background="#333"
+                              Foreground="White"
+                              BorderThickness="0"
+                              FontSize="22"
+                              Content="🎤"
+                              Click="BtnToggleMic_Click"
+                              Cursor="Hand"
+                              Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" />
 
                 <Button x:Name="BtnEndCall"
-                Width="60" Height="60"
-                Margin="5"
-                ToolTip="Kết thúc cuộc gọi"
-                Background="#E81123"
-                Foreground="White"
-                BorderThickness="0"
-                FontSize="26"
-                Content="✕"
-                Click="BtnEndCall_Click"
-                Cursor="Hand"
-                BorderBrush="Transparent"/>
+                        Width="60" Height="60"
+                        Margin="5"
+                        ToolTip="Kết thúc cuộc gọi"
+                        Background="#E81123"
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontSize="26"
+                        Content="✕"
+                        Click="BtnEndCall_Click"
+                        Cursor="Hand"
+                        BorderBrush="Transparent"/>
             </StackPanel>
         </Border>
-
     </Grid>
 </Window>
