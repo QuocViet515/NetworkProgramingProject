@@ -72,17 +72,38 @@ namespace Pingme.Views.Dialogs
 
         private async void Accept_Click(object sender, RoutedEventArgs e)
         {
+            //await _firebaseService.UpdateFriendStatus(SessionManager.UID, _senderUser.Id, "accept");
+
+            //// Tạo chat mới
+            //await _firebaseService.AddChatAsync(new Chat
+            //{
+            //    Id = Guid.NewGuid().ToString(),
+            //    User1 = SessionManager.UID,
+            //    User2 = _senderUser.Id,
+            //    CreatedAt = DateTime.UtcNow,
+            //    UpdatedAt = DateTime.UtcNow
+            //});
+
             await _firebaseService.UpdateFriendStatus(SessionManager.UID, _senderUser.Id, "accept");
 
-            // Tạo chat mới
-            await _firebaseService.AddChatAsync(new Chat
+            // ⚠️ Kiểm tra đoạn chat cũ
+            var allChats = await _firebaseService.GetAllChatsAsync();
+            var existingChat = allChats.FirstOrDefault(c =>
+                (c.User1 == SessionManager.UID && c.User2 == _senderUser.Id) ||
+                (c.User2 == SessionManager.UID && c.User1 == _senderUser.Id));
+
+            if (existingChat == null)
             {
-                Id = Guid.NewGuid().ToString(),
-                User1 = SessionManager.UID,
-                User2 = _senderUser.Id,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
+                // Tạo mới nếu chưa tồn tại
+                await _firebaseService.AddChatAsync(new Chat
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    User1 = _senderUser.Id,
+                    User2 = SessionManager.UID,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
 
             MessageBox.Show("✅ Đã chấp nhận kết bạn.");
             this.Close();

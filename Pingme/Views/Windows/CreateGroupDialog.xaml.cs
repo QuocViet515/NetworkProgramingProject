@@ -113,7 +113,7 @@ namespace Pingme.Views.Dialogs
             Close();
         }
 
-        private void Create_Click(object sender, RoutedEventArgs e)
+        private async void Create_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(GroupName))
             {
@@ -127,8 +127,66 @@ namespace Pingme.Views.Dialogs
                 .Select(cb => cb.Tag.ToString())
                 .ToList();
 
+            string groupId = Guid.NewGuid().ToString();
+            var creatorId = SessionManager.UID;
+
+            // Tạo đối tượng nhóm
+            var group = new ChatGroup
+            {
+                Id = groupId,
+                Name = GroupName,
+                AvatarUrl = AvatarUrl,
+                CreatedBy = creatorId,
+                Admin = new List<string> { creatorId }, // ✅ Người tạo là admin
+                Members = new List<string>(SelectedUserIds) { creatorId }, // ✅ Bao gồm người tạo
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            // Lưu vào Firebase
+            await _firebase.AddGroupAsync(group);
+
+            // Gửi thông báo đến các thành viên (không gửi cho người tạo vì họ là người tạo)
+            foreach (var memberId in SelectedUserIds)
+            {
+                var notification = new Notification
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ReceiverId = memberId,
+                    Type = "added_to_group",
+                    Data = new Dictionary<string, string>
+                    {
+                        { "groupId", groupId },
+                        { "groupName", GroupName },
+                        { "groupAvatar", AvatarUrl ?? "" },
+                        { "inviter", SessionManager.CurrentUser?.FullName ?? "Người dùng" }
+                    },
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _firebase.AddNotificationAsync(notification);
+            }
+
+            // Gửi thông báo cho người tạo nhóm
+            await _firebase.AddNotificationAsync(new Notification
+            {
+                Id = Guid.NewGuid().ToString(),
+                ReceiverId = creatorId,
+                Type = "group_created",
+                Data = new Dictionary<string, string>
+                {
+                    { "groupId", groupId },
+                    { "groupName", GroupName },
+                    { "groupAvatar", AvatarUrl ?? "" }
+                },
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            });
+
             DialogResult = true;
             Close();
+
         }
     }
 }

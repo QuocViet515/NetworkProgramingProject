@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using System.Windows.Input;
 using Pingme.Views.Dialogs;
 using Pingme.Views.Windows;
+using Pingme.Views.Pages;
 
 namespace Pingme.Views.Controls
 {
@@ -38,6 +39,7 @@ namespace Pingme.Views.Controls
                 NotificationHeader.Text = $"Notification ({unreadCount})";
 
                 var grouped = allNotifications
+                    .OrderByDescending(n=>n.CreatedAt)
                     .GroupBy(n => n.Type)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -45,6 +47,10 @@ namespace Pingme.Views.Controls
                 ShowGrouped(grouped, "friend_request", "👥 Yêu cầu kết bạn");
                 ShowGrouped(grouped, "call_active", "📞 Cuộc gọi đang diễn ra");
                 ShowGrouped(grouped, "call_missed", "❌ Cuộc gọi nhỡ");
+                //ShowGrouped(grouped, "group_invite", "📨 Lời mời vào nhóm");
+                ShowGrouped(grouped, "group_created", "🆕 Nhóm đã được tạo");
+                ShowGrouped(grouped, "added_to_group", "👪 Bạn được thêm vào nhóm");
+
             }
             catch (Exception ex)
             {
@@ -65,7 +71,7 @@ namespace Pingme.Views.Controls
                 Margin = new Thickness(0, 10, 0, 5)
             });
 
-            foreach (var noti in grouped[typeKey])
+            foreach (var noti in grouped[typeKey].OrderByDescending(n => n.CreatedAt))
             {
                 // 🔄 DÙ LÀ friend_request hay không, dùng RenderNotificationCard
                 var card = RenderNotificationCard(noti);
@@ -107,7 +113,7 @@ namespace Pingme.Views.Controls
             }
 
             //string avatarUrl = noti.Data.TryGetValue("fromAvatar", out var fromAvatar) ? fromAvatar : "/Assets/Icons/logo-app.jpg";
-            string avatarUrl = "/Assets/Icons/logo-app.jpg";
+            string avatarUrl = "pack://application:,,,/Assets/Icons/logo-app.jpg";
 
             switch (noti.Type)
             {
@@ -147,6 +153,18 @@ namespace Pingme.Views.Controls
                     message = "đã gửi một tin nhắn.";
                     messageColor = Brushes.ForestGreen;
                     break;
+                //case "group_invite":
+                //    message = "mời bạn tham gia nhóm.";
+                //    messageColor = Brushes.DarkOrchid;
+                //    break;
+                case "group_created":
+                    message = "bạn đã tạo một nhóm mới.";
+                    messageColor = Brushes.SteelBlue;
+                    break;
+                case "added_to_group":
+                    message = "đã thêm bạn vào một nhóm.";
+                    messageColor = Brushes.DarkSlateBlue;
+                    break;
             }
 
             var avatar = new Ellipse
@@ -156,7 +174,7 @@ namespace Pingme.Views.Controls
                 Margin = new Thickness(0, 0, 12, 0),
                 //Fill = new ImageBrush(new BitmapImage(new Uri(avatarUrl, UriKind.RelativeOrAbsolute)))
                 Fill = new ImageBrush(new BitmapImage(new Uri(
-                    string.IsNullOrWhiteSpace(avatarUrl) ? "../../Assets/Icons/logo-app.jpg" : avatarUrl,
+                    string.IsNullOrWhiteSpace(avatarUrl) ? "pack://application:,,,/Assets/Icons/logo-app.jpg" : avatarUrl,
                     UriKind.RelativeOrAbsolute)))
 
             };
@@ -228,6 +246,47 @@ namespace Pingme.Views.Controls
 
                         NotificationsPanel.Children.Clear();
                         LoadNotifications();
+                    }
+                    else if (
+                        (noti.Type == "added_to_group" || noti.Type == "group_created") &&
+                        noti.Data.TryGetValue("groupId", out var groupId))
+                    {
+                        var group = await _firebaseService.GetGroupByIdAsync(groupId);
+                        if (group != null)
+                        {
+                            var creator = await _firebaseService.GetUserByIdAsync(group.CreatedBy);
+                            int memberCount = group.Members?.Count ?? 0;
+                            int adminCount = group.Admin?.Count ?? 0;
+
+                            //var result = MessageBox.Show(
+                            //    $"🆔 Mã nhóm: {group.Id}\n" +
+                            //    $"👪 Tên nhóm: {group.Name}\n" +
+                            //    $"👤 Người tạo: {creator?.FullName ?? "Không rõ"}\n" +
+                            //    $"👑 Admin: {adminCount} người\n" +
+                            //    $"👥 Thành viên: {memberCount} người\n" +
+                            //    $"📅 Ngày tạo: {group.CreatedAt.ToLocalTime():dd/MM/yyyy HH:mm}\n\n" +
+                            //    $"👉 Bạn có muốn mở đoạn chat nhóm này không?",
+                            //    "Thông tin nhóm",
+                            //    MessageBoxButton.YesNo,
+                            //    MessageBoxImage.Information
+                            //);
+
+                            //if (result == MessageBoxResult.Yes)
+                            //{
+                            //    var mainWindow = Application.Current.MainWindow as MainWindow;
+                            //    mainWindow?.MainFrame.Navigate(new ChatPage(group.Id, true));
+                            //}
+
+                            var dialog = new GroupDetailDialog(group, creator);
+                            dialog.ShowDialog();
+
+                            return;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Không tìm thấy thông tin nhóm.");
+                            return;
+                        }
                     }
                     else if (noti.Data.TryGetValue("chatId", out var chatId))
                     {

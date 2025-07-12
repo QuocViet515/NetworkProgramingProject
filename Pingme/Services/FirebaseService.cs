@@ -135,6 +135,19 @@ namespace Pingme.Services
         //        // Đọc trường publicKey
         //        return user?.publicKey;
         //    }
+        public async Task DeleteFriendAsync(string user1, string user2)
+        {
+            var allFriends = await GetAllFriendsAsync();
+            var friend = allFriends.FirstOrDefault(f =>
+                (f.User1 == user1 && f.User2 == user2) ||
+                (f.User1 == user2 && f.User2 == user1));
+
+            if (friend != null)
+            {
+                await _client.Child("friends").Child(friend.Id).DeleteAsync();
+            }
+        }
+
         // ---------- CHAT ----------
         public Task AddChatAsync(Chat chat) =>
             _client.Child("chats").Child(chat.Id).PutAsync(chat);
@@ -147,7 +160,10 @@ namespace Pingme.Services
 
             return chats.Select(item => item.Object).ToList();
         }
-
+        public async Task DeleteChatAsync(string chatId)
+        {
+            await _client.Child("Chats").Child(chatId).DeleteAsync();
+        }
 
         // ---------- GROUP ----------
         public Task AddGroupAsync(ChatGroup group) =>
@@ -157,8 +173,46 @@ namespace Pingme.Services
             var result = await _client.Child("chatGroups").OnceAsync<ChatGroup>();
             return result.Select(x => x.Object).ToList();
         }
+        public async Task<ChatGroup> GetGroupByIdAsync(string groupId)
+        {
+            try
+            {
+                var result = await _client.Child("chatGroups").Child(groupId).OnceSingleAsync<ChatGroup>();
+                if (result != null)
+                {
+                    result.Id = groupId;
+                }
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         // ---------- MESSAGE ----------
+        public async Task<List<Message>> GetAllMessagesAsync()
+        {
+            var snapshot = await _client.Child("messages").OnceAsync<Message>();
+
+            var allMessages = new List<Message>();
+
+            foreach (var item in snapshot)
+            {
+                // Trường hợp message lưu dưới chatId → trong đó mỗi message có Id riêng
+                var chatId = item.Key;
+
+                var msgList = await _client.Child("messages").Child(chatId).OnceAsync<Message>();
+                allMessages.AddRange(msgList.Select(m =>
+                {
+                    m.Object.Id = m.Key;
+                    m.Object.ChatId = chatId;
+                    return m.Object;
+                }));
+            }
+
+            return allMessages;
+        }
         public Task AddMessageAsync(Message msg) =>
             _client.Child("messages").Child(msg.Id).PutAsync(msg);
         // ⚙️ Hàm sinh ID phòng chat cố định giữa 2 người dùng (order-independent)
@@ -177,14 +231,33 @@ namespace Pingme.Services
 
             return messages.Select(m => m.Object).ToList();
         }
+        public async Task DeleteMessagesByChatIdAsync(string chatId)
+        {
+            var allMessages = await GetAllMessagesAsync();
+            var toDelete = allMessages.Where(m => m.ChatId == chatId).ToList();
+
+            foreach (var msg in toDelete)
+            {
+                await _client.Child("Messages").Child(msg.Id).DeleteAsync();
+            }
+        }
 
         // ---------- FILE ----------
         public Task AddFileAsync(File file) =>
             _client.Child("files").Child(file.Id).PutAsync(file);
 
         // ---------- NOTIFICATION ----------
-        public Task AddNotificationAsync(Notification notification) =>
-            _client.Child("notifications").Child(notification.Id).PutAsync(notification);
+        //public Task AddNotificationAsync(Notification notification) =>
+        //    _client.Child("notifications").Child(notification.Id).PutAsync(notification);
+        public Task AddNotificationAsync(Notification notification)
+        {
+            if (notification.CreatedAt == default)
+            {
+                notification.CreatedAt = DateTime.UtcNow;
+            }
+
+            return _client.Child("notifications").Child(notification.Id).PutAsync(notification);
+        }
         public async Task<List<Notification>> GetNotificationsByUserAsync(string userId)
         {
             var all = await _client.Child("notifications").OnceAsync<Notification>();
@@ -195,7 +268,8 @@ namespace Pingme.Services
                     n.Object.Id = n.Key;
                     return n.Object;
                 })
-                .OrderByDescending(n => n.CreatedAt)
+                //.OrderByDescending(n => n.CreatedAt)
+                .OrderByDescending(n => n.CreatedAt != default ? n.CreatedAt : DateTime.MinValue)
                 .ToList();
         }
         public async Task DeleteNotificationAsync(string notificationId)

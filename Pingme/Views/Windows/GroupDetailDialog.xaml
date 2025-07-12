@@ -1,0 +1,72 @@
+﻿<Window x:Class="Pingme.Views.Windows.GroupDetailDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thông tin nhóm"
+        Height="540" Width="380"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Border Background="White" CornerRadius="16" Padding="20" Margin="0">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="3" Opacity="0.2"/>
+        </Border.Effect>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <!-- Avatar + Tên nhóm -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,15">
+                <Ellipse Width="100" Height="100" Margin="0,0,0,10">
+                    <Ellipse.Fill>
+                        <ImageBrush x:Name="GroupAvatarImage" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock x:Name="GroupNameText" FontSize="18" FontWeight="Bold" TextAlignment="Center"/>
+                <TextBlock x:Name="CreatedByText" FontSize="14" FontStyle="Italic" Foreground="Gray" TextAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Chi tiết nhóm -->
+            <StackPanel>
+                <Border Background="#FAFAFA" CornerRadius="6" Padding="8" Margin="0,4">
+                    <TextBlock x:Name="GroupIdText" FontSize="14"/>
+                </Border>
+                <Border Background="#FAFAFA" CornerRadius="6" Padding="8" Margin="0,4">
+                    <TextBlock x:Name="AdminCountText" FontSize="14"/>
+                </Border>
+                <Border Background="#FAFAFA" CornerRadius="6" Padding="8" Margin="0,4">
+                    <TextBlock x:Name="MemberCountText" FontSize="14"/>
+                </Border>
+                <Border Background="#FAFAFA" CornerRadius="6" Padding="8" Margin="0,4">
+                    <TextBlock x:Name="CreatedAtText" FontSize="14"/>
+                </Border>
+            </StackPanel>
+
+            <!-- Nút chuyển đến đoạn chat nhóm -->
+            <Button Content="Mở đoạn chat nhóm"
+                    Width="180"
+                    Padding="8,4"
+                    Margin="0,20,0,0"
+                    Background="#1976D2"
+                    Foreground="White"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    HorizontalAlignment="Center"
+                    Click="OpenChat_Click">
+                <Button.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                </Button.Effect>
+            </Button>
+
+            <!-- Nút Đóng -->
+            <Button Content="Đóng"
+                    Width="100"
+                    Padding="6"
+                    Margin="0,10,0,0"
+                    Background="LightGray"
+                    BorderBrush="Gray"
+                    Click="Close_Click"/>
+        </StackPanel>
+    </Border>
+</Window>

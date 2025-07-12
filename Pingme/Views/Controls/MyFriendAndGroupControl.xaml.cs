@@ -24,6 +24,10 @@ namespace Pingme.Views.Controls
             InitializeComponent();
             LoadData();
         }
+        public void ReloadFriendsAndGroups()
+        {
+            LoadData();
+        }
         private async void LoadData()
         {
             var currentUserId = SessionManager.UID;
@@ -133,68 +137,14 @@ namespace Pingme.Views.Controls
             dialog.ShowDialog();
         }
 
-        private async void AddGroup_Click(object sender, RoutedEventArgs e)
+        private void AddGroup_Click(object sender, RoutedEventArgs e)
         {
-            // Tạo và mở dialog để nhập tên nhóm và chọn bạn bè
             var dialog = new CreateGroupDialog();
             var result = dialog.ShowDialog();
             if (result == true)
             {
-                var groupId = Guid.NewGuid().ToString();
-                var selectedFriends = dialog.SelectedUserIds;
-
-                var group = new ChatGroup
-                {
-                    Id = groupId,
-                    Name = dialog.GroupName,
-                    AvatarUrl = dialog.AvatarUrl,
-                    CreatedBy = SessionManager.UID,
-                    Admin = new List<string> { SessionManager.UID },
-                    Members = new List<string>(selectedFriends) { SessionManager.UID },
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                await _firebase.AddGroupAsync(group);
-
-                // Gửi thông báo đến người tạo
-                await _firebase.AddNotificationAsync(new Notification
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ReceiverId = SessionManager.UID,
-                    Type = "group_created",
-                    Data = new Dictionary<string, string>
-            {
-                { "groupId", group.Id },
-                { "groupName", group.Name },
-                { "groupAvatar", group.AvatarUrl }
-            },
-                    IsRead = false,
-                    CreatedAt = DateTime.UtcNow
-                });
-
-                // Gửi thông báo mời vào nhóm cho các thành viên
-                foreach (var uid in selectedFriends)
-                {
-                    await _firebase.AddNotificationAsync(new Notification
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ReceiverId = uid,
-                        Type = "added_to_group",
-                        Data = new Dictionary<string, string>
-                {
-                    { "groupId", group.Id },
-                    { "groupName", group.Name },
-                    { "groupAvatar", group.AvatarUrl },
-                    { "inviter", SessionManager.CurrentUser?.FullName ?? "Người dùng" }
-                },
-                        IsRead = false,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-
                 MessageBox.Show("Đã tạo nhóm thành công.", "Thông báo");
-                LoadData();
+                LoadData(); // Refresh danh sách nhóm/bạn bè
             }
         }
 

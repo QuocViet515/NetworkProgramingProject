@@ -475,11 +475,17 @@
     <Compile Include="Views\Windows\FriendRequestDetailDialog.xaml.cs">
       <DependentUpon>FriendRequestDetailDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\GroupDetailDialog.xaml.cs">
+      <DependentUpon>GroupDetailDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\IncomingCallWindow.xaml.cs">
       <DependentUpon>IncomingCallWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\incomingvideocall.xaml.cs">
       <DependentUpon>incomingvideocall.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\UserDetailDialog.xaml.cs">
+      <DependentUpon>UserDetailDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\videoCallWindows.xaml.cs">
       <DependentUpon>videoCallWindows.xaml</DependentUpon>
@@ -667,11 +673,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\GroupDetailDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\IncomingCallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\incomingvideocall.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\UserDetailDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

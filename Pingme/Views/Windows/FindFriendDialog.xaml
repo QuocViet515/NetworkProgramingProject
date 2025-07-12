@@ -1,81 +1,83 @@
 ﻿<Window x:Class="Pingme.Views.Dialogs.FindFriendDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Tìm bạn"
-        Width="500" Height="550"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Background="#F5F5F5"
-        AllowsTransparency="True"
-        WindowStyle="None">
+        Title="Tìm bạn" Height="600" Width="500"
+        Background="Transparent" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True">
+    <Border CornerRadius="10" Background="#F0F0F0" BorderThickness="1" BorderBrush="#CCC">
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-    <Window.Resources>
-        <!-- Scrollbar nhỏ -->
-        <Style TargetType="{x:Type ScrollBar}">
-            <Setter Property="Width" Value="4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <Track Name="PART_Track">
-                            <Track.Thumb>
-                                <Thumb Background="DarkGray"/>
-                            </Track.Thumb>
-                        </Track>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <!-- Title bar -->
+            <DockPanel Grid.Row="0" Margin="0 0 0 10">
+                <TextBlock FontSize="16" FontWeight="Bold"
+                           Text="🔍 Tìm bạn (tên, username, email, sđt):"
+                           VerticalAlignment="Center" />
+                <Button Content="✖" Width="30" Height="30" HorizontalAlignment="Right"
+                        VerticalAlignment="Top" Click="CloseButton_Click"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="Black" FontSize="14"
+                        Cursor="Hand" Margin="10,0,0,0"/>
+            </DockPanel>
 
-        <!-- Đổ bóng -->
-        <DropShadowEffect x:Key="DropShadow"
-                          Color="#888"
-                          BlurRadius="15"
-                          ShadowDepth="4"
-                          Direction="270"
-                          Opacity="0.4"/>
-    </Window.Resources>
-
-    <Border Background="White" CornerRadius="12" Padding="15"
-            BorderBrush="#DDD" BorderThickness="1"
-            Effect="{StaticResource DropShadow}">
-        <DockPanel>
-
-            <!-- Nút thoát -->
-            <Button Content="❌"
-                    Width="26" Height="26"
-                    FontSize="14"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    Click="Close_Click"
-                    DockPanel.Dock="Top"/>
-
-            <!-- Ô tìm kiếm -->
-            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
-                <TextBlock Text="🔍 Tìm bạn (tên, username, email, sđt):"
-                           FontWeight="Bold" Margin="0,0,0,5"/>
+            <!-- Search Box -->
+            <Border Grid.Row="1" CornerRadius="8" Background="White"
+                    Margin="0 0 0 10" Padding="5"
+                    >
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" />
+                </Border.Effect>
                 <DockPanel>
                     <TextBox x:Name="SearchBox"
-                             Height="30" Width="400"
-                             TextChanged="SearchBox_TextChanged"/>
-                    <Button x:Name="SearchBtn"
-                            Content="🔍"
-                            Width="40" Height="30"
-                            Margin="5,0,0,0"
-                            Click="Search_Click"/>
+                             FontSize="14"
+                             Width="400"
+                             BorderThickness="0"
+                             TextChanged="SearchBox_TextChanged"
+                             Background="Transparent"
+                             VerticalContentAlignment="Center"
+                             Margin="10,0,0,0"/>
+                    <Button Width="32" Height="32"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="Tìm"
+                            Click="SearchButton_Click">
+                        <TextBlock FontSize="16" Text="🔍"
+                                   Margin="0,0,10,0"/>
+                    </Button>
                 </DockPanel>
-                <TextBlock x:Name="StatusText"
-                           Foreground="Gray"
-                           FontStyle="Italic"
-                           Margin="5,5,0,0"/>
-            </StackPanel>
+            </Border>
 
-            <!-- Danh sách kết quả -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="ResultPanel" />
-            </ScrollViewer>
-        </DockPanel>
+            <!-- Results -->
+            <Border Grid.Row="2" CornerRadius="8" Background="White"
+                    >
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock x:Name="LoadingText"
+                               Text="Đang tải dữ liệu..."
+                               Foreground="Gray"
+                               FontStyle="Italic"
+                               Margin="10,5"
+                               Visibility="Collapsed"/>
+
+                    <TextBlock x:Name="ResultCountText"
+                               FontWeight="Bold"
+                               Margin="10,0,0,10"/>
+
+                    <ScrollViewer Height="420"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="4"
+                                  Margin="0 0 0 4">
+                        <StackPanel x:Name="ResultsPanel"/>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Border>
 </Window>
