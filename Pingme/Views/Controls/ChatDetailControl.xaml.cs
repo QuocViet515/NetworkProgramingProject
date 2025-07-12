@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using Firebase.Database;
 using System.Threading.Tasks;
 using Firebase.Database.Query;
-using Pingme.Services;
 using Microsoft.Win32;
 using System.IO;
 using System.Collections.Generic;
@@ -68,7 +67,9 @@ namespace Pingme.Views.Controls
         private async Task LoadMessagesAsync()
         {
 
-            var messages = await firebase.Child("messages").OnceAsync<Message>();
+            //var messages = await firebase.Child("messages").OnceAsync<Message>();
+            string msgPath = isGroup ? $"messages/group_{currentChatId}" : $"messages/chat_{currentChatId}";
+            var messages = await firebase.Child(msgPath).OnceAsync<Message>();
             //var messages = await firebase
             //    .Child("messages")
             //    .Child(currentChatId)
@@ -82,6 +83,29 @@ namespace Pingme.Views.Controls
             //foreach (var item in messages)
             foreach (var msg in sortedMessages)
             {
+                if (msg.Type == "call_log")
+                {
+                    string callTypeText = msg.CallType?.ToUpper() == "VIDEO" ? "📹 Cuộc gọi VIDEO" : "📞 Cuộc gọi AUDIO";
+                    string startTime = msg.SentAt.ToLocalTime().ToString("HH:mm:ss");
+                    string endTime = msg.CallEndedAt?.ToLocalTime().ToString("HH:mm:ss") ?? "Không rõ";
+
+                    string durationText = msg.CallDuration.HasValue
+                        ? $" (kéo dài {msg.CallDuration.Value / 60} phút {msg.CallDuration.Value % 60} giây)"
+                        : "";
+
+                    var label = new TextBlock
+                    {
+                        Text = $"{callTypeText} bắt đầu lúc {startTime} và kết thúc lúc {endTime}{durationText}",
+                        Foreground = Brushes.Gray,
+                        FontStyle = FontStyles.Italic,
+                        Margin = new Thickness(10, 5, 10, 5),
+                        TextWrapping = TextWrapping.Wrap,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+
+                    ChatPanel.Children.Add(label);
+                    continue; // ⛔ bỏ qua xử lý tiếp theo vì đã hiển thị rồi
+                }
                 //var msg = item.Object;
 
                 //if (msg.ChatId != currentChatId) continue;
@@ -118,27 +142,59 @@ namespace Pingme.Views.Controls
                 }
                 else
                 {
-                    string decryptedText = "[Không thể giải mã]";
-                    if (msg.SessionKeyEncrypted != null &&
-                        msg.SessionKeyEncrypted.TryGetValue(SessionManager.UID, out string encryptedKey))
+                    //string decryptedText = "[Không thể giải mã]";
+                    //if (msg.SessionKeyEncrypted != null &&
+                    //    msg.SessionKeyEncrypted.TryGetValue(SessionManager.UID, out string encryptedKey))
+                    //{
+                    //    string aesKey = _rsaService.Decrypt(encryptedKey, SessionManager.UID);
+                    //    if (!string.IsNullOrEmpty(aesKey))
+                    //    {
+                    //        //var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash);
+                    //        var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
+                    //        decryptedText = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
+                    //        msg.Content = decryptedText;
+                    //        msg.Plaintext = decryptedText;
+                    //        msg.FromSelf = msg.SenderId == SessionManager.UID;
+                    //        msg.SenderName = msg.FromSelf ? "Bạn" : await GetUserNameById(msg.SenderId);
+                    //    }
+                    //}
+
+                    //if (msg.SenderId == SessionManager.UID)
+                    //    ChatPanel.Children.Add(new OutgoingMessageControl(decryptedText));
+                    //else
+                    //    ChatPanel.Children.Add(new IncomingMessageControl(decryptedText));
+
+                    string content = isGroup
+                        ? msg.RawText
+                        : "[Không thể giải mã]";
+
+
+                    Console.WriteLine($"[DEBUG] Bạn đang thay: \"{content}\"");
+
+                    if (!isGroup)
                     {
-                        string aesKey = _rsaService.Decrypt(encryptedKey, SessionManager.UID);
-                        if (!string.IsNullOrEmpty(aesKey))
+                        string decryptedText = "[Không thể giải mã]";
+                        if (msg.SessionKeyEncrypted != null &&
+                            msg.SessionKeyEncrypted.TryGetValue(SessionManager.UID, out string encryptedKey))
                         {
-                            //var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.Hash);
-                            var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
-                            decryptedText = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
-                            msg.Content = decryptedText;
-                            msg.Plaintext = decryptedText;
-                            msg.FromSelf = msg.SenderId == SessionManager.UID;
-                            msg.SenderName = msg.FromSelf ? "Bạn" : await GetUserNameById(msg.SenderId);
+                            string aesKey = _rsaService.Decrypt(encryptedKey, SessionManager.UID);
+                            if (!string.IsNullOrEmpty(aesKey))
+                            {
+                                var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
+                                decryptedText = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
+                                content = decryptedText;
+                            }
                         }
+                    }
+                    else
+                    {
+
                     }
 
                     if (msg.SenderId == SessionManager.UID)
-                        ChatPanel.Children.Add(new OutgoingMessageControl(decryptedText));
+                        ChatPanel.Children.Add(new OutgoingMessageControl(content));
                     else
-                        ChatPanel.Children.Add(new IncomingMessageControl(decryptedText));
+                        ChatPanel.Children.Add(new IncomingMessageControl(content));
                 }
 
                 await Task.Delay(100);
@@ -149,6 +205,8 @@ namespace Pingme.Views.Controls
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
             var plainText = MessageInput.Text.Trim();
+
+            Console.WriteLine($"[DEBUG] Bạn đang gửi: \"{plainText}\"");
 
             if (string.IsNullOrEmpty(plainText)) return;
 
@@ -173,6 +231,55 @@ namespace Pingme.Views.Controls
             if (!isGroup && string.IsNullOrEmpty(receiverId))
             {
                 MessageBox.Show("⚠️ Không tìm thấy người nhận.");
+                return;
+            }
+            if (isGroup)
+            {
+                var groupMsg = new Message
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ChatId = currentChatId,
+                    SenderId = SessionManager.UID,
+                    ReceiverId = null,
+                    IsGroup = true,
+                    Type = "text",
+                    RawText = plainText,
+                    SentAt = DateTime.UtcNow
+                };
+
+                //await firebase.Child("messages").Child(groupMsg.Id).PutAsync(groupMsg);
+                string groupMsgPath = $"messages/group_{currentChatId}";
+                await firebase.Child(groupMsgPath).Child(groupMsg.Id).PutAsync(groupMsg);
+
+                var groupRef = firebase.Child("chatGroups").Child(currentChatId);
+                var rawGroup = await groupRef.OnceSingleAsync<object>();
+                if (rawGroup == null)
+                {
+                    var newGroup = new ChatGroup
+                    {
+                        Id = currentChatId,
+                        LastMessageId = groupMsg.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        Members = new List<string> { groupMsg.SenderId },
+                        Admin = new List<string> { groupMsg.SenderId },
+                        Name = "Nhóm mới",
+                        AvatarUrl = ""
+                    };
+                    await groupRef.PutAsync(newGroup);
+                }
+                else
+                {
+                    await groupRef.PatchAsync(new
+                    {
+                        LastMessageId = groupMsg.Id,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+
+                ChatPanel.Children.Add(new OutgoingMessageControl(plainText));
+                MessageInput.Text = "";
+                ScrollToBottom();
                 return;
             }
 
@@ -208,7 +315,12 @@ namespace Pingme.Views.Controls
                 }
 
                 // Tải public key của domain (CA)
-                string domainPubKeyPath = "C:\\Apache24\\conf\\ssl\\ec-public-key.pem";
+                //string domainPubKeyPath = "C:\\Apache24\\conf\\ssl\\ec-public-key.pem";
+
+                //string domainPubKeyPath = @"..\..\..\..\ssl\ec-public-key.pem";
+                //string domainPem = System.IO.File.ReadAllText(domainPubKeyPath);
+
+                string domainPubKeyPath = PemPathResolver.GetSslPath("ec-public-key.pem");
                 string domainPem = System.IO.File.ReadAllText(domainPubKeyPath);
 
                 // Xác minh chữ ký ECDSA
@@ -247,7 +359,119 @@ namespace Pingme.Views.Controls
             };
 
 
-            await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+            //await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+            string msgPath = isGroup ? $"messages/group_{currentChatId}" : $"messages/chat_{currentChatId}";
+            await firebase.Child(msgPath).Child(msg.Id).PutAsync(msg);
+
+            if (!isGroup)
+            {
+                var chatRef = firebase.Child("chats").Child(currentChatId);
+                //var existingChat = await chatRef.OnceSingleAsync<Chat>();
+
+                //if (existingChat == null)
+                //{
+                //    // Chat chưa tồn tại, khởi tạo mới
+                //    var newChat = new Chat
+                //    {
+                //        Id = currentChatId,
+                //        User1 = msg.SenderId,
+                //        User2 = receiverId,
+                //        LastMessageId = msg.Id,
+                //        CreatedAt = DateTime.UtcNow,
+                //        UpdatedAt = DateTime.UtcNow
+                //    };
+
+                //    await chatRef.PutAsync(newChat);
+                //}
+                //else
+                //{
+                //    // Chat đã có, chỉ cập nhật
+                //    await chatRef.Child("LastMessageId").PutAsync(msg.Id);
+                //    await chatRef.Child("UpdatedAt").PutAsync(DateTime.UtcNow);
+                //}
+                var raw = await chatRef.OnceSingleAsync<object>();
+
+                if (raw == null)
+                {
+                    var newChat = new Chat
+                    {
+                        Id = currentChatId,
+                        User1 = msg.SenderId,
+                        User2 = receiverId,
+                        LastMessageId = msg.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    await chatRef.PutAsync(newChat);
+                }
+                else
+                {
+                    //await chatRef.Child("LastMessageId").PutAsync(msg.Id);
+                    //await chatRef.Child("UpdatedAt").PutAsync(DateTime.UtcNow);
+                    await chatRef.PatchAsync(new
+                    {
+                        LastMessageId = msg.Id,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+            else
+            {
+                var groupRef = firebase.Child("chatGroups").Child(currentChatId);
+                //var existingGroup = await groupRef.OnceSingleAsync<ChatGroup>();
+
+                //if (existingGroup == null)
+                //{
+                //    // Phòng nhóm chưa tồn tại (hiếm gặp)
+                //    var newGroup = new ChatGroup
+                //    {
+                //        Id = currentChatId,
+                //        LastMessageId = msg.Id,
+                //        CreatedAt = DateTime.UtcNow,
+                //        UpdatedAt = DateTime.UtcNow,
+                //        Members = new List<string> { msg.SenderId },
+                //        Admin = new List<string> { msg.SenderId },
+                //        Name = "Nhóm mới", // hoặc để trống nếu không có
+                //        AvatarUrl = ""
+                //    };
+
+                //    await groupRef.PutAsync(newGroup);
+                //}
+                //else
+                //{
+                //    // Cập nhật bình thường
+                //    await groupRef.Child("LastMessageId").PutAsync(msg.Id);
+                //    await groupRef.Child("UpdatedAt").PutAsync(DateTime.UtcNow);
+                //}
+                var rawGroup = await groupRef.OnceSingleAsync<object>();
+
+                if (rawGroup == null)
+                {
+                    var newGroup = new ChatGroup
+                    {
+                        Id = currentChatId,
+                        LastMessageId = msg.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        Members = new List<string> { msg.SenderId },
+                        Admin = new List<string> { msg.SenderId },
+                        Name = "Nhóm mới", // hoặc để trống nếu không có
+                        AvatarUrl = ""
+                    };
+
+                    await groupRef.PutAsync(newGroup);
+                }
+                else
+                {
+                    await groupRef.PatchAsync(new
+                    {
+                        LastMessageId = msg.Id,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
             ChatPanel.Children.Add(new OutgoingMessageControl(plainText));
             MessageInput.Text = "";
             ScrollToBottom();
@@ -267,8 +491,65 @@ namespace Pingme.Views.Controls
 
                 if (isGroup)
                 {
-                    MessageBox.Show("❗ Chưa hỗ trợ gửi file trong nhóm.");
-                    return;
+                    //MessageBox.Show("❗ Chưa hỗ trợ gửi file trong nhóm.");
+                    //return;
+                    try
+                    {
+                        // Upload file KHÔNG mã hóa
+                        var fileService = new FirebaseFileService();
+                        var fileId = await fileService.UploadPlainFileAsync(filePath, currentChatId, senderId);
+
+                        var msg = new Message
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            ChatId = currentChatId,
+                            SenderId = senderId,
+                            ReceiverId = null,
+                            IsGroup = true,
+                            Type = "file",
+                            FileId = fileId,
+                            FileName = fileName,
+                            SentAt = DateTime.UtcNow
+                        };
+
+                        //await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+                        string msgPath = $"messages/group_{currentChatId}";
+                        await firebase.Child(msgPath).Child(msg.Id).PutAsync(msg);
+
+                        // Hiển thị luôn
+                        var button = new Button
+                        {
+                            Content = $"📥 Tải xuống: {fileName}",
+                            Tag = fileId,
+                            Margin = new Thickness(5),
+                            Padding = new Thickness(10)
+                        };
+                        button.Click += async (s, args) =>
+                        {
+                            var dialog = new SaveFileDialog { FileName = fileName };
+                            if (dialog.ShowDialog() == true)
+                            {
+                                try
+                                {
+                                    // Tải file thô, không giải mã
+                                    await new FirebaseFileService().DownloadPlainFileAsync(fileId, dialog.FileName);
+                                    MessageBox.Show("✅ Tải thành công!");
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("❌ Lỗi tải: " + ex.Message);
+                                }
+                            }
+                        };
+                        ChatPanel.Children.Add(button);
+                        ScrollToBottom();
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("❌ Gửi file nhóm thất bại: " + ex.Message);
+                        return;
+                    }
                 }
 
                 var chat = await firebase.Child("chats").Child(currentChatId).OnceSingleAsync<Chat>();
@@ -288,38 +569,71 @@ namespace Pingme.Views.Controls
                     var fileService = new FirebaseFileService();
                     //await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId);
                     MessageBox.Show($"✅ File \"{fileName}\" đã gửi thành công!");
-                    var fileId = await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId);                    // hoặc bạn lấy ID thực từ FirebaseStorage nếu có
-                    var msg = new Message
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ChatId = currentChatId,
-                        SenderId = senderId,
-                        ReceiverId = receiverId,
-                        IsGroup = isGroup,
-                        Type = "file",
-                        FileId = fileId,
-                        FileName = fileName,
-                        SentAt = DateTime.UtcNow
-                    };
-                    await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+
+                    //var fileId = await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId, currentChatId);                    // hoặc bạn lấy ID thực từ FirebaseStorage nếu có
+                    //var msg = new Message
+                    //{
+                    //    Id = Guid.NewGuid().ToString(),
+                    //    ChatId = currentChatId,
+                    //    SenderId = senderId,
+                    //    ReceiverId = receiverId,
+                    //    IsGroup = isGroup,
+                    //    Type = "file",
+                    //    FileId = fileId,
+                    //    FileName = fileName,
+                    //    SentAt = DateTime.UtcNow
+                    //};
+
+                    ////await firebase.Child("messages").Child(msg.Id).PutAsync(msg);
+                    //string msgPath = $"messages/chat_{currentChatId}";
+                    //await firebase.Child(msgPath).Child(msg.Id).PutAsync(msg);
+
+                    Message sentMsg = await fileService.UploadEncryptedFileAsync(filePath, receiverPublicKeyXml, senderId, receiverId, currentChatId);
 
                     // Hiển thị luôn file trong giao diện
+                    //var button = new Button
+                    //{
+                    //    Content = $"📥 Tải xuống: {fileName}",
+                    //    Tag = fileId,
+                    //    Margin = new Thickness(5),
+                    //    Padding = new Thickness(10)
+                    //};
+                    //button.Click += async (s, args) =>
+                    //{
+                    //    var dialog = new SaveFileDialog { FileName = fileName };
+                    //    if (dialog.ShowDialog() == true)
+                    //    {
+                    //        try
+                    //        {
+                    //            string privateKeyPath = KeyManager.GetPrivateKeyPath(senderId);
+                    //            await new FirebaseFileService().DownloadAndDecryptFileAsync(fileId, privateKeyPath, dialog.FileName);
+                    //            MessageBox.Show("✅ Tải và giải mã thành công!");
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            MessageBox.Show("❌ Lỗi: " + ex.Message);
+                    //        }
+                    //    }
+                    //};
+                    //ChatPanel.Children.Add(button);
+                    //ScrollToBottom();
+
                     var button = new Button
                     {
-                        Content = $"📥 Tải xuống: {fileName}",
-                        Tag = fileId,
+                        Content = $"📥 Tải xuống: {sentMsg.FileName}",
+                        Tag = sentMsg.FileId,
                         Margin = new Thickness(5),
                         Padding = new Thickness(10)
                     };
                     button.Click += async (s, args) =>
                     {
-                        var dialog = new SaveFileDialog { FileName = fileName };
+                        var dialog = new SaveFileDialog { FileName = sentMsg.FileName };
                         if (dialog.ShowDialog() == true)
                         {
                             try
                             {
                                 string privateKeyPath = KeyManager.GetPrivateKeyPath(senderId);
-                                await new FirebaseFileService().DownloadAndDecryptFileAsync(fileId, privateKeyPath, dialog.FileName);
+                                await new FirebaseFileService().DownloadAndDecryptFileAsync(sentMsg.FileId, privateKeyPath, dialog.FileName);
                                 MessageBox.Show("✅ Tải và giải mã thành công!");
                             }
                             catch (Exception ex)

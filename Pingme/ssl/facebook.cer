@@ -1,0 +1,99 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            98:44:ca:40:64:a1:81:83:07:43:12:c2:85:c7:31:98
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C=AT, O=ZeroSSL, CN=ZeroSSL ECC Domain Secure Site CA
+        Validity
+            Not Before: May 14 00:00:00 2025 GMT
+            Not After : Aug 12 23:59:59 2025 GMT
+        Subject: CN=23521703-lab5-p21.wuaze.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:ec:c6:0d:da:38:38:fc:8b:ce:55:e2:40:65:f0:
+                    c3:ff:c7:63:66:d2:da:5e:1f:62:28:86:b7:93:00:
+                    4b:7b:67:70:e9:9f:62:2b:97:c9:cc:62:f2:c2:f3:
+                    cd:c8:ea:91:1d:e2:71:e4:27:92:09:ef:ff:99:2d:
+                    c5:8b:b3:63:7e
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                0F:6B:E6:4B:CE:39:47:AE:F6:7E:90:1E:79:F0:30:91:92:C8:5F:A3
+            X509v3 Subject Key Identifier: 
+                4A:11:D7:7A:F7:7A:70:BC:42:8E:18:9A:17:16:CF:CA:F2:8E:5A:4C
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.6449.1.2.2.78
+                  CPS: https://sectigo.com/CPS
+                Policy: 2.23.140.1.2.1
+            Authority Information Access: 
+                CA Issuers - URI:http://zerossl.crt.sectigo.com/ZeroSSLECCDomainSecureSiteCA.crt
+                OCSP - URI:http://zerossl.ocsp.sectigo.com
+            CT Precertificate SCTs: 
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : DD:DC:CA:34:95:D7:E1:16:05:E7:95:32:FA:C7:9F:F8:
+                                3D:1C:50:DF:DB:00:3A:14:12:76:0A:2C:AC:BB:C8:2A
+                    Timestamp : May 14 08:47:42.445 2025 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:44:02:20:45:64:09:C9:51:E1:41:77:3D:3A:4B:EA:
+                                EB:41:DE:6F:12:6A:86:B4:72:16:22:E5:A2:2A:12:64:
+                                45:2C:0E:A0:02:20:27:3F:17:34:03:82:91:38:30:A7:
+                                15:AF:EB:98:D7:BA:1B:60:6A:9D:C4:C1:B3:D4:06:44:
+                                77:CE:19:5F:51:13
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : 0D:E1:F2:30:2B:D3:0D:C1:40:62:12:09:EA:55:2E:FC:
+                                47:74:7C:B1:D7:E9:30:EF:0E:42:1E:B4:7E:4E:AA:34
+                    Timestamp : May 14 08:47:42.386 2025 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:46:02:21:00:BE:9A:38:86:1A:94:79:E4:7C:91:CA:
+                                9E:8D:FC:07:13:DC:7D:25:43:95:25:C8:CE:86:23:3B:
+                                21:03:B9:19:8F:02:21:00:AF:28:3A:14:2A:1E:E4:AC:
+                                46:FF:D6:15:04:5B:33:B2:65:44:9E:E7:22:7D:77:2C:
+                                C7:4E:49:FA:35:D6:FF:BC
+            X509v3 Subject Alternative Name: 
+                DNS:23521703-lab5-p21.wuaze.com
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:66:02:31:00:ca:84:7d:f8:29:69:fa:0d:45:aa:d8:1e:12:
+        d7:70:cd:2e:2f:b3:59:21:0c:5d:8f:6a:18:49:31:09:f4:ec:
+        45:76:d9:fa:a9:e2:f9:e4:c6:ea:72:42:5e:6a:71:b5:14:02:
+        31:00:e1:56:66:31:e4:53:08:b6:45:9f:d0:65:08:82:cd:79:
+        c9:f6:e6:18:ff:2e:a0:1d:4d:38:c3:d6:9e:46:0a:33:2a:8b:
+        ee:0a:35:65:9c:13:99:f3:bb:1f:f1:ad:0b:33
+-----BEGIN CERTIFICATE-----
+MIIEGjCCA5+gAwIBAgIRAJhEykBkoYGDB0MSwoXHMZgwCgYIKoZIzj0EAwMwSzEL
+MAkGA1UEBhMCQVQxEDAOBgNVBAoTB1plcm9TU0wxKjAoBgNVBAMTIVplcm9TU0wg
+RUNDIERvbWFpbiBTZWN1cmUgU2l0ZSBDQTAeFw0yNTA1MTQwMDAwMDBaFw0yNTA4
+MTIyMzU5NTlaMCYxJDAiBgNVBAMTGzIzNTIxNzAzLWxhYjUtcDIxLnd1YXplLmNv
+bTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOzGDdo4OPyLzlXiQGXww//HY2bS
+2l4fYiiGt5MAS3tncOmfYiuXycxi8sLzzcjqkR3iceQnkgnv/5ktxYuzY36jggKH
+MIICgzAfBgNVHSMEGDAWgBQPa+ZLzjlHrvZ+kB558DCRkshfozAdBgNVHQ4EFgQU
+ShHXevd6cLxCjhiaFxbPyvKOWkwwDgYDVR0PAQH/BAQDAgeAMAwGA1UdEwEB/wQC
+MAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMEkGA1UdIARCMEAwNAYL
+KwYBBAGyMQECAk4wJTAjBggrBgEFBQcCARYXaHR0cHM6Ly9zZWN0aWdvLmNvbS9D
+UFMwCAYGZ4EMAQIBMIGIBggrBgEFBQcBAQR8MHowSwYIKwYBBQUHMAKGP2h0dHA6
+Ly96ZXJvc3NsLmNydC5zZWN0aWdvLmNvbS9aZXJvU1NMRUNDRG9tYWluU2VjdXJl
+U2l0ZUNBLmNydDArBggrBgEFBQcwAYYfaHR0cDovL3plcm9zc2wub2NzcC5zZWN0
+aWdvLmNvbTCCAQQGCisGAQQB1nkCBAIEgfUEgfIA8AB1AN3cyjSV1+EWBeeVMvrH
+n/g9HFDf2wA6FBJ2Ciysu8gqAAABls36aW0AAAQDAEYwRAIgRWQJyVHhQXc9Okvq
+60HebxJqhrRyFiLloioSZEUsDqACICc/FzQDgpE4MKcVr+uY17obYGqdxMGz1AZE
+d84ZX1ETAHcADeHyMCvTDcFAYhIJ6lUu/Ed0fLHX6TDvDkIetH5OqjQAAAGWzfpp
+MgAABAMASDBGAiEAvpo4hhqUeeR8kcqejfwHE9x9JUOVJcjOhiM7IQO5GY8CIQCv
+KDoUKh7krEb/1hUEWzOyZUSe5yJ9dyzHTkn6Ndb/vDAmBgNVHREEHzAdghsyMzUy
+MTcwMy1sYWI1LXAyMS53dWF6ZS5jb20wCgYIKoZIzj0EAwMDaQAwZgIxAMqEffgp
+afoNRarYHhLXcM0uL7NZIQxdj2oYSTEJ9OxFdtn6qeL55MbqckJeanG1FAIxAOFW
+ZjHkUwi2RZ/QZQiCzXnJ9uYY/y6gHU04w9aeRgozKovuCjVlnBOZ87sf8a0LMw==
+-----END CERTIFICATE-----

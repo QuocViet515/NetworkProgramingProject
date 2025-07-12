@@ -190,7 +190,12 @@ namespace Pingme.Views.Pages
                 {
                     try
                     {
-                        var signer = new IdentifyPublicKeyService("C:\\Apache24\\conf\\ssl\\ec-private-key.pem", employeeList);
+                        //var signer = new IdentifyPublicKeyService("C:\\Apache24\\conf\\ssl\\ec-private-key.pem", employeeList);
+                        //var signer = new IdentifyPublicKeyService(@"..\..\..\..\ssl\ec-private-key.pem", employeeList);
+                        string privateKeyPath = PemPathResolver.GetSslPath("ec-private-key.pem");
+                        Console.WriteLine("🔍 Private key path: " + privateKeyPath);
+                        var signer = new IdentifyPublicKeyService(privateKeyPath, employeeList);
+
                         var signResult = signer.SignPublicKey(SessionManager.UID, user.PublicKey);
 
                         if (signResult.Success)

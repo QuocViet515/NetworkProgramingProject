@@ -1,0 +1,8 @@
+Connecting to 185.27.134.154
+depth=2 C=US, ST=New Jersey, L=Jersey City, O=The USERTRUST Network, CN=USERTrust ECC Certification Authority
+verify error:num=20:unable to get local issuer certificate
+verify return:1
+depth=1 C=AT, O=ZeroSSL, CN=ZeroSSL ECC Domain Secure Site CA
+verify return:1
+depth=0 CN=kesug.com
+verify return:1

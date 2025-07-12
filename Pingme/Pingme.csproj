@@ -305,6 +305,7 @@
     <Compile Include="Helpers\FirebaseAuthResponse.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Helpers\KeyManager.cs" />
+    <Compile Include="Helpers\PemPathResolver.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\SessionManager.cs" />
     <Compile Include="Helpers\SoundIndexConverter.cs" />
@@ -715,6 +716,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="ssl\resul.txt" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -785,6 +787,13 @@
     <None Include="protos\google\type\quaternion.proto" />
     <None Include="protos\google\type\timeofday.proto" />
     <None Include="service-account.json" />
+    <None Include="ssl\ca_bundle.crt" />
+    <None Include="ssl\cert" />
+    <None Include="ssl\certificate.crt" />
+    <None Include="ssl\ec-private-key.pem" />
+    <None Include="ssl\ec-public-key.pem" />
+    <None Include="ssl\ec-temp.csr" />
+    <None Include="ssl\facebook.cer" />
     <Resource Include="fonts\fontawesome-webfont.ttf" />
     <None Include="fonts\fontawesome-webfont.woff" />
     <None Include="fonts\fontawesome-webfont.woff2" />

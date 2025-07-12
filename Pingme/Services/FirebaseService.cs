@@ -213,8 +213,12 @@ namespace Pingme.Services
 
             return allMessages;
         }
-        public Task AddMessageAsync(Message msg) =>
-            _client.Child("messages").Child(msg.Id).PutAsync(msg);
+        public Task AddMessageAsync(Message msg)
+        {
+            string path = msg.IsGroup ? $"group_{msg.ChatId}" : $"chat_{msg.ChatId}";
+            return _client.Child("messages").Child(path).Child(msg.Id).PutAsync(msg);
+        }
+
         // ⚙️ Hàm sinh ID phòng chat cố định giữa 2 người dùng (order-independent)
         public static string GetChatRoomId(string userId1, string userId2)
         {
@@ -337,6 +341,45 @@ namespace Pingme.Services
                 }
             }
         }
+
+        public async Task LogCallMessageAsync(string fromUserId, string toUserId, string callType, int durationSeconds, DateTime startTime, string chatId, bool isGroup)
+        {
+            string msgPath = isGroup ? $"messages/group_{chatId}" : $"messages/chat_{chatId}";
+
+            var message = new Message
+            {
+                Id = Guid.NewGuid().ToString(),
+                ChatId = chatId,
+                SenderId = fromUserId,
+                ReceiverId = isGroup ? null : toUserId,
+                IsGroup = isGroup,
+                Type = "call_log",
+                CallType = callType,
+                CallDuration = durationSeconds,
+                SentAt = startTime,
+                CallEndedAt = DateTime.UtcNow
+            };
+
+            await _client.Child(msgPath).Child(message.Id).PutAsync(message);
+
+            if (!isGroup)
+            {
+                await _client.Child("chats").Child(chatId).PatchAsync(new
+                {
+                    LastMessageId = message.Id,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                await _client.Child("chatGroups").Child(chatId).PatchAsync(new
+                {
+                    LastMessageId = message.Id,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
         public async Task SendEncryptedMessageAsync(string roomId, Message message)
         {
             await _client

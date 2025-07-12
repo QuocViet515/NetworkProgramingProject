@@ -58,6 +58,6 @@ namespace Pingme.Models
         public string CallType { get; set; } // "audio" hoặc "video"
         public int? CallDuration { get; set; } // Tổng số giây (nullable)
         public DateTime? CallEndedAt { get; set; } // Thời gian kết thúc cuộc gọi (nullable)
-
+        public string RawText { get; set; } // plaintext chỉ dùng cho nhóm
     }
 }

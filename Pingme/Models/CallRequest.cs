@@ -21,6 +21,4 @@ namespace Pingme.Models
         public string Type { get; set; }
         public string PushId { get; set; }
     }
-
-
 }

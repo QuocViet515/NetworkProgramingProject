@@ -48,9 +48,24 @@ namespace Pingme.Views.Controls
 
             // Chat cá nhân
             var chatSnaps = await _firebase.Child("chats").OnceAsync<Chat>();
+            //_allPersonalChats = chatSnaps
+            //    .Select(c => { c.Object.Id = c.Key; return c.Object; })
+            //    .Where(chat => chat.User1 == uid || chat.User2 == uid)
+            //    .ToList();
+            var friendSnaps = await _firebase.Child("friends").OnceAsync<Friend>();
+            var friends = friendSnaps.Select(f => f.Object).ToList();
+
             _allPersonalChats = chatSnaps
                 .Select(c => { c.Object.Id = c.Key; return c.Object; })
-                .Where(chat => chat.User1 == uid || chat.User2 == uid)
+                .Where(chat =>
+                {
+                    var isMe = chat.User1 == uid || chat.User2 == uid;
+                    var otherId = chat.User1 == uid ? chat.User2 : chat.User1;
+                    var isFriend = friends.Any(f =>
+                        f.Status == "accept" &&
+                        ((f.User1 == uid && f.User2 == otherId) || (f.User2 == uid && f.User1 == otherId)));
+                    return isMe && isFriend;
+                })
                 .ToList();
 
             SessionManager.CurrentChats = _allPersonalChats.ToDictionary(c => c.Id);

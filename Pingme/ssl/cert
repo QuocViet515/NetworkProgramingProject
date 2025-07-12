@@ -1,0 +1,6 @@
+Connecting to 127.0.0.1
+depth=1 C=AT, O=ZeroSSL, CN=ZeroSSL ECC Domain Secure Site CA
+verify error:num=20:unable to get local issuer certificate
+verify return:1
+depth=0 CN=23521703-lab5-p21.wuaze.com
+verify return:1

@@ -17,6 +17,7 @@ namespace Pingme.Services
     {
         private readonly ChatService _chatService = new ChatService();
         private readonly FirebaseService _firebaseService = new FirebaseService();
+
         private readonly FirebaseClient _firebaseClient;
         private readonly AESService _aesService;
         private readonly RSAService _rsaService;
@@ -25,31 +26,49 @@ namespace Pingme.Services
 
         public FirebaseFileService()
         {
-            //_firebaseClient = new FirebaseClient("https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/");
+            _aesService = new AESService();
+            _rsaService = new RSAService();
+
+            //var credential = GoogleCredential.FromFile("service-account.json");
+            //_storageClient = StorageClient.Create(credential);
+            try
+            {
+                var credential = GoogleCredential.FromFile("service-account.json");
+
+                Console.WriteLine("[⚙️] Đang tạo StorageClient...");
+                _storageClient = StorageClient.Create(credential);
+                Console.WriteLine("[✅] StorageClient đã tạo thành công!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[❌ FirebaseFileService] Lỗi khi tạo StorageClient: {ex.Message}");
+                Console.WriteLine($"[Chi tiết lỗi] {ex.StackTrace}");
+                throw; // Phải throw để không tạo đối tượng sai
+            }
+
+            // 🔧 Thêm dòng này
+            SessionManager.EnsureValidTokenAsync().Wait(); // Hoặc dùng async nếu bạn refactor được constructor
+
             _firebaseClient = new FirebaseClient(
                 "https://pingmeapp-1691-1703-1784-default-rtdb.asia-southeast1.firebasedatabase.app/",
                 new FirebaseOptions
                 {
                     AuthTokenAsyncFactory = () => Task.FromResult(SessionManager.IdToken)
                 });
-
-            _aesService = new AESService();
-            _rsaService = new RSAService();
-
-            var credential = GoogleCredential.FromFile("service-account.json");
-            _storageClient = StorageClient.Create(credential);
         }
 
         //public async Task UploadEncryptedFileAsync(
         //    string filePath,
+        //    string filePath,
         //    string receiverPublicKeyXml,
         //    string senderId,
         //    string receiverId)
-        public async Task<string> UploadEncryptedFileAsync(
+        public async Task<Message> UploadEncryptedFileAsync(
             string filePath, 
             string receiverPublicKeyXml, 
             string senderId, 
-            string receiverId)
+            string receiverId,
+            string chatId)
         {
             // Tạo AES key và IV
             string aesKeyString = _aesService.GenerateAesKey();
@@ -143,8 +162,10 @@ namespace Pingme.Services
             //        { receiverId, encryptedKeyForReceiver }
             //    }
             //};
-            
-            string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+
+            //string chatRoomId = FirebaseService.GetChatRoomId(senderId, receiverId);
+            // lưu tại messages/chat_{chatRoomId}/{msgId}
+            string chatRoomId = $"chat_{chatId}";
 
             var message = new Message
             {
@@ -186,6 +207,7 @@ namespace Pingme.Services
             //    .Child("messages")
             //    .Child(message.Id)
             //    .PutAsync(data);
+
             await _firebaseClient
                 .Child("messages")
                 .Child(chatRoomId)
@@ -203,7 +225,7 @@ namespace Pingme.Services
 
             System.IO.File.Delete(tempEncryptedPath);
 
-            return fileId; // hoặc return tên file thực nếu Firebase tự sinh tên
+            return message;
         }
         private string ComputeSHA256(byte[] data)
         {
@@ -298,5 +320,73 @@ namespace Pingme.Services
             System.IO.File.Delete(tempPath);
         }
 
+        //public async Task<string> UploadPlainFileAsync(string filePath)
+        //{
+        //    var stream = System.IO.File.OpenRead(filePath);
+        //    var fileName = Path.GetFileName(filePath);
+        //    var storage = StorageClient.Create();
+        //    var objectName = $"files/{Guid.NewGuid()}_{fileName}";
+
+        //    using var client = StorageClient.Create();
+        //    await client.UploadObjectAsync("your-bucket-name", objectName, null, stream);
+        //    return objectName; // hoặc URL nếu muốn
+        //}
+        public async Task<string> UploadPlainFileAsync(string filePath, string chatId, string senderId)
+        //public async Task<string> UploadPlainFileAsync(string filePath)
+        {
+            var stream = System.IO.File.OpenRead(filePath);
+            var fileName = Path.GetFileName(filePath);
+            var objectName = $"files/{Guid.NewGuid()}_{fileName}";
+
+            try
+            {
+                await _storageClient.UploadObjectAsync(_bucketName, objectName, null, stream);
+                var message = new Message
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ChatId = chatId,
+                    SenderId = senderId,
+                    ReceiverId = null,
+                    IsGroup = true,
+                    Type = "file",
+                    FileId = objectName,
+                    FileName = fileName,
+                    SentAt = DateTime.UtcNow
+                };
+
+                //await _firebaseClient
+                //    .Child("messages")
+                //    .Child($"group_{chatId}")
+                //    .Child(message.Id)
+                //    .PutAsync(message);
+            }
+            finally
+            {
+                stream.Dispose();
+            }
+
+            return objectName;
+        }
+
+
+        //public async Task DownloadPlainFileAsync(string objectName, string destinationPath)
+        //{
+        //    using var client = StorageClient.Create();
+        //    using var output = System.IO.File.Create(destinationPath);
+        //    await client.DownloadObjectAsync("your-bucket-name", objectName, output);
+        //}
+        public async Task DownloadPlainFileAsync(string objectName, string destinationPath)
+        {
+            var output = System.IO.File.Create(destinationPath);
+
+            try
+            {
+                await _storageClient.DownloadObjectAsync(_bucketName, objectName, output);
+            }
+            finally
+            {
+                output.Dispose();
+            }
+        }
     }
 }
