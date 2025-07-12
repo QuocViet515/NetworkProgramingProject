@@ -29,7 +29,7 @@ namespace Pingme.Views.Windows
             Closed += CallWindow_Closed;
         }
 
-        private void CallWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void CallWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -41,7 +41,9 @@ namespace Pingme.Views.Windows
                 _videoService.SetLocalAudioEnabled(_micOn);
                 LocalVideoContainer.Visibility = Visibility.Collapsed;
                 LocalAvatar.Visibility = Visibility.Visible;
-
+                var firebase = new FirebaseService();
+                var receiver = await firebase.GetUserByIdAsync(_request.ToUserId);
+                remoteUser.Text = receiver?.FullName ?? "Người nhận";
                 // Avatar người gọi
                 if (!string.IsNullOrEmpty(_request.CallerAvatarUrl))
                     LocalAvatar.Source = new BitmapImage(new Uri(_request.CallerAvatarUrl));

@@ -28,7 +28,8 @@
                     <EllipseGeometry Center="80,80" RadiusX="80" RadiusY="80"/>
                 </Image.Clip>
             </Image>
-            <TextBlock Text="Anh Tú"
+            <TextBlock x:Name="remoteUser"
+                Text="Người Nhận"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Black"
@@ -49,7 +50,7 @@
                     <EllipseGeometry Center="80,80" RadiusX="80" RadiusY="80"/>
                 </Image.Clip>
             </Image>
-            <TextBlock Text="Quốc Việt"
+            <TextBlock Text="Bạn"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Black"
