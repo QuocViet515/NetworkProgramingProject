@@ -20,5 +20,7 @@ namespace Pingme.Models
         public string ReceiverAvatarUrl { get; set; }
         public string Type { get; set; }
         public string PushId { get; set; }
+        public string ChatId { get; set; }
+        public bool IsGroup { get; set; }
     }
 }

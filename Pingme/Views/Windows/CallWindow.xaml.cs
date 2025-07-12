@@ -135,11 +135,21 @@ namespace Pingme.Views.Windows
                 );
             }
 
-            await firebase.SendCallSummaryMessageAsync(
+            //await firebase.SendCallSummaryMessageAsync(
+            //    _request.FromUserId,
+            //    _request.ToUserId,
+            //    callType,
+            //    (int)callDuration,
+            //    DateTime.UtcNow
+            //);
+            await firebase.SaveCallLogMessageAsync(
                 _request.FromUserId,
                 _request.ToUserId,
+                _request.ChatId,
+                _request.IsGroup,
                 callType,
                 (int)callDuration,
+                _callStartTime,
                 DateTime.UtcNow
             );
 
