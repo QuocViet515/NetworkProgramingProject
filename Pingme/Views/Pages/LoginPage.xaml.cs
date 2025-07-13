@@ -235,7 +235,7 @@ namespace Pingme.Views.Pages
                 //log kiem tra
                 Console.WriteLine(">>> LoginSuccessPanel is now visible!");
 
-                LoginSuccessText.Text = "🎉 Login successful! Go to profile page after 5 seconds....";
+                LoginSuccessText.Text = "🎉 Login successful! Go to profile page after 3 seconds....";
                 //LoginSuccessText.Text = "🎉 Login successful! Go to messaging page after 5 seconds...";
 
                 int countdown = 3;

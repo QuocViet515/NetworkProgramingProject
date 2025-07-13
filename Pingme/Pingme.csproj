@@ -488,6 +488,12 @@
     <Compile Include="Views\Windows\incomingvideocall.xaml.cs">
       <DependentUpon>incomingvideocall.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\InviteFriendToGroupWindow.xaml.cs">
+      <DependentUpon>InviteFriendToGroupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\KickMemberDialog.xaml.cs">
+      <DependentUpon>KickMemberDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\UserDetailDialog.xaml.cs">
       <DependentUpon>UserDetailDialog.xaml</DependentUpon>
     </Compile>
@@ -693,6 +699,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\incomingvideocall.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\InviteFriendToGroupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\KickMemberDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

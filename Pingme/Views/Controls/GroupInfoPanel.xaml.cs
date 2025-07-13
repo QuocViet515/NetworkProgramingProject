@@ -9,6 +9,7 @@ using Pingme.Models;
 using Pingme.Services;
 using Pingme.ViewModels;
 using System.Collections.ObjectModel;
+using Pingme.Views.Dialogs;
 
 namespace Pingme.Views.Controls
 {
@@ -173,20 +174,146 @@ namespace Pingme.Views.Controls
         {
             var stack = new StackPanel();
 
+            //stack.Children.Add(new Border
+            //{
+            //    Background = Brushes.LightGray,
+            //    CornerRadius = new CornerRadius(10),
+            //    Padding = new Thickness(10),
+            //    Margin = new Thickness(0, 0, 0, 10),
+            //    Child = new TextBlock
+            //    {
+            //        Text = "Thành viên",
+            //        FontWeight = FontWeights.Bold,
+            //        FontSize = 14,
+            //        HorizontalAlignment = HorizontalAlignment.Center
+            //    }
+            //});
             stack.Children.Add(new Border
             {
                 Background = Brushes.LightGray,
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(10),
                 Margin = new Thickness(0, 0, 0, 10),
-                Child = new TextBlock
+                Child = new StackPanel
                 {
-                    Text = "Thành viên",
-                    FontWeight = FontWeights.Bold,
-                    FontSize = 14,
-                    HorizontalAlignment = HorizontalAlignment.Center
+                    Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = "Thành viên",
+                            FontWeight = FontWeights.Bold,
+                            FontSize = 14,
+                            VerticalAlignment = VerticalAlignment.Center
+                        },
+                        //new Button
+                        //{
+                        //    Content = new TextBlock
+                        //    {
+                        //        Text = "⋮",
+                        //        FontSize = 18,
+                        //        Foreground = Brushes.Black,
+                        //        HorizontalAlignment = HorizontalAlignment.Center,
+                        //        VerticalAlignment = VerticalAlignment.Center
+                        //    },
+                        //    Width = 30,
+                        //    Height = 30,
+                        //    Background = Brushes.Transparent,
+                        //    BorderBrush = Brushes.Gray,
+                        //    BorderThickness = new Thickness(1),
+                        //    Cursor = System.Windows.Input.Cursors.Hand,
+                        //    Margin = new Thickness(10, 0, 0, 0),
+                        //    Padding = new Thickness(0),
+                        //    Tag = "MenuButton",
+                        //    HorizontalAlignment = HorizontalAlignment.Center,
+                        //    VerticalAlignment = VerticalAlignment.Center,
+                        //    Style = (Style)Application.Current.FindResource("RoundedIconButtonStyle")
+                        //}
+                        new Button
+                        {
+                            Content = new TextBlock
+                            {
+                                Text = "⋮",
+                                FontSize = 18,
+                                Foreground = Brushes.Black,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                VerticalAlignment = VerticalAlignment.Center
+                            },
+                            Width = 30,
+                            Height = 30,
+                            Background = Brushes.White,
+                            BorderBrush = Brushes.Gray,
+                            BorderThickness = new Thickness(1),
+                            Cursor = System.Windows.Input.Cursors.Hand,
+                            Margin = new Thickness(10, 0, 0, 0),
+                            Padding = new Thickness(0),
+                            Tag = "MenuButton",
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center
+                        }
+
+                    }
                 }
             });
+
+            //var plusButton = ((stack.Children[0] as Border).Child as StackPanel).Children[1] as Button;
+            //plusButton.Click += (s, e) =>
+            //{
+            //    var inviteWindow = new InviteFriendToGroupWindow(SelectedChatId);
+            //    inviteWindow.ShowDialog();
+            //};
+
+            var menuButton = ((stack.Children[0] as Border).Child as StackPanel).Children[1] as Button;
+            menuButton.Click += (s, e) =>
+            {
+                var contextMenu = new ContextMenu
+                {
+                    Background = Brushes.White,
+                    BorderThickness = new Thickness(1),
+                    BorderBrush = Brushes.LightGray,
+                    Padding = new Thickness(8),
+                    HasDropShadow = true
+                };
+
+                // ➕ Mời thành viên
+                var inviteItem = CreateStyledMenuItem("➕ Mời thành viên", "#4CAF50", async () =>
+                {
+                    var inviteWindow = new InviteFriendToGroupWindow(SelectedChatId);
+                    inviteWindow.ShowDialog();
+                });
+                contextMenu.Items.Add(inviteItem);
+
+                // 🚪 Rời nhóm
+                var leaveItem = CreateStyledMenuItem("🚪 Rời nhóm", "#f44336", async () =>
+                {
+                    var result = MessageBox.Show("Bạn có chắc muốn rời nhóm không?", "Xác nhận", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var firebase = new FirebaseService();
+                        await firebase.RemoveUserFromGroupAsync(SelectedChatId, SessionManager.UID);
+                        MessageBox.Show("✅ Bạn đã rời khỏi nhóm.");
+                    }
+                });
+                contextMenu.Items.Add(leaveItem);
+
+                // ❌ Xóa thành viên (chỉ admin)
+                if (SessionManager.CurrentGroups.TryGetValue(SelectedChatId, out var currentGroup)
+                    && currentGroup.Admin != null
+                    && currentGroup.Admin.Contains(SessionManager.UID))
+                {
+                    var kickItem = CreateStyledMenuItem("❌ Xóa thành viên", "#2196F3", () =>
+                    {
+                        var kickDialog = new KickMemberDialog(SelectedChatId);
+                        kickDialog.ShowDialog();
+                    });
+                    contextMenu.Items.Add(kickItem);
+                }
+
+                // Gán menu
+                contextMenu.PlacementTarget = menuButton;
+                contextMenu.IsOpen = true;
+            };
 
             if (SessionManager.CurrentGroups.TryGetValue(SelectedChatId, out var group))
             {
@@ -240,6 +367,22 @@ namespace Pingme.Views.Controls
 
             InfoContent.Content = searchPanel;
         }
+        private MenuItem CreateStyledMenuItem(string text, string colorHex, Action action)
+        {
+            var item = new MenuItem
+            {
+                Header = text,
+                Background = (SolidColorBrush)new BrushConverter().ConvertFromString(colorHex),
+                Foreground = Brushes.White,
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Padding = new Thickness(8, 4, 8, 4),
+                Margin = new Thickness(0, 4, 0, 4),
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
 
+            item.Click += (s, e) => action?.Invoke();
+            return item;
+        }
     }
 }

@@ -189,6 +189,54 @@ namespace Pingme.Services
                 return null;
             }
         }
+        public async Task InviteUserToGroupAsync(string groupId, string userId)
+        {
+            // ✅ Cập nhật danh sách thành viên
+            var group = await GetGroupByIdAsync(groupId);
+            if (group == null) throw new Exception("Không tìm thấy nhóm.");
+
+            if (group.Members == null)
+                group.Members = new List<string>();
+
+            if (!group.Members.Contains(userId))
+            {
+                group.Members.Add(userId);
+                await _client.Child("chatGroups").Child(groupId).PutAsync(group);
+            }
+
+            // ✅ Tạo thông báo mời vào nhóm
+            var groupName = group.Name ?? "Nhóm";
+            var groupAvatar = group.AvatarUrl ?? "";
+
+            var noti = new Notification
+            {
+                Id = Guid.NewGuid().ToString(),
+                ReceiverId = userId,
+                Type = "added_to_group", // ❗ Phải trùng với các case trong NotificationControl
+                Data = new Dictionary<string, string>
+        {
+            { "groupId", groupId },
+            { "groupName", groupName },
+            { "groupAvatar", groupAvatar }
+        },
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await AddNotificationAsync(noti);
+        }
+
+        public async Task RemoveUserFromGroupAsync(string groupId, string userId)
+        {
+            var group = await GetGroupByIdAsync(groupId);
+            if (group?.Members == null) return;
+
+            if (group.Members.Contains(userId))
+            {
+                group.Members.Remove(userId);
+                await _client.Child("chatGroups").Child(groupId).PutAsync(group);
+            }
+        }
+
 
         // ---------- MESSAGE ----------
         public async Task<List<Message>> GetAllMessagesAsync()

@@ -163,7 +163,7 @@ namespace Pingme.Views.Pages
                 // Hiện panel thông báo
 
                 SuccessMessagePanel.Visibility = Visibility.Visible;
-                SuccessMessageText.Text = $"🎉 Đăng ký thành công! Bạn sẽ được chuyển về trang đăng nhập sau 10 giây...";
+                SuccessMessageText.Text = $"🎉 Đăng ký thành công! Bạn sẽ được chuyển về trang đăng nhập sau 5 giây...";
 
                 // Bắt đầu đếm ngược
                 int countdown = 5;

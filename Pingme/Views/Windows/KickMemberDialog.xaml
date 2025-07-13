@@ -1,0 +1,27 @@
+﻿<Window x:Class="Pingme.Views.Dialogs.KickMemberDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Xóa thành viên khỏi nhóm" Height="500" Width="400"
+        WindowStartupLocation="CenterScreen"
+        Background="#FAFAFA" ResizeMode="NoResize">
+
+    <Border CornerRadius="12" BorderBrush="#DDD" BorderThickness="1" Margin="10" Background="White">
+        <DockPanel Margin="10">
+
+            <!-- Header -->
+            <StackPanel DockPanel.Dock="Top" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                    <Image x:Name="GroupAvatar" Width="48" Height="48" Margin="0,0,10,0" ClipToBounds="True" Stretch="UniformToFill" />
+                    <TextBlock x:Name="GroupNameText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="Chọn thành viên để xóa khỏi nhóm" FontSize="14" Foreground="Gray" HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Danh sách thành viên -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="MemberListPanel" Margin="0,10,0,0"/>
+            </ScrollViewer>
+
+        </DockPanel>
+    </Border>
+</Window>
