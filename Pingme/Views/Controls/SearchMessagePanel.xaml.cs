@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Firebase.Database.Query;
+using Pingme.Services;
 
 namespace Pingme.Views.Controls
 {
@@ -25,12 +26,44 @@ namespace Pingme.Views.Controls
         private ObservableCollection<Message> allMessages = new ObservableCollection<Message>();
         public event Action<Message> MessageClicked;
 
+        private readonly AESService _aesService = new AESService();
+        private readonly RSAService _rsaService = new RSAService();
+
         public ObservableCollection<Message> AllMessages
         {
             get => allMessages;
             set
             {
                 allMessages = value;
+
+                // Gán msg.Content tuỳ theo loại chat
+                foreach (var msg in allMessages)
+                {
+                    if (msg.IsGroup)
+                    {
+                        msg.Content = msg.RawText;
+                    }
+                    else
+                    {
+                        // Mặc định nếu không giải mã được
+                        msg.Content = "[Không thể giải mã]";
+                        msg.Plaintext = "[Không thể giải mã]";
+
+                        if (msg.SessionKeyEncrypted != null &&
+                            msg.SessionKeyEncrypted.TryGetValue(SessionManager.UID, out string encryptedKey))
+                        {
+                            string aesKey = _rsaService.Decrypt(encryptedKey, SessionManager.UID);
+                            if (!string.IsNullOrEmpty(aesKey))
+                            {
+                                var (plain, isValid) = _aesService.DecryptMessageWithHashCheck(msg.Ciphertext, aesKey, msg.IV, msg.Tag, msg.Hash);
+                                string finalContent = isValid ? plain : "[Sai hash – nội dung đã bị thay đổi]";
+                                msg.Plaintext = finalContent;
+                                msg.Content = finalContent;
+                            }
+                        }
+                    }
+                }
+
 
                 // Cập nhật SenderName cho mỗi tin nhắn
                 _ = Task.Run(async () =>
@@ -92,7 +125,8 @@ namespace Pingme.Views.Controls
                 return;
 
             var results = AllMessages
-                .Where(m => m.Content?.ToLower().Contains(keyword) == true)
+                //.Where(m => m.Content?.ToLower().Contains(keyword) == true)
+                .Where(m => !string.IsNullOrEmpty(m.Content) && m.Content.ToLower().Contains(keyword))
                 .ToList();
 
             if (results.Count == 0)

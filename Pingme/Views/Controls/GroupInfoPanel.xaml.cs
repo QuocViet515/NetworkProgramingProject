@@ -60,6 +60,8 @@ namespace Pingme.Views.Controls
             }
 
             request.PushId = pushId;
+            request.ChatId = SelectedChatId;     // ✅ Gán đúng ChatId đang mở
+            request.IsGroup = IsGroupChat;       // ✅ Gán kiểu nhóm/hay 1-1
             //MessageBox.Show("pushId: " + request.PushId);
             await firebaseService.SendCallStatusMessageAsync(
                 request.FromUserId,
@@ -105,6 +107,8 @@ namespace Pingme.Views.Controls
             }
 
             request.PushId = pushId;
+            request.ChatId = SelectedChatId;     // ✅ Gán đúng ChatId đang mở
+            request.IsGroup = IsGroupChat;       // ✅ Gán kiểu nhóm/hay 1-1
             //MessageBox.Show ("pushId: " + pushId);
             await firebaseService.SendCallStatusMessageAsync(
                 request.FromUserId,
@@ -117,10 +121,6 @@ namespace Pingme.Views.Controls
             var waitingWindow = new WaitingCallWindow(request);
             waitingWindow.Show();
         }
-
-
-
-
 
         private void UserInfoButton_Click(object sender, RoutedEventArgs e)
         {
