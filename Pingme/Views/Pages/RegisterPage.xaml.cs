@@ -166,7 +166,7 @@ namespace Pingme.Views.Pages
                 SuccessMessageText.Text = $"🎉 Đăng ký thành công! Bạn sẽ được chuyển về trang đăng nhập sau 10 giây...";
 
                 // Bắt đầu đếm ngược
-                int countdown = 10;
+                int countdown = 5;
                 var timer = new System.Windows.Threading.DispatcherTimer();
                 timer.Interval = TimeSpan.FromSeconds(1);
                 timer.Tick += (s2, e2) =>

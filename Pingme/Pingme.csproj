@@ -479,6 +479,9 @@
     <Compile Include="Views\Windows\GroupDetailDialog.xaml.cs">
       <DependentUpon>GroupDetailDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Windows\ImageViewerWindow.xaml.cs">
+      <DependentUpon>ImageViewerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\IncomingCallWindow.xaml.cs">
       <DependentUpon>IncomingCallWindow.xaml</DependentUpon>
     </Compile>
@@ -490,6 +493,9 @@
     </Compile>
     <Compile Include="Views\Windows\videoCallWindows.xaml.cs">
       <DependentUpon>videoCallWindows.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Windows\VideoViewerWindow.xaml.cs">
+      <DependentUpon>VideoViewerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\WaitingCallWindow.xaml.cs">
       <DependentUpon>WaitingCallWindow.xaml</DependentUpon>
@@ -678,6 +684,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Windows\ImageViewerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\IncomingCallWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -691,6 +701,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\videoCallWindows.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Windows\VideoViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

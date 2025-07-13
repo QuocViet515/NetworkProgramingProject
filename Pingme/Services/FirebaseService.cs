@@ -250,6 +250,24 @@ namespace Pingme.Services
         public Task AddFileAsync(File file) =>
             _client.Child("files").Child(file.Id).PutAsync(file);
 
+        public async Task<FileMetadata> GetFileMetadataAsync(string fileId)
+        {
+            try
+            {
+                var metadata = await _client
+                    .Child("file_metadata")
+                    .Child(fileId)
+                    .OnceSingleAsync<FileMetadata>();
+
+                return metadata;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Không lấy được metadata của file {fileId}: {ex.Message}");
+                return null;
+            }
+        }
+
         // ---------- NOTIFICATION ----------
         //public Task AddNotificationAsync(Notification notification) =>
         //    _client.Child("notifications").Child(notification.Id).PutAsync(notification);
@@ -589,11 +607,6 @@ namespace Pingme.Services
                 return null;
             }
         }
-
-
-
-
     }
-
 }
 

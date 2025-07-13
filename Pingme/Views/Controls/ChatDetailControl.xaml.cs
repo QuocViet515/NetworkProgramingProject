@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Pingme.Views.Pages;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Pingme.Views.Controls
 {
@@ -23,7 +24,7 @@ namespace Pingme.Views.Controls
         private FirebaseClient firebase;
         private readonly AESService _aesService = new AESService();
         private readonly RSAService _rsaService = new RSAService();
-
+        private const string FirebaseStorageBucket = "pingmeapp-1691-1703-1784.firebasestorage.app";
         public User other { get; private set; }
         public string otherId => other?.Id;
 
@@ -74,9 +75,18 @@ namespace Pingme.Views.Controls
             //    .Child("messages")
             //    .Child(currentChatId)
             //    .OnceAsync<Message>();
+            //var sortedMessages = messages
+            //    .Select(m => m.Object)
+            //    .Where(m => m.ChatId == currentChatId)
+            //    .OrderBy(m => m.SentAt)
+            //    .ToList();
             var sortedMessages = messages
-                .Select(m => m.Object)
-                .Where(m => m.ChatId == currentChatId)
+                .Select(m =>
+                {
+                    m.Object.Id = m.Key;
+                    m.Object.ChatId = currentChatId; // GÁN LẠI CHAT ID ĐÃ MẤT
+                    return m.Object;
+                })
                 .OrderBy(m => m.SentAt)
                 .ToList();
             CurrentMessages = sortedMessages;
@@ -110,35 +120,48 @@ namespace Pingme.Views.Controls
 
                 //if (msg.ChatId != currentChatId) continue;
 
+                //if (msg.Type == "file" && !string.IsNullOrEmpty(msg.FileId))
+                //{
+                //    // Tạo nút tải file
+                //    var button = new Button
+                //    {
+                //        Content = $"📥 Tải xuống: {msg.FileName}",
+                //        Tag = msg.FileId,
+                //        Margin = new Thickness(5),
+                //        Padding = new Thickness(10)
+                //    };
+                //    button.Click += async (s, e) =>
+                //    {
+                //        var dialog = new SaveFileDialog { FileName = msg.FileName };
+                //        if (dialog.ShowDialog() == true)
+                //        {
+                //            try
+                //            {
+                //                string privateKeyPath = KeyManager.GetPrivateKeyPath(SessionManager.UID);
+                //                await new FirebaseFileService().DownloadAndDecryptFileAsync(msg.FileId, privateKeyPath, dialog.FileName);
+                //                MessageBox.Show("✅ Tải và giải mã thành công!");
+                //            }
+                //            catch (Exception ex)
+                //            {
+                //                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                //            }
+                //        }
+                //    };
+
+                //    ChatPanel.Children.Add(button);
+                //}
                 if (msg.Type == "file" && !string.IsNullOrEmpty(msg.FileId))
                 {
-                    // Tạo nút tải file
-                    var button = new Button
-                    {
-                        Content = $"📥 Tải xuống: {msg.FileName}",
-                        Tag = msg.FileId,
-                        Margin = new Thickness(5),
-                        Padding = new Thickness(10)
-                    };
-                    button.Click += async (s, e) =>
-                    {
-                        var dialog = new SaveFileDialog { FileName = msg.FileName };
-                        if (dialog.ShowDialog() == true)
-                        {
-                            try
-                            {
-                                string privateKeyPath = KeyManager.GetPrivateKeyPath(SessionManager.UID);
-                                await new FirebaseFileService().DownloadAndDecryptFileAsync(msg.FileId, privateKeyPath, dialog.FileName);
-                                MessageBox.Show("✅ Tải và giải mã thành công!");
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("❌ Lỗi: " + ex.Message);
-                            }
-                        }
-                    };
+                    FrameworkElement element = CreateFileElement(msg);
 
-                    ChatPanel.Children.Add(button);
+                    if (msg.SenderId == SessionManager.UID)
+                        ChatPanel.Children.Add(new OutgoingMessageControl(element));
+                    else
+                        ChatPanel.Children.Add(new IncomingMessageControl(element));
+
+                    await Task.Delay(100);
+                    ScrollToBottom();
+                    continue;
                 }
                 else
                 {
@@ -618,31 +641,34 @@ namespace Pingme.Views.Controls
                     //ChatPanel.Children.Add(button);
                     //ScrollToBottom();
 
-                    var button = new Button
-                    {
-                        Content = $"📥 Tải xuống: {sentMsg.FileName}",
-                        Tag = sentMsg.FileId,
-                        Margin = new Thickness(5),
-                        Padding = new Thickness(10)
-                    };
-                    button.Click += async (s, args) =>
-                    {
-                        var dialog = new SaveFileDialog { FileName = sentMsg.FileName };
-                        if (dialog.ShowDialog() == true)
-                        {
-                            try
-                            {
-                                string privateKeyPath = KeyManager.GetPrivateKeyPath(senderId);
-                                await new FirebaseFileService().DownloadAndDecryptFileAsync(sentMsg.FileId, privateKeyPath, dialog.FileName);
-                                MessageBox.Show("✅ Tải và giải mã thành công!");
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("❌ Lỗi: " + ex.Message);
-                            }
-                        }
-                    };
-                    ChatPanel.Children.Add(button);
+                    //var button = new Button
+                    //{
+                    //    Content = $"📥 Tải xuống: {sentMsg.FileName}",
+                    //    Tag = sentMsg.FileId,
+                    //    Margin = new Thickness(5),
+                    //    Padding = new Thickness(10)
+                    //};
+                    //button.Click += async (s, args) =>
+                    //{
+                    //    var dialog = new SaveFileDialog { FileName = sentMsg.FileName };
+                    //    if (dialog.ShowDialog() == true)
+                    //    {
+                    //        try
+                    //        {
+                    //            string privateKeyPath = KeyManager.GetPrivateKeyPath(senderId);
+                    //            await new FirebaseFileService().DownloadAndDecryptFileAsync(sentMsg.FileId, privateKeyPath, dialog.FileName);
+                    //            MessageBox.Show("✅ Tải và giải mã thành công!");
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            MessageBox.Show("❌ Lỗi: " + ex.Message);
+                    //        }
+                    //    }
+                    //};
+                    //ChatPanel.Children.Add(button);
+
+                    FrameworkElement element = CreateFileElement(sentMsg);
+                    ChatPanel.Children.Add(new OutgoingMessageControl(element));
                     ScrollToBottom();
                 }
                 catch (Exception ex)
@@ -704,5 +730,186 @@ namespace Pingme.Views.Controls
 
 
         public StackPanel ChatPanelRef => this.ChatPanel;
+        private FrameworkElement CreateFileElement(Message msg)
+        {
+            string fileName = msg.FileName?.ToLower() ?? "";
+            bool isImage = fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png") || fileName.EndsWith(".gif") || fileName.EndsWith(".webp");
+            bool isVideo = fileName.EndsWith(".mp4") || fileName.EndsWith(".webm");
+            bool isEncrypted = !msg.IsGroup;
+
+            if (isImage)
+            {
+                var image = new Image
+                {
+                    Width = 200,
+                    Height = 200,
+                    Margin = new Thickness(5),
+                    Stretch = Stretch.UniformToFill,
+                };
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string path = await new FirebaseFileService().DownloadToTempFileAsync(msg.FileId, isEncrypted);
+
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            image.Source = new BitmapImage(new Uri(path, UriKind.Absolute));
+
+                            image.MouseLeftButtonUp += (s, e) =>
+                            {
+                                new Pingme.Views.Windows.ImageViewerWindow(path).ShowDialog();
+                            };
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"❌ Không tải được ảnh: {ex.Message}");
+                    }
+                });
+
+                return WrapFileElement(image);
+            }
+            else if (isVideo)
+            {
+                string videoPath = null;
+                MediaElement thumbnail = new MediaElement
+                {
+                    Width = 240,
+                    Height = 160,
+                    LoadedBehavior = MediaState.Manual,
+                    UnloadedBehavior = MediaState.Manual,
+                    Stretch = Stretch.UniformToFill,
+                    Volume = 0,
+                    IsMuted = true
+                };
+
+                Border videoCard = new Border
+                {
+                    Background = Brushes.Black,
+                    BorderBrush = Brushes.Gray,
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(4),
+                    Margin = new Thickness(5),
+                    Child = thumbnail,
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+
+                // Tải video nền (ngầm)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        videoPath = await new FirebaseFileService().DownloadToTempFileAsync(msg.FileId, isEncrypted);
+                        if (!System.IO.File.Exists(videoPath)) throw new FileNotFoundException("Video không tồn tại.", videoPath);
+
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            thumbnail.Source = new Uri(videoPath);
+                            thumbnail.MediaOpened += (s, e) =>
+                            {
+                                thumbnail.Position = TimeSpan.FromSeconds(0.1);
+                                thumbnail.Play();
+                            };
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            videoCard.Child = new TextBlock
+                            {
+                                Text = $"❌ Không tải được video: {ex.Message}",
+                                Foreground = Brushes.Red,
+                                Margin = new Thickness(8)
+                            };
+                        });
+                    }
+                });
+
+                // Khi nhấn vào thì DỪNG lại và mở cửa sổ xem lớn
+                videoCard.MouseLeftButtonUp += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(videoPath) && System.IO.File.Exists(videoPath))
+                    {
+                        thumbnail.Stop(); // Dừng phát nhỏ
+                        new Pingme.Views.Windows.VideoViewerWindow(videoPath).ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show("❌ Video chưa được tải hoàn tất!");
+                    }
+                };
+
+                return WrapFileElement(videoCard);
+            }
+            else
+            {
+                var button = new Button
+                {
+                    Content = $"📥 Tải xuống: {msg.FileName}",
+                    Margin = new Thickness(5),
+                    Padding = new Thickness(8, 4, 8, 4),
+                    Background = Brushes.WhiteSmoke,
+                    Foreground = Brushes.Black
+                };
+
+                button.Click += async (s, e) =>
+                {
+                    var dialog = new Microsoft.Win32.SaveFileDialog
+                    {
+                        FileName = msg.FileName
+                    };
+
+                    if (dialog.ShowDialog() == true)
+                    {
+                        try
+                        {
+                            if (isEncrypted)
+                            {
+                                string privateKeyPath = KeyManager.GetPrivateKeyPath(SessionManager.UID);
+                                await new FirebaseFileService().DownloadAndDecryptFileAsync(msg.FileId, privateKeyPath, dialog.FileName);
+                            }
+                            else
+                            {
+                                // Nếu là nhóm thì tải trực tiếp theo FileId
+                                if (!msg.IsGroup)
+                                {
+                                    var metadata = await new FirebaseService().GetFileMetadataAsync(msg.FileId);
+                                    await new FirebaseFileService().DownloadPlainFileAsync(metadata.storagePath, dialog.FileName);
+                                }
+                                else
+                                {
+                                    await new FirebaseFileService().DownloadPlainFileAsync(msg.FileId, dialog.FileName);
+                                }
+                            }
+
+                            MessageBox.Show("✅ Tải file thành công!");
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("❌ Lỗi khi tải file: " + ex.Message);
+                        }
+                    }
+                };
+
+                return WrapFileElement(button);
+            }
+        }
+        private Border WrapFileElement(UIElement child)
+        {
+            return new Border
+            {
+                BorderBrush = Brushes.Gray,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Background = Brushes.White,
+                Padding = new Thickness(6),
+                Margin = new Thickness(4),
+                Child = child
+            };
+        }
     }
 }

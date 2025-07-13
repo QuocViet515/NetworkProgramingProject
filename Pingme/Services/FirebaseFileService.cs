@@ -7,6 +7,7 @@ using Pingme.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -386,6 +387,101 @@ namespace Pingme.Services
             finally
             {
                 output.Dispose();
+            }
+        }
+        //public async Task<string> DownloadToTempFileAsync(string fileId, bool isEncrypted)
+        //{
+        //    string tempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        //    if (isEncrypted)
+        //    {
+        //        // 👇 Sửa lại: dùng hàm giải mã đúng
+        //        string privateKeyPath = KeyManager.GetPrivateKeyPath(SessionManager.UID);
+        //        await DownloadAndDecryptFileAsync(fileId, privateKeyPath, tempPath);
+        //    }
+        //    else
+        //    {
+        //        await DownloadPlainFileAsync(fileId, tempPath);
+        //    }
+
+        //    return tempPath;
+        //}
+        public async Task<string> DownloadToTempFileAsync(string fileId, bool isEncrypted)
+        {
+            try
+            {
+                string extension = ".dat"; // fallback
+
+                // Nếu là file ảnh/video/group thì có thể dùng fileName để lấy đuôi
+                if (!isEncrypted)
+                {
+                    //// 🔍 Lấy đuôi từ tên file gốc
+                    //var messages = await _firebaseClient
+                    //    .Child("messages")
+                    //    .OnceAsync<Message>();
+
+                    //var message = messages
+                    //    .Select(x => x.Object)
+                    //    .FirstOrDefault(m => m.FileId == fileId);
+
+                    //if (message != null && !string.IsNullOrEmpty(message.FileName))
+                    //    extension = Path.GetExtension(message.FileName);
+
+                    // 🔍 Dò tất cả nhóm để tìm fileId trong messages/group_{groupId}
+                    var groups = await _firebaseClient.Child("chatGroups").OnceAsync<ChatGroup>();
+                    foreach (var group in groups)
+                    {
+                        string groupId = group.Key;
+                        var groupMessages = await _firebaseClient
+                            .Child($"messages/group_{groupId}")
+                            .OnceAsync<Message>();
+
+                        var message = groupMessages
+                            .FirstOrDefault(m => m.Object.FileId == fileId);
+
+                        if (message != null && !string.IsNullOrEmpty(message.Object.FileName))
+                        {
+                            extension = Path.GetExtension(message.Object.FileName);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    // 🔍 Lấy từ metadata nếu mã hóa
+                    var metadata = await _firebaseClient
+                        .Child("file_metadata")
+                        .Child(fileId)
+                        .OnceSingleAsync<FileMetadata>();
+
+                    if (metadata != null && !string.IsNullOrEmpty(metadata.fileName))
+                        extension = Path.GetExtension(metadata.fileName);
+                }
+
+                if (string.IsNullOrWhiteSpace(extension))
+                    extension = ".bin"; // fallback
+
+                string tempPath = Path.Combine(Path.GetTempPath(), $"tmp_{Guid.NewGuid()}{extension}");
+                Console.WriteLine($"[📦] Tải file tạm vào: {tempPath}");
+
+                if (isEncrypted)
+                {
+                    string privateKeyPath = KeyManager.GetPrivateKeyPath(SessionManager.UID);
+                    await DownloadAndDecryptFileAsync(fileId, privateKeyPath, tempPath);
+                }
+                else
+                {
+                    await DownloadPlainFileAsync(fileId, tempPath);
+                }
+
+                Console.WriteLine($"[✅] File đã tải xong: {tempPath} ({(System.IO.File.Exists(tempPath) ? "có tồn tại" : "KHÔNG tồn tại")})");
+
+                return tempPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[❌] Lỗi khi tải file tạm: {ex.Message}");
+                throw;
             }
         }
     }

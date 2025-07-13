@@ -1,0 +1,28 @@
+﻿<Window x:Class="Pingme.Views.Windows.VideoViewerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Xem video"
+        Width="640" Height="480">
+    <Grid>
+        <MediaElement x:Name="VideoPlayer"
+                      LoadedBehavior="Manual"
+                      UnloadedBehavior="Stop"
+                      Stretch="Uniform"
+                      MediaOpened="VideoPlayer_MediaOpened"
+                      MediaFailed="VideoPlayer_MediaFailed"
+                      Margin="0,0,0,50"/>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,10">
+            <Button Content="▶ Play"
+                    Width="80"
+                    Margin="5"
+                    Click="Play_Click"/>
+            <Button Content="💾 Tải video"
+                    Width="100"
+                    Margin="5"
+                    Click="Download_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

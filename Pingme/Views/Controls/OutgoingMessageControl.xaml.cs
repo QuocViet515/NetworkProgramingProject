@@ -25,5 +25,13 @@ namespace Pingme.Views.Controls
             InitializeComponent();
             MessageTextBlock.Text = text;
         }
+        public OutgoingMessageControl(FrameworkElement element)
+        {
+            //InitializeComponent();
+            //MessageContainer.Children.Add(element);
+            InitializeComponent();
+            MessageTextBlock.Visibility = Visibility.Collapsed;
+            MessageContainer.Children.Add(element);
+        }
     }
 }

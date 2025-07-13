@@ -238,7 +238,7 @@ namespace Pingme.Views.Pages
                 LoginSuccessText.Text = "🎉 Login successful! Go to profile page after 5 seconds....";
                 //LoginSuccessText.Text = "🎉 Login successful! Go to messaging page after 5 seconds...";
 
-                int countdown = 5;
+                int countdown = 3;
                 loginRedirectTimer = new DispatcherTimer();
                 loginRedirectTimer.Interval = TimeSpan.FromSeconds(1);
                 loginRedirectTimer.Tick += (s, ev) =>

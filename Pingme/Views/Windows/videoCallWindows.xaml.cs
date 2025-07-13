@@ -171,16 +171,26 @@ namespace Pingme.Views.Windows
                     "ended",
                     DateTime.UtcNow
                 );
+                await firebase.SaveCallLogMessageAsync(
+                    _request.FromUserId,
+                    _request.ToUserId,
+                    _request.ChatId,
+                    _request.IsGroup,
+                    callType,
+                    (int)callDuration,
+                    _callStartTime,
+                    DateTime.UtcNow
+                );
             }
 
             // Gửi thống kê cuộc gọi
-            await firebase.SendCallSummaryMessageAsync(
-                _request.FromUserId,
-                _request.ToUserId,
-                callType,
-                (int)callDuration,
-                DateTime.UtcNow
-            );
+            //await firebase.SendCallSummaryMessageAsync(
+            //    _request.FromUserId,
+            //    _request.ToUserId,
+            //    callType,
+            //    (int)callDuration,
+            //    DateTime.UtcNow
+            //);
 
             _videoService.LeaveChannel();
             this.Close();

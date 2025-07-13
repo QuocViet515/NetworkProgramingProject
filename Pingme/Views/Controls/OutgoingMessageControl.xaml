@@ -5,10 +5,12 @@
              Height="Auto" Width="Auto">
     <Border Background="LightBlue" Padding="10" Margin="5"
             CornerRadius="10" HorizontalAlignment="Right">
-        <Emoji:TextBlock x:Name="MessageTextBlock"
-                         TextWrapping="Wrap"
-                         FontSize="14"
-                         FontFamily="Segoe UI Emoji"
-                         Foreground="Black" />
+        <StackPanel x:Name="MessageContainer">
+            <Emoji:TextBlock x:Name="MessageTextBlock"
+                             TextWrapping="Wrap"
+                             FontSize="14"
+                             FontFamily="Segoe UI Emoji"
+                             Foreground="Black" />
+        </StackPanel>
     </Border>
 </UserControl>
